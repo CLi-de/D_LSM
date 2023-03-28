@@ -26,21 +26,21 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     # print('start Xgboost evaluation...')
     model = xgboost.XGBRegressor().fit(x_train, y_train)
 
-    # pred_train = model.predict(x_train)
-    # pred_train[pred_train > .5] = 1
-    # pred_train[pred_train <= .5] = 0
-    # pred_test = model.predict(x_test)
-    # pred_test[pred_test > .5] = 1
-    # pred_test[pred_test <= .5] = 0
+    pred_train = model.predict(x_train)
+    pred_train[pred_train > .5] = 1
+    pred_train[pred_train <= .5] = 0
+    pred_test = model.predict(x_test)
+    pred_test[pred_test > .5] = 1
+    pred_test[pred_test <= .5] = 0
 
     # 训练精度
-    # print('train_Accuracy: %f' % accuracy_score(y_train, pred_train))
-    # # 测试精度
-    # print('test_Accuracy: %f' % accuracy_score(y_test, pred_test))
-    # # pred1 = clf2.predict_proba() # 预测类别概率
-    # cal_measure(pred_test, y_test)
-    # kappa_value = cohen_kappa_score(pred_test, y_test)
-    # print('Cohen_Kappa: %f' % kappa_value)
+    print('train_Accuracy: %f' % accuracy_score(y_train, pred_train))
+    # 测试精度
+    print('test_Accuracy: %f' % accuracy_score(y_test, pred_test))
+    # pred1 = clf2.predict_proba() # 预测类别概率
+    cal_measure(pred_test, y_test)
+    kappa_value = cohen_kappa_score(pred_test, y_test)
+    print('Cohen_Kappa: %f' % kappa_value)
 
     # SHAP
     print('SHAP...')
