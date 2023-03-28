@@ -21,13 +21,13 @@ from util import cal_measure
 from util import pred_LSM
 
 
-def Xgboost_(x_train, y_train, x_test, y_test, f_names):
+def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     """predict and test"""
     print('start Xgboost evaluation...')
     model = xgboost.XGBRegressor().fit(x_train, y_train)
 
-    # pred_train = model.predict(x_train)
-    # pred_test = model.predict(x_test)
+    pred_train = model.predict(x_train)
+    pred_test = model.predict(x_test)
     # # 训练精度
     # print('train_Accuracy: %f' % accuracy_score(y_train, pred_train))
     # # 测试精度
@@ -39,7 +39,6 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names):
 
     # SHAP
     print('SHAP...')
-    # TODO: SHAP for RF
     # SHAP_(model.predict_proba, x_train, x_test, f_names)
     shap.initjs()
     # SHAP demo are using dataframe instead of nparray
@@ -69,7 +68,7 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names):
              }
     plt.yticks(fontsize=10, font=font1)
     plt.xlabel("LIF importance", fontdict=font2)
-    plt.savefig('tmp/bar2.pdf')
+    plt.savefig('tmp/' + savefig_name + '.pdf')
     plt.close()
 
     # shap.plots.force(shap_values[0])
@@ -89,10 +88,25 @@ if __name__ == "__main__":
     n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8')
     n_samples = np.hstack((n_data[1:, :-3], n_data[1:, -1].reshape(-1, 1))).astype(np.float32)
 
-    # 训练集
+    # 样本集 （按时间分三段）
     np.random.shuffle(n_samples)  # shuffle n_samples
-    samples = np.vstack((p_samples[2611:4696, :], n_samples[:1800, :]))
-    x_train, x_test, y_train, y_test = train_test_split(samples[:, :-1], samples[:, -1], test_size=0.2, shuffle=True)
+    samples1 = np.vstack((p_samples[4696:, :], n_samples[:1200, :]))  # 1964-1989 (1420)
+    samples2 = np.vstack((p_samples[2611:4696, :], n_samples[:1800, :]))  # 1990-2007 (2085)
+    samples3 = np.vstack((p_samples[:2611, :], n_samples))  # 2008-2019 (2611)
+
+
+    def Xgboost(samples, filename):
+        x_train, x_test, y_train, y_test = train_test_split(samples[:, :-1], samples[:, -1], test_size=0.2,
+                                                            shuffle=True)
+        Xgboost_(x_train, y_train, x_test, y_test, f_names, filename)
+
+
+    print("1964-1989: evaluating...")
+    Xgboost(samples1, 'bar1')
+    print("1990-2007: evaluating...")
+    Xgboost(samples2, 'bar2')
+    print("2008-2019: evaluating...")
+    Xgboost(samples3, 'bar3')
 
     # # grid features
     # grid_f = np.loadtxt('./data_src/grid_samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
@@ -101,8 +115,6 @@ if __name__ == "__main__":
     # samples_f = samples_f / samples_f.max(axis=0)
 
     # Xgboost-based
-    model_rf = Xgboost_(x_train, y_train, x_test, y_test, f_names)
-
 
     # pred_LSM(model_rf, xy, samples_f, 'RF')
     # print('done RF-based LSM prediction! \n')
