@@ -7,18 +7,20 @@
 
 import numpy as np
 import pandas as pd
+import matplotlib.pyplot as plt
+
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import cohen_kappa_score
 
 import xgboost
+import shap
 
 from util import cal_measure
 from util import pred_LSM
 
 
-import shap
 
 
 def RF_(x_train, y_train, x_test, y_test):
@@ -80,28 +82,33 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names):
     explainer = shap.Explainer(model)
     shap_values = explainer(x_train)
     # shap.plots.bar(shap_values[:100, :, 0])  # shap_values(n_samples, features, _prob)
-    shap.plots.waterfall(shap_values[0])
+    shap.plots.waterfall(shap_values[0], show=False)
+    plt.savefig('tmp/waterfall_HK.pdf')
+    # plt.close()
     # shap.plots.force(shap_values[0])
     # shap.plots.force(shap_values)
     # shap.plots.scatter(shap_values[:, "RM"], color=shap_values)
-    shap.plots.beeswarm(shap_values)
-    shap.plots.bar(shap_values)
+    shap.plots.beeswarm(shap_values, show=False)
+    plt.savefig('tmp/beeswarm.pdf')
+    # plt.close()
+    shap.plots.bar(shap_values, show=False)
+    plt.savefig('tmp/bar.pdf')
+    # plt.close()
     return model
-
 
 
 if __name__ == "__main__":
     """input data"""
     # positive samples
     p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8')
-    f_names = p_data[0, :-3].astype(np.str)
+    f_names = p_data[0, :-3].astype(str)
     p_samples = np.hstack((p_data[1:, :-3], p_data[1:, -1].reshape(-1, 1))).astype(np.float32)
     # negative samples
     n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8')
     n_samples = np.hstack((n_data[1:, :-3], n_data[1:, -1].reshape(-1, 1))).astype(np.float32)
 
     # 训练集
-    samples = np.vstack((p_samples[:2612, :], n_samples))
+    samples = np.vstack((p_samples[:2611, :], n_samples))
     x_train, x_test, y_train, y_test = train_test_split(samples[:, :-1], samples[:, -1], test_size=0.3, shuffle=True)
 
     # np.random.shuffle(samples)
@@ -114,4 +121,4 @@ if __name__ == "__main__":
     # RF-based
     model_rf = Xgboost_(x_train, y_train, x_test, y_test, f_names)
     # pred_LSM(model_rf, xy, samples_f, 'RF')
-    print('done RF-based LSM prediction! \n')
+    # print('done RF-based LSM prediction! \n')
