@@ -28,7 +28,7 @@ metatask_sampling/*.tif
 metatask_sampling/*.xlsx
 
 # src_data_
-.data_src/
+data_src/
 
 # tmp 
 tmp/
