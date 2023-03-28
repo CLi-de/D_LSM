@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from sklearn.ensemble import RandomForestClassifier
+# from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import cohen_kappa_score
@@ -18,6 +18,7 @@ import xgboost
 import shap
 
 from util import cal_measure
+
 from util import pred_LSM
 
 
@@ -25,7 +26,6 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     """predict and test"""
     # print('start Xgboost evaluation...')
     model = xgboost.XGBRegressor().fit(x_train, y_train)
-
     pred_train = model.predict(x_train)
     pred_train[pred_train > .5] = 1
     pred_train[pred_train <= .5] = 0
@@ -124,23 +124,26 @@ if __name__ == "__main__":
     def Xgboost(samples, filename):
         x_train, x_test, y_train, y_test = train_test_split(samples[:, :-1], samples[:, -1], test_size=0.2,
                                                             shuffle=True)
-        Xgboost_(x_train, y_train, x_test, y_test, f_names, filename)
+        return Xgboost_(x_train, y_train, x_test, y_test, f_names, filename)
 
 
     print("1964-1989: evaluating...")
-    Xgboost(samples1, '1')
+    model1 = Xgboost(samples1, '1')  # the model is used for grid unit prediction
     print("1990-2007: evaluating...")
-    Xgboost(samples2, '2')
+    model2 = Xgboost(samples2, '2')
     print("2008-2019: evaluating...")
-    Xgboost(samples3, '3')
+    model3 = Xgboost(samples3, '3')
 
-    # # grid features
-    # grid_f = np.loadtxt('./data_src/grid_samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
-    # samples_f = grid_f[1:, :-2].astype(np.float32)
-    # xy = grid_f[1:, -2:].astype(np.float32)
+    # grid units
+    grid_f = np.loadtxt('./data_src/grid_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
+    grid_samples_f = grid_f[1:, :-2].astype(np.float32)
+    xy = grid_f[1:, -2:].astype(np.float32)
     # samples_f = samples_f / samples_f.max(axis=0)
+    grid_samples_f1 = (grid_samples_f - np.mean(samples1[:, :-1], axis=0)) / np.std(samples1[:, :-1], axis=0)
+    grid_samples_f2 = (grid_samples_f - np.mean(samples2[:, :-1], axis=0)) / np.std(samples2[:, :-1], axis=0)
+    grid_samples_f3 = (grid_samples_f - np.mean(samples3[:, :-1], axis=0)) / np.std(samples3[:, :-1], axis=0)
 
-    # Xgboost-based
-
-    # pred_LSM(model_rf, xy, samples_f, 'RF')
-    # print('done RF-based LSM prediction! \n')
+    pred_LSM(model1, xy, grid_samples_f1, 'Xgboost1')
+    pred_LSM(model2, xy, grid_samples_f2, 'Xgboost2')
+    pred_LSM(model3, xy, grid_samples_f3, 'Xgboost3')
+    print('done RF-based LSM prediction! \n')

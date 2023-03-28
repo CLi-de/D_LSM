@@ -23,9 +23,10 @@ def cal_measure(pred, y_test):
 
 def pred_LSM(trained_model, xy, samples, name):
     """LSM prediction"""
-    pred = trained_model.predict_proba(samples)
-    data = np.hstack((xy, pred))
+    pred = trained_model.predict(samples)
+    data = np.hstack((xy, pred.reshape(-1, 1)))
     data_df = pd.DataFrame(data)
-    writer = pd.ExcelWriter('./tmp/' + name + '_prediction_HK.xlsx')
+    writer = pd.ExcelWriter('./tmp/' + name + '_prediction.xlsx')
     data_df.to_excel(writer, 'page_1', float_format='%.5f')
     writer.close()
+
