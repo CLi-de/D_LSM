@@ -1,0 +1,42 @@
+# root
+/*.xlsx
+/*.xls
+/*.txt
+
+# pycache
+.idea/
+__pycache__/
+
+# checkpoint_dir
+checkpoint_dir/
+
+#figs, tmp
+# figs/
+tmp/
+
+# DAS_logs
+unsupervised_pretraining/model_init/*.npz
+
+# figs
+figs/*.pdf
+
+# models_of_blocks
+models_of_blocks/**/*.npz
+
+# metatask_sampling
+metatask_sampling/*.tif
+metatask_sampling/*.xlsx
+
+# src_data_
+.src_data/
+
+# tmp 
+tmp/
+
+# Unsupervised_Pretraining
+
+# file
+adaption_v2.py
+
+*~
+
