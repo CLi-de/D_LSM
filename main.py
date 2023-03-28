@@ -49,26 +49,34 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
 
     explainer = shap.Explainer(model)
     shap_values = explainer(x_train)
-    # shap.plots.bar(shap_values[:100, :, 0])  # shap_values(n_samples, features, _prob)
+
+    def font_setting(plt, xlabel):
+        font1 = {'family': 'Times New Roman',
+                 'weight': 'normal',
+                 'size': 14,
+                 }
+        font2 = {'family': 'Times New Roman',
+                 'weight': 'normal',
+                 'size': 18,
+                 }
+        plt.yticks(fontsize=10, font=font1)
+        plt.xlabel(xlabel, fontdict=font2)
+
     # shap.plots.waterfall(shap_values[0], show=False)
     # plt.savefig('tmp/waterfall_HK.pdf')
     # plt.close()
-    # shap.plots.beeswarm(shap_values, show=False)
-    # plt.savefig('tmp/beeswarm.pdf')
-    # plt.close()
-    shap.plots.bar(shap_values, max_display=15, show_data=False, show=False)
 
-    font1 = {'family': 'Times New Roman',
-             'weight': 'normal',
-             'size': 10,
-             }
-    font2 = {'family': 'Times New Roman',
-             'weight': 'normal',
-             'size': 14,
-             }
-    plt.yticks(fontsize=10, font=font1)
-    plt.xlabel("LIF importance", fontdict=font2)
-    plt.savefig('tmp/' + savefig_name + '.pdf')
+    shap.plots.beeswarm(shap_values, max_display=15, show=False)
+    font_setting(plt, "impact on model output")
+    plt.tight_layout()  # keep labels within frame
+    plt.savefig('tmp/beeswarm' + savefig_name + '.pdf')
+    plt.close()
+
+    # bar plotting
+    shap.plots.bar(shap_values, max_display=15, show_data=False, show=False)
+    font_setting(plt, "LIF importance")
+    plt.tight_layout()  #
+    plt.savefig('tmp/bar' + savefig_name + '.pdf')
     plt.close()
 
     # shap.plots.force(shap_values[0])
@@ -102,11 +110,11 @@ if __name__ == "__main__":
 
 
     print("1964-1989: evaluating...")
-    Xgboost(samples1, 'bar1')
+    Xgboost(samples1, '1')
     print("1990-2007: evaluating...")
-    Xgboost(samples2, 'bar2')
+    Xgboost(samples2, '2')
     print("2008-2019: evaluating...")
-    Xgboost(samples3, 'bar3')
+    Xgboost(samples3, '3')
 
     # # grid features
     # grid_f = np.loadtxt('./data_src/grid_samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
