@@ -23,12 +23,17 @@ from util import pred_LSM
 
 def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     """predict and test"""
-    print('start Xgboost evaluation...')
+    # print('start Xgboost evaluation...')
     model = xgboost.XGBRegressor().fit(x_train, y_train)
 
-    pred_train = model.predict(x_train)
-    pred_test = model.predict(x_test)
-    # # 训练精度
+    # pred_train = model.predict(x_train)
+    # pred_train[pred_train > .5] = 1
+    # pred_train[pred_train <= .5] = 0
+    # pred_test = model.predict(x_test)
+    # pred_test[pred_test > .5] = 1
+    # pred_test[pred_test <= .5] = 0
+
+    # 训练精度
     # print('train_Accuracy: %f' % accuracy_score(y_train, pred_train))
     # # 测试精度
     # print('test_Accuracy: %f' % accuracy_score(y_test, pred_test))
@@ -62,7 +67,7 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
         plt.yticks(fontsize=10, font=font1)
         plt.xlabel(xlabel, fontdict=font2)
 
-    shap.plots.waterfall(shap_values[0],  max_display=15, show=False)
+    shap.plots.waterfall(shap_values[0], max_display=15, show=False)
     font_setting(plt)
     plt.tight_layout()  # keep labels within frame
     plt.savefig('tmp/waterfall' + savefig_name + '.pdf')
@@ -87,6 +92,12 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     return model
 
 
+def feature_normalization(data):
+    mu = np.mean(data, axis=0)
+    sigma = np.std(data, axis=0)
+    return (data - mu) / sigma
+
+
 if __name__ == "__main__":
     """input data"""
     # positive samples
@@ -103,6 +114,11 @@ if __name__ == "__main__":
     samples1 = np.vstack((p_samples[4696:, :], n_samples[:1200, :]))  # 1964-1989 (1420)
     samples2 = np.vstack((p_samples[2611:4696, :], n_samples[:1800, :]))  # 1990-2007 (2085)
     samples3 = np.vstack((p_samples[:2611, :], n_samples))  # 2008-2019 (2611)
+
+    # 数据标准化
+    samples1 = np.hstack((feature_normalization(samples1[:, :-1]), samples1[:, -1].reshape(-1, 1)))
+    samples2 = np.hstack((feature_normalization(samples2[:, :-1]), samples2[:, -1].reshape(-1, 1)))
+    samples3 = np.hstack((feature_normalization(samples3[:, :-1]), samples3[:, -1].reshape(-1, 1)))
 
 
     def Xgboost(samples, filename):
