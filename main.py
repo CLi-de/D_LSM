@@ -6,8 +6,8 @@
 # @annotation
 
 import numpy as np
+import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
-
 from sklearn.metrics import accuracy_score
 from sklearn.model_selection import train_test_split
 from sklearn.metrics import cohen_kappa_score
@@ -16,6 +16,7 @@ import xgboost
 
 from util import cal_measure
 from util import pred_LSM
+
 
 import shap
 
@@ -49,7 +50,7 @@ def RF_(x_train, y_train, x_test, y_test):
     return model
 
 
-def Xgboost_(x_train, y_train, x_test, y_test):
+def Xgboost_(x_train, y_train, x_test, y_test, f_names):
     """predict and test"""
     print('start RF evaluation...')
     model = xgboost.XGBRegressor().fit(x_train, y_train)
@@ -70,6 +71,12 @@ def Xgboost_(x_train, y_train, x_test, y_test):
     # TODO: SHAP for RF
     # SHAP_(model.predict_proba, x_train, x_test, f_names)
     shap.initjs()
+    # SHAP demo are using dataframe instead of nparray
+    x_train = pd.DataFrame(x_train)  # 将numpy的array数组x_test转为dataframe格式。
+    x_test = pd.DataFrame(x_test)
+    x_train.columns = f_names  # 添加特征名称
+    x_test.columns = f_names
+
     explainer = shap.Explainer(model)
     shap_values = explainer(x_train)
     # shap.plots.bar(shap_values[:100, :, 0])  # shap_values(n_samples, features, _prob)
@@ -105,6 +112,6 @@ if __name__ == "__main__":
     # samples_f = samples_f / samples_f.max(axis=0)
 
     # RF-based
-    model_rf = Xgboost_(x_train, y_train, x_test, y_test)
+    model_rf = Xgboost_(x_train, y_train, x_test, y_test, f_names)
     # pred_LSM(model_rf, xy, samples_f, 'RF')
     print('done RF-based LSM prediction! \n')
