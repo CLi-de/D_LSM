@@ -50,7 +50,7 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     explainer = shap.Explainer(model)
     shap_values = explainer(x_train)
 
-    def font_setting(plt, xlabel):
+    def font_setting(plt, xlabel=None):
         font1 = {'family': 'Times New Roman',
                  'weight': 'normal',
                  'size': 14,
@@ -62,9 +62,11 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
         plt.yticks(fontsize=10, font=font1)
         plt.xlabel(xlabel, fontdict=font2)
 
-    # shap.plots.waterfall(shap_values[0], show=False)
-    # plt.savefig('tmp/waterfall_HK.pdf')
-    # plt.close()
+    shap.plots.waterfall(shap_values[0],  max_display=15, show=False)
+    font_setting(plt)
+    plt.tight_layout()  # keep labels within frame
+    plt.savefig('tmp/waterfall' + savefig_name + '.pdf')
+    plt.close()
 
     shap.plots.beeswarm(shap_values, max_display=15, show=False)
     font_setting(plt, "impact on model output")
@@ -73,7 +75,7 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     plt.close()
 
     # bar plotting
-    shap.plots.bar(shap_values, max_display=15, show_data=False, show=False)
+    shap.plots.bar(shap_values, max_display=15, show=False)
     font_setting(plt, "LIF importance")
     plt.tight_layout()  #
     plt.savefig('tmp/bar' + savefig_name + '.pdf')
