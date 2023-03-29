@@ -18,7 +18,6 @@ import xgboost
 import shap
 
 from util import cal_measure
-
 from util import pred_LSM
 
 
@@ -92,7 +91,7 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
 def feature_normalization(data):
     mu = np.mean(data, axis=0)
     sigma = np.std(data, axis=0)
-    return (data - mu) / sigma
+    return (data - mu) / sigma, mu, sigma
 
 
 if __name__ == "__main__":
@@ -112,10 +111,15 @@ if __name__ == "__main__":
     samples2 = np.vstack((p_samples[2611:4696, :], n_samples[:1800, :]))  # 1990-2007 (2085)
     samples3 = np.vstack((p_samples[:2611, :], n_samples))  # 2008-2019 (2611)
 
-    # 数据标准化
-    samples1 = np.hstack((feature_normalization(samples1[:, :-1]), samples1[:, -1].reshape(-1, 1)))
-    samples2 = np.hstack((feature_normalization(samples2[:, :-1]), samples2[:, -1].reshape(-1, 1)))
-    samples3 = np.hstack((feature_normalization(samples3[:, :-1]), samples3[:, -1].reshape(-1, 1)))
+    # 数据标准化(mean and std are used for grid unit LS prediction)
+    samples1_f, mean1, std1 = feature_normalization(samples1[:, :-1])
+    samples1 = np.hstack((samples1_f, samples1[:, -1].reshape(-1, 1)))
+
+    samples2_f, mean2, std2 = feature_normalization(samples2[:, :-1])
+    samples2 = np.hstack((samples2_f, samples2[:, -1].reshape(-1, 1)))
+
+    samples3_f, mean3, std3 = feature_normalization(samples3[:, :-1])
+    samples3 = np.hstack((samples3_f, samples3[:, -1].reshape(-1, 1)))
 
 
     def Xgboost(samples, filename):
@@ -136,9 +140,9 @@ if __name__ == "__main__":
     grid_samples_f = grid_f[1:, :-2].astype(np.float32)
     xy = grid_f[1:, -2:].astype(np.float32)
     # samples_f = samples_f / samples_f.max(axis=0)
-    grid_samples_f1 = (grid_samples_f - np.mean(samples1[:, :-1], axis=0)) / np.std(samples1[:, :-1], axis=0)
-    grid_samples_f2 = (grid_samples_f - np.mean(samples2[:, :-1], axis=0)) / np.std(samples2[:, :-1], axis=0)
-    grid_samples_f3 = (grid_samples_f - np.mean(samples3[:, :-1], axis=0)) / np.std(samples3[:, :-1], axis=0)
+    grid_samples_f1 = (grid_samples_f - mean1) / std1
+    grid_samples_f2 = (grid_samples_f - mean2) / std2
+    grid_samples_f3 = (grid_samples_f - mean3) / std3
 
     pred_LSM(model1, xy, grid_samples_f1, 'Xgboost1')
     pred_LSM(model2, xy, grid_samples_f2, 'Xgboost2')
