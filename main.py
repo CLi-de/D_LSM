@@ -63,16 +63,11 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
         plt.yticks(fontsize=10, font=font1)
         plt.xlabel(xlabel, fontdict=font2)
 
+    # waterfall ploting
     shap.plots.waterfall(shap_values[0], max_display=15, show=False)
     font_setting(plt)
     plt.tight_layout()  # keep labels within frame
     plt.savefig('tmp/waterfall' + savefig_name + '.pdf')
-    plt.close()
-
-    shap.plots.beeswarm(shap_values, max_display=15, show=False)
-    font_setting(plt, "impact on model output")
-    plt.tight_layout()  # keep labels within frame
-    plt.savefig('tmp/beeswarm' + savefig_name + '.pdf')
     plt.close()
 
     # bar plotting
@@ -80,6 +75,13 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     font_setting(plt, "LIF importance")
     plt.tight_layout()  #
     plt.savefig('tmp/bar' + savefig_name + '.pdf')
+    plt.close()
+
+    # violin plotting
+    shap.summary_plot(shap_values, max_display=15, show=False, plot_type='violin')
+    font_setting(plt, "impact on model output")
+    # plt.tight_layout()  #
+    plt.savefig('tmp/violin' + savefig_name + '.pdf')
     plt.close()
 
     # shap.plots.force(shap_values[0])
