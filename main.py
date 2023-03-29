@@ -25,13 +25,10 @@ from util import pred_LSM
 def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     """predict and test"""
     # print('start Xgboost evaluation...')
-    model = xgboost.XGBRegressor().fit(x_train, y_train)
+    model = xgboost.XGBClassifier().fit(x_train, y_train)
     pred_train = model.predict(x_train)
-    pred_train[pred_train > .5] = 1
-    pred_train[pred_train <= .5] = 0
+
     pred_test = model.predict(x_test)
-    pred_test[pred_test > .5] = 1
-    pred_test[pred_test <= .5] = 0
 
     # 训练精度
     print('train_Accuracy: %f' % accuracy_score(y_train, pred_train))
@@ -146,4 +143,4 @@ if __name__ == "__main__":
     pred_LSM(model1, xy, grid_samples_f1, 'Xgboost1')
     pred_LSM(model2, xy, grid_samples_f2, 'Xgboost2')
     pred_LSM(model3, xy, grid_samples_f3, 'Xgboost3')
-    print('done RF-based LSM prediction! \n')
+    print('done Xgboost-based LSM prediction! \n')
