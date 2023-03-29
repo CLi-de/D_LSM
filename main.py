@@ -63,29 +63,50 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
         plt.yticks(fontsize=10, font=font1)
         plt.xlabel(xlabel, fontdict=font2)
 
-    # waterfall ploting
+    '''success'''
+    # waterfall
     shap.plots.waterfall(shap_values[0], max_display=15, show=False)
     font_setting(plt)
     plt.tight_layout()  # keep labels within frame
     plt.savefig('tmp/waterfall' + savefig_name + '.pdf')
     plt.close()
 
-    # bar plotting
+    # bar
     shap.plots.bar(shap_values, max_display=15, show=False)
     font_setting(plt, "LIF importance")
     plt.tight_layout()  #
     plt.savefig('tmp/bar' + savefig_name + '.pdf')
     plt.close()
 
-    # violin plotting
+    # violin
     shap.summary_plot(shap_values, max_display=15, show=False, plot_type='violin')
     font_setting(plt, "impact on model output")
-    # plt.tight_layout()  #
     plt.savefig('tmp/violin' + savefig_name + '.pdf')
     plt.close()
 
-    # shap.plots.force(shap_values[0])
+    # scatter
+    shap.plots.scatter(shap_values, show=False)
+    font_setting(plt)
+    plt.tight_layout()
+    plt.savefig('tmp/scatter' + savefig_name + '.pdf')
+    plt.close()
+
+    '''failures'''
+    # # force
+    # shap.plots.force(shap_values[0], show=False)
+    # font_setting(plt)
+    # plt.tight_layout()
+    # plt.savefig('tmp/force' + savefig_name + '.pdf')
+    # plt.close()
+    #
+    # # forces
     # shap.plots.force(shap_values)
+    # shap.plots.force(shap_values[0], show=False)
+    # font_setting(plt)
+    # plt.tight_layout()  #
+    # plt.savefig('tmp/forces' + savefig_name + '.pdf')
+    # plt.close()
+
     # shap.plots.scatter(shap_values[:, "RM"], color=shap_values)
     return model
 
@@ -137,16 +158,16 @@ if __name__ == "__main__":
     print("2008-2019: evaluating...")
     model3 = Xgboost(samples3, '3')
 
-    # grid units
-    grid_f = np.loadtxt('./data_src/grid_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-    grid_samples_f = grid_f[1:, :-2].astype(np.float32)
-    xy = grid_f[1:, -2:].astype(np.float32)
-    # samples_f = samples_f / samples_f.max(axis=0)
-    grid_samples_f1 = (grid_samples_f - mean1) / std1
-    grid_samples_f2 = (grid_samples_f - mean2) / std2
-    grid_samples_f3 = (grid_samples_f - mean3) / std3
-
-    pred_LSM(model1, xy, grid_samples_f1, 'Xgboost1')
-    pred_LSM(model2, xy, grid_samples_f2, 'Xgboost2')
-    pred_LSM(model3, xy, grid_samples_f3, 'Xgboost3')
-    print('done Xgboost-based LSM prediction! \n')
+    '''grid unit prediction'''
+    # grid_f = np.loadtxt('./data_src/grid_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
+    # grid_samples_f = grid_f[1:, :-2].astype(np.float32)
+    # xy = grid_f[1:, -2:].astype(np.float32)
+    # # samples_f = samples_f / samples_f.max(axis=0)
+    # grid_samples_f1 = (grid_samples_f - mean1) / std1
+    # grid_samples_f2 = (grid_samples_f - mean2) / std2
+    # grid_samples_f3 = (grid_samples_f - mean3) / std3
+    #
+    # pred_LSM(model1, xy, grid_samples_f1, 'Xgboost1')
+    # pred_LSM(model2, xy, grid_samples_f2, 'Xgboost2')
+    # pred_LSM(model3, xy, grid_samples_f3, 'Xgboost3')
+    # print('done Xgboost-based LSM prediction! \n')
