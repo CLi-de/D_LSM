@@ -159,15 +159,15 @@ if __name__ == "__main__":
     model3 = Xgboost(samples3, '3')
 
     '''grid unit prediction'''
-    # grid_f = np.loadtxt('./data_src/grid_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-    # grid_samples_f = grid_f[1:, :-2].astype(np.float32)
-    # xy = grid_f[1:, -2:].astype(np.float32)
-    # # samples_f = samples_f / samples_f.max(axis=0)
-    # grid_samples_f1 = (grid_samples_f - mean1) / std1
-    # grid_samples_f2 = (grid_samples_f - mean2) / std2
-    # grid_samples_f3 = (grid_samples_f - mean3) / std3
-    #
-    # pred_LSM(model1, xy, grid_samples_f1, 'Xgboost1')
-    # pred_LSM(model2, xy, grid_samples_f2, 'Xgboost2')
-    # pred_LSM(model3, xy, grid_samples_f3, 'Xgboost3')
-    # print('done Xgboost-based LSM prediction! \n')
+    grid_f = np.loadtxt('./data_src/grid_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
+    grid_samples_f = grid_f[1:, :-2].astype(np.float32)
+    xy = grid_f[1:, -2:].astype(np.float32)
+    # samples_f = samples_f / samples_f.max(axis=0)
+    grid_samples_f1 = (grid_samples_f - mean1) / std1
+    grid_samples_f2 = (grid_samples_f - mean2) / std2
+    grid_samples_f3 = (grid_samples_f - mean3) / std3
+
+    pred_LSM(model1, xy, grid_samples_f1, 'Xgboost1')
+    pred_LSM(model2, xy, grid_samples_f2, 'Xgboost2')
+    pred_LSM(model3, xy, grid_samples_f3, 'Xgboost3')
+    print('done Xgboost-based LSM prediction! \n')
