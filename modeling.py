@@ -9,7 +9,7 @@ from util import mse, xent, normalize
 FLAGS = flags.FLAGS
 
 
-class MAML:
+class Meta_learner:
     def __init__(self, dim_input=1, dim_output=1, test_num_updates=5):
         """ must call construct_model() after initializing MAML! """
         self.dim_input = dim_input
