@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : CHEN Li
 # @Time    : 2023/3/27 17:37
-# @File    : main.py
+# @File    : Xgboost_.py
 # @annotation
 
 import numpy as np
