@@ -11,6 +11,10 @@ import pandas as pd
 import tensorflow as tf
 import tf_slim as slim
 
+from tensorflow.python.platform import flags
+
+FLAGS = flags.FLAGS
+
 
 def cal_measure(pred, y_test):
     TP = ((pred == 1) * (y_test == 1)).astype(int).sum()
@@ -34,12 +38,12 @@ def pred_LSM(trained_model, xy, samples, name):
     writer.close()
 
 
-def normalize(inp, activation, reuse, scope, norm):
-    if norm == 'batch_norm':
+def normalize(inp, activation, reuse, scope):
+    if FLAGS.norm == 'batch_norm':
         return slim.batch_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
-    elif norm == 'layer_norm':
+    elif FLAGS.norm == 'layer_norm':
         return slim.layer_norm(inp, activation_fn=activation, reuse=reuse, scope=scope)
-    elif norm == 'None':
+    elif FLAGS.norm == 'None':
         if activation is not None:
             return activation(inp)
         else:

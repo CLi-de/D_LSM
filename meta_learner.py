@@ -30,12 +30,12 @@ flags.DEFINE_string('sample_pts', './src_data/samples_HK.csv', 'path to (non)/la
 flags.DEFINE_string('Ts_pts', './src_data/Ts_HK.csv', 'path to Ts samples')
 
 """for meta-train"""
-flags.DEFINE_string('basemodel', 'DAS', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
+flags.DEFINE_string('basemodel', 'MLP', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
 flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('log', './tmp/data', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
 
-flags.DEFINE_integer('dim_input', 14, 'dim of input data')
+flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_integer('num_samples_each_task', 16,
