@@ -101,3 +101,40 @@ def batch_generator(one_task, dim_input, dim_output, batch_size):
         else:
             labels[i][1] = 1
     return init_inputs, labels
+
+
+def feature_normalization(data):
+    mu = np.mean(data, axis=0)
+    sigma = np.std(data, axis=0)
+    return (data - mu) / sigma, mu, sigma
+
+
+'''save meta_task to excel'''
+def save_tasks(tasks, filename):
+    """将tasks存到csv中"""
+    writer = pd.ExcelWriter(filename)
+    for i in range(len(tasks)):
+        task_sampels = []
+        for j in range(len(tasks[i])):
+            attr_lb = np.append(tasks[i][j][0], tasks[i][j][1])
+            task_sampels.append(attr_lb)
+        data_df = pd.DataFrame(task_sampels)
+        data_df.to_excel(writer, 'task_' + str(i), float_format='%.5f', header=False, index=False)
+    writer.close()
+
+
+'''read meta_task from excel'''
+def read_tasks(file):
+    """获取tasks"""
+    f = pd.ExcelFile(file)
+    tasks = [[] for i in range(len(f.sheet_names))]
+    k = 0  # count task
+    for sheetname in f.sheet_names:
+        attr = pd.read_excel(file, usecols=[i for i in range(FLAGS.dim_input)], sheet_name=sheetname,
+                             header=None).values.astype(np.float32)
+        label = pd.read_excel(file, usecols=[FLAGS.dim_input], sheet_name=sheetname, header=None).values.reshape(
+            (-1,)).astype(np.float32)
+        for j in range(np.shape(attr)[0]):
+            tasks[k].append([attr[j], label[j]])
+        k += 1
+    return tasks

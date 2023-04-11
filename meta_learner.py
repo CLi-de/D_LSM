@@ -1,10 +1,18 @@
+#!/usr/bin/env pytho
+# -*- coding: utf-8 -*-
+# @Author  : CHEN Li
+# @Time    : 2023/4/11 14:32
+# @File    : meta_learner.py
+# @annotation
+
 import numpy as np
 import tensorflow as tf
 import pandas as pd
 from modeling import Meta_learner
 # from scene_sampling_v2 import SLICProcessor, TaskSampling
 from tensorflow.python.platform import flags
-from util import cal_measure, tasksbatch_generator, batch_generator
+from util import cal_measure, tasksbatch_generator, batch_generator, feature_normalization, save_tasks, \
+    read_tasks
 # from unsupervised_pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score
@@ -102,7 +110,9 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
                     print_str = 'Pretrain Iteration ' + str(itr)
                 else:
                     print_str = 'Iteration ' + str(itr - FLAGS.pretrain_iterations)
-                print_str += ': ' + str(np.mean(prelosses)) + ', ' + str(np.mean(postlosses))
+                print_str += ': ' + 'mean inner loss:' + str(np.mean(prelosses)) + '; ' \
+                                                                                   'outer loss:' + str(
+                    np.mean(postlosses))
                 print(print_str)
                 print('inner lr:', sess.run(model.update_lr))
                 prelosses, postlosses = [], []
@@ -154,9 +164,7 @@ def test(model, saver, sess, exp_string, tasks, num_updates=5):
                     total_Ypred.append(0)
             accuracy = accuracy_score(Y_test, Y_pred)
             sum_accuracies.append(accuracy)
-            # print('Test_Accuracy: %f' % accuracy)
-        # print('SHAP...')
-        # SHAP_()  # TODO: SHAP for proposed
+
     """Overall evaluation (test data)"""
     total_Ypred = np.array(total_Ypred).reshape(len(total_Ypred), )
     total_Ytest = np.array(total_Ytest)
@@ -178,54 +186,62 @@ def test(model, saver, sess, exp_string, tasks, num_updates=5):
     sess.close()
 
 
+def metatask_sampling(p_samples, years):
+    metatask_p = []
+    # for year in years:
+    #     if year
+    return metatask_p
+
+
 def main():
     """input data"""
-    # positive samples
-    p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-    p_samples = p_data[1:, :-3].astype(np.float32)
-    f_names = p_data[0, :-4].astype(str)
-    years = p_data[1:, -3].astype(np.int)
+    if not os.path.exists('./task_sampling/meta_task.xlsx'):
+        print('meta_task generation...')
+        # positive samples
+        p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
+        p_samples = p_data[1:, :-3].astype(np.float32)
+        f_names = p_data[0, :-4].astype(str)
+        years = p_data[1:, -3].astype(int)
+        # negative samples
+        n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
+        n_samples = n_data[1:, :-2].astype(np.float32)
 
-    # negative samples
-    n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-    n_samples = n_data[1:, :-2].astype(np.float32)
-    np.random.shuffle(n_samples)
+        # feature normalization
+        sample_f, mean, std = feature_normalization(np.vstack((p_samples, n_samples))[:, :-1])
+        p_samples_norm = np.hstack((sample_f[:len(p_samples), :], p_samples[:, -1].reshape(-1, 1)))
+        n_samples_norm = np.hstack((sample_f[len(p_samples):, :], n_samples[:, -1].reshape(-1, 1)))
 
-    # TODO: divide positive samples by occurrence time (current divide equally)
-    # tasks_train, tasks_test = metatask_sampling(p_samples, years)
+        # TODO: divide positive samples yearly (option 1)
+        # tasks_train, tasks_test = metatask_sampling(p_samples, years)
 
-    # divide equally
-    K = 200
-    meta_tasks = [np.vstack((p_samples[k * 30: (k + 1) * 30, :], n_samples[:60, :])) for k in range(K)]
-
-    # data normalization
-    def feature_normalization(data):
-        mu = np.mean(data, axis=0)
-        sigma = np.std(data, axis=0)
-        return (data - mu) / sigma, mu, sigma
-
-    # save means and stds for each meta task for future grid vector prediction
-    samples_f = [i for i in range(K)]
-    means = [i for i in range(K)]
-    stds = [i for i in range(K)]
-    for k in range(K):
-        samples_f[k], means[k], stds[k] = feature_normalization(meta_tasks[k][:, :-1])
-        meta_tasks[k] = np.hstack((samples_f[k], meta_tasks[k][:, -1].reshape(-1, 1)))
-        np.random.shuffle(meta_tasks[k])
-
-    def transform_data(meta_tasks):
-        tasks = [[] for i in range(len(meta_tasks))]
+        # divide equally (option 2)
+        K = 200  # number of meta_tasks
+        meta_tasks = []
         for k in range(K):
-            tasks[k] = [[] for i in range(len(meta_tasks[k]))]
-        for i in range(len(meta_tasks)):
-            for j in range(len(meta_tasks[i])):
-                tasks[i][j].append(meta_tasks[i][j][:-1])  # features
-                tasks[i][j].append(meta_tasks[i][j][-1])  # label
-        return tasks
-    # meta-datasets for meta-training and meta-testing
-    meta_tasks_ = transform_data(meta_tasks)
-    tasks_train = meta_tasks_[:int(3 / 4 * K)]
-    tasks_test = meta_tasks_[int(3 / 4 * K):]
+            p_samples_ = p_samples_norm[k * 30: (k + 1) * 30, :]
+            np.random.shuffle(n_samples_norm)
+            n_samples_ = n_samples_norm[:60, :]
+            meta_tasks.append(np.vstack((p_samples_, n_samples_)))
+
+        def transform_data(meta_tasks):
+            tasks = [[] for i in range(len(meta_tasks))]
+            for k in range(K):
+                tasks[k] = [[] for i in range(len(meta_tasks[k]))]
+            for i in range(len(meta_tasks)):
+                for j in range(len(meta_tasks[i])):
+                    tasks[i][j].append(meta_tasks[i][j][:-1])  # features
+                    tasks[i][j].append(meta_tasks[i][j][-1])  # label
+            return tasks
+
+        # meta-datasets for meta-training and meta-testing
+        meta_tasks_ = transform_data(meta_tasks)
+        save_tasks(meta_tasks_, 'task_sampling/meta_task.xlsx')  # save meta_tasks to excel
+    else:
+        print('read meta_tasks from excel...')
+        meta_tasks_ = read_tasks('task_sampling/meta_task.xlsx')
+
+    tasks_train = meta_tasks_[:int(3 / 4 * 200)]
+    tasks_test = meta_tasks_[int(3 / 4 * 200):]
 
     """meta-training and -testing"""
     print('model construction...')
@@ -264,7 +280,7 @@ def main():
     test(model, saver, sess, exp_string, tasks_test, num_updates=FLAGS.num_updates)
 
 
-# TODO: use tf.estimator
+# TODO: the shuffle will include the final statistical measure evaluation
 if __name__ == "__main__":
     # device=tf.config.list_physical_devices('GPU')
     tf.compat.v1.disable_eager_execution()
