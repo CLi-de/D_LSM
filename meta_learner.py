@@ -9,17 +9,11 @@ import numpy as np
 import tensorflow as tf
 import pandas as pd
 from modeling import Meta_learner
-# from scene_sampling_v2 import SLICProcessor, TaskSampling
 from tensorflow.python.platform import flags
 from util import cal_measure, tasksbatch_generator, batch_generator, feature_normalization, save_tasks, \
     read_tasks
-# from unsupervised_pretraining.DAS_pretraining_v2 import Unsupervise_pretrain
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score
-
-from sklearn.neural_network import MLPClassifier
-
-# from comparison import SHAP_
 
 import warnings
 import os
@@ -280,7 +274,6 @@ def main():
     test(model, saver, sess, exp_string, tasks_test, num_updates=FLAGS.num_updates)
 
 
-# TODO: the shuffle will include the final statistical measure evaluation
 if __name__ == "__main__":
     # device=tf.config.list_physical_devices('GPU')
     tf.compat.v1.disable_eager_execution()

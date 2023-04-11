@@ -4,15 +4,9 @@
 /*.txt
 
 # pycache
-.idea/
-__pycache__/
 
-# checkpoint_dir
-checkpoint_dir/
 
-#figs, tmp
-# figs/
-tmp/
+
 
 # DAS_logs
 unsupervised_pretraining/model_init/*.npz
@@ -30,8 +24,13 @@ metatask_sampling/*.xlsx
 # src_data_
 data_src/*.csv
 
-# tmp 
+# folder
 tmp/
+checkpoint_dir/
+.idea/
+__pycache__/
+task_sampling/
+adapted_models/
 
 # Unsupervised_Pretraining
 
