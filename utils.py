@@ -82,9 +82,9 @@ def tasksbatch_generator(data, batch_size, num_samples, dim_input, dim_output):
         for j in range(num_samples):
             init_inputs[i][j] = task_samples[j][0]
             if task_samples[j][1] == 1:
-                labels[i][j][0] = 1  # 滑坡
+                labels[i][j][1] = 1  # 滑坡
             else:
-                labels[i][j][1] = 1  # 非滑坡
+                labels[i][j][0] = 1  # 非滑坡
     return init_inputs, labels, np.array(cnt_sample).astype(np.float32)
 
 
@@ -96,10 +96,10 @@ def batch_generator(one_task, dim_input, dim_output, batch_size):
     labels = np.zeros([batch_size, dim_output], dtype=np.float32)
     for i in range(batch_size):
         init_inputs[i] = batch_[i][0]
-        if batch_[i][1] == 1:
-            labels[i][0] = 1
-        else:
+        if batch_[i][1] == 1:  # 滑坡
             labels[i][1] = 1
+        else:
+            labels[i][0] = 1  # 非滑坡
     return init_inputs, labels
 
 

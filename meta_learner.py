@@ -22,14 +22,8 @@ warnings.filterwarnings("ignore")
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 FLAGS = flags.FLAGS
-
-"""for task sampling"""
-flags.DEFINE_float('M', 500, 'determine how distance influence the segmentation')
-flags.DEFINE_integer('K', 512, 'number of superpixels')
-flags.DEFINE_integer('loop', 5, 'number of SLIC iterations')
-flags.DEFINE_string('str_region', 'HK', 'the study area')
-flags.DEFINE_string('sample_pts', './src_data/samples_HK.csv', 'path to (non)/landslide samples')
-flags.DEFINE_string('Ts_pts', './src_data/Ts_HK.csv', 'path to Ts samples')
+"""for meta-task generation"""
+flags.DEFINE_integer('K', 100, 'step for dividing samples')
 
 """for meta-train"""
 flags.DEFINE_string('basemodel', 'MLP', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
@@ -43,7 +37,7 @@ flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-up
 flags.DEFINE_integer('num_samples_each_task', 16,
                      'number of samples sampling from each task when training, inner_batch_size')
 flags.DEFINE_integer('test_update_batch_size', 8,
-                     'number of examples used for gradient update during adapting (K=1,3,5 in experiment, K-shot); -1: M.')
+                     'number of examples used for gradient update during adapting.')
 flags.DEFINE_integer('metatrain_iterations', 5001, 'number of meta-training iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
@@ -209,12 +203,12 @@ def main():
         # tasks_train, tasks_test = metatask_sampling(p_samples, years)
 
         # divide equally (option 2)
-        K = 200  # number of meta_tasks
+        K = 100  # number of meta_tasks
         meta_tasks = []
         for k in range(K):
-            p_samples_ = p_samples_norm[k * 30: (k + 1) * 30, :]
+            p_samples_ = p_samples_norm[k * K: (k + 1) * K, :]
             np.random.shuffle(n_samples_norm)
-            n_samples_ = n_samples_norm[:60, :]
+            n_samples_ = n_samples_norm[:K, :]
             meta_tasks.append(np.vstack((p_samples_, n_samples_)))
 
         def transform_data(meta_tasks):
@@ -234,8 +228,8 @@ def main():
         print('read meta_tasks from excel...')
         meta_tasks_ = read_tasks('task_sampling/meta_task.xlsx')
 
-    tasks_train = meta_tasks_[:int(3 / 4 * 200)]
-    tasks_test = meta_tasks_[int(3 / 4 * 200):]
+    tasks_train = meta_tasks_[:int(3 / 4 * len(meta_tasks_))]
+    tasks_test = meta_tasks_[int(3 / 4 * len(meta_tasks_)):]
 
     """meta-training and -testing"""
     print('model construction...')
@@ -266,7 +260,7 @@ def main():
         if model_file:
             ind1 = model_file.index('model')
             resume_itr = int(model_file[ind1 + 5:])
-            # print("Restoring model weights from " + model_file)
+            print("Restoring model weights from " + model_file)
             saver.restore(sess, model_file)  # 以model_file初始化sess中图
 
     train(model, saver, sess, exp_string, tasks_train, resume_itr)
