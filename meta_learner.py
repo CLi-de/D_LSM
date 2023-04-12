@@ -33,7 +33,7 @@ flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and c
 
 flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
-flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
+flags.DEFINE_integer('meta_batch_size', 8, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_integer('num_samples_each_task', 16,
                      'number of samples sampling from each task when training, inner_batch_size')
 flags.DEFINE_integer('test_update_batch_size', 8,
@@ -205,7 +205,7 @@ def main():
         # divide equally (option 2)
         K = 100  # number of meta_tasks
         meta_tasks = []
-        for k in range(K):
+        for k in range(60):
             p_samples_ = p_samples_norm[k * K: (k + 1) * K, :]
             np.random.shuffle(n_samples_norm)
             n_samples_ = n_samples_norm[:K, :]
@@ -213,7 +213,7 @@ def main():
 
         def transform_data(meta_tasks):
             tasks = [[] for i in range(len(meta_tasks))]
-            for k in range(K):
+            for k in range(len(meta_tasks)):
                 tasks[k] = [[] for i in range(len(meta_tasks[k]))]
             for i in range(len(meta_tasks)):
                 for j in range(len(meta_tasks[i])):

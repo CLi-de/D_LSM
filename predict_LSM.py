@@ -70,7 +70,7 @@ for i in range(len(meta_tasks)):
                                     [fast_weights[key] - model.update_lr * gradients[key] for key in
                                      fast_weights.keys()]))
 
-        print('predict and save LSM result...')
+        """predict and save LSM result..."""
         pred = model.forward(f, fast_weights, reuse=True)
         pred = sess.run(tf.nn.softmax(pred))
         arr = np.hstack((xy, pred))
@@ -80,7 +80,7 @@ for i in range(len(meta_tasks)):
         data_df.to_excel(writer)
         writer.close()
 
-        print('save model parameters ...')
+        """save model parameters ..."""
         adapted_weights = sess.run(fast_weights)
         np.savez('adapted_models/' + str(i) + 'th_model',
                  adapted_weights['w1'], adapted_weights['b1'],
