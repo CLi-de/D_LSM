@@ -90,20 +90,15 @@ init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # SHAP for ith subtasks(TODO: not enough memory)
-for i in range(1, len(tasks), 10):
+for i in range(51, len(tasks), 10):
     model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
-    tmp_ = tasks[i]
-    np.random.shuffle(tmp_)  # shuffle
-
-    X = tmp_[:, :-1]  # 加载i行数据部分
-    Y = tmp_[:, -1]  # 加载类别标签部分
-
+    print('shap_round' + str(i))
     shap.initjs()
     # SHAP demo are using dataframe instead of nparray
-    X_ = pd.DataFrame(X)  # convert np.array to pd.dataframe
+    X_ = pd.DataFrame(tasks[i][:, :-1])  # convert np.array to pd.dataframe
     X_.columns = feature_names  # 添加特征名称
-    print('shap_round' + str(i))
+    X_ = X_[0:100]
     # explainer = shap.KernelExplainer(pred_prob, shap.kmeans(x_train, 80))
     explainer = shap.KernelExplainer(pred_prob, shap.sample(X_, 50))
     shap_values = explainer.shap_values(X_, nsamples=50)  # shap_values

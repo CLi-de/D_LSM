@@ -203,7 +203,7 @@ def main():
         # tasks_train, tasks_test = metatask_sampling(p_samples, years)
 
         # divide equally (option 2)
-        K = 100  # number of meta_tasks
+        K = 100  # number of p_samples each meta task
         meta_tasks = []
         for k in range(60):
             p_samples_ = p_samples_norm[k * K: (k + 1) * K, :]
