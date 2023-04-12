@@ -10,7 +10,7 @@ import tensorflow as tf
 import pandas as pd
 from modeling import Meta_learner
 from tensorflow.python.platform import flags
-from util import cal_measure, tasksbatch_generator, batch_generator, feature_normalization, save_tasks, \
+from utils import cal_measure, tasksbatch_generator, batch_generator, feature_normalization, save_tasks, \
     read_tasks
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score

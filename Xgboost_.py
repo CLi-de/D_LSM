@@ -17,8 +17,7 @@ from sklearn.metrics import cohen_kappa_score
 import xgboost
 import shap
 
-from util import cal_measure
-from util import pred_LSM
+from utils import cal_measure, pred_LSM
 
 
 def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):

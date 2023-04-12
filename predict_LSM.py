@@ -12,7 +12,7 @@ import pandas as pd
 from meta_learner import FLAGS
 from modeling import Meta_learner
 
-from util import read_tasks, batch_generator
+from utils import read_tasks, batch_generator
 
 '''load grid data'''
 samples = np.loadtxt('./data_src/grid_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
