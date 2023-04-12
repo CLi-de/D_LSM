@@ -6,17 +6,15 @@
 # @annotation
 
 import tensorflow as tf
-import xgboost
 import shap
 import warnings
 import matplotlib.pyplot as plt
-from sklearn import svm
 import numpy as np
 import pandas as pd
 from meta_learner import FLAGS
 from modeling import Meta_learner
 
-from sklearn.model_selection import train_test_split
+from shap.plots import _waterfall, _scatter, _bar
 
 warnings.filterwarnings("ignore")
 
@@ -60,6 +58,20 @@ def read_tasks(file):
     return tasks
 
 
+# set plotting font
+def font_setting(plt, xlabel=None):
+    font1 = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 14,
+             }
+    font2 = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 18,
+             }
+    plt.yticks(fontsize=10, font=font1)
+    plt.xlabel(xlabel, fontdict=font2)
+
+
 print('construct model...')
 tf.compat.v1.disable_eager_execution()
 model = Meta_learner(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
@@ -67,7 +79,7 @@ input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 
 input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_output)
 model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label,
                       prefix='metatrain_')
-
+print('read meta-tasks from file...')
 tasks = read_tasks('task_sampling/meta_task.xlsx')  # read meta_tasks from excel file
 
 p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
@@ -77,8 +89,8 @@ sess = tf.compat.v1.InteractiveSession()
 init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要初始化
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
-# SHAP for ith subtasks
-for i in range(150, len(tasks), 10):
+# SHAP for ith subtasks(TODO: not enough memory)
+for i in range(1, len(tasks), 10):
     model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
     tmp_ = tasks[i]
@@ -90,26 +102,32 @@ for i in range(150, len(tasks), 10):
     shap.initjs()
     # SHAP demo are using dataframe instead of nparray
     X_ = pd.DataFrame(X)  # convert np.array to pd.dataframe
-    # x_test = pd.DataFrame(x_test)
     X_.columns = feature_names  # 添加特征名称
-    # x_test.columns = feature_names
-
+    print('shap_round' + str(i))
     # explainer = shap.KernelExplainer(pred_prob, shap.kmeans(x_train, 80))
     explainer = shap.KernelExplainer(pred_prob, shap.sample(X_, 50))
     shap_values = explainer.shap_values(X_, nsamples=50)  # shap_values
-    # (_prob, n_samples, features)
 
-    # shap.force_plot(explainer.expected_value[1], shap_values[1][0, :], x_test.iloc[0, :], show=True, matplotlib=True)  # single feature
+    # waterfall
+    # _waterfall.waterfall_legacy(shap_values, max_display=15, show=False)
+    _waterfall.waterfall_legacy(explainer.expected_value[1], shap_values[1][0], feature_names=feature_names,
+                                max_display=15, show=False)
+    font_setting(plt)
+    plt.tight_layout()  # keep labels within frame
+    plt.savefig('tmp/waterfall' + str(i) + '.pdf')
+    plt.close()
+
+    # bar
     shap.summary_plot(shap_values, X_, plot_type="bar", show=False)
-    plt.savefig('tmp/bar_' + str(i) + '.pdf')
+    font_setting(plt, "LIF importance")
+    plt.tight_layout()  #
+    plt.savefig('tmp/bar' + str(i) + '.pdf')
     plt.close()
-    shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False)
-    plt.savefig('tmp/violin_' + str(i) + '.pdf')
+
+    #
+    # violin
+    shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False, max_display=15)
+    font_setting(plt, "impact on model output")
+    plt.savefig('tmp/violin' + str(i) + '.pdf')
     plt.close()
-# shap.summary_plot(shap_values[1], x_test, plot_type="compact_dot")
 
-# shap.force_plot(explainer.expected_value[1], shap_values[1], x_test, link="logit")
-
-# shap.dependence_plot('DV', shap_values[1], x_test, interaction_index=None)
-# shap.dependence_plot('SPI', shap_values[1], x_test, interaction_index='DV')
-# shap.plots.beeswarm(shap_values[0])  # the beeswarm plot requires Explanation object as the `shap_values` argument

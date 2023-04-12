@@ -87,3 +87,5 @@ for i in range(len(meta_tasks)):
                  adapted_weights['w2'], adapted_weights['b2'],
                  adapted_weights['w3'], adapted_weights['b3'],
                  adapted_weights['w4'], adapted_weights['b4'])
+
+print("model adaptation and LSM prediction finished!")

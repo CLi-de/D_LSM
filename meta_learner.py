@@ -33,7 +33,7 @@ flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and c
 
 flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
-flags.DEFINE_integer('meta_batch_size', 8, 'number of tasks sampled per meta-update, not nums tasks')
+flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_integer('num_samples_each_task', 16,
                      'number of samples sampling from each task when training, inner_batch_size')
 flags.DEFINE_integer('test_update_batch_size', 8,
