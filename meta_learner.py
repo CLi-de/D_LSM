@@ -36,14 +36,14 @@ flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_integer('num_samples_each_task', 16,
                      'number of samples sampling from each task when training, inner_batch_size')
-flags.DEFINE_integer('test_update_batch_size', 16,
+flags.DEFINE_integer('test_update_batch_size', 8,
                      'number of examples used for gradient update during adapting.')
-flags.DEFINE_integer('metatrain_iterations', 5001, 'number of meta-training iterations.')
+flags.DEFINE_integer('metatrain_iterations', 3001, 'number of meta-training iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 # flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK, see samples_HK.')
 flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')  # le-2 is the best
-flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
+flags.DEFINE_float('meta_lr', 1e-2, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
 
@@ -63,16 +63,16 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
                                                                 , FLAGS.num_samples_each_task,
                                                                 FLAGS.dim_input,
                                                                 FLAGS.dim_output)  # task_batch[i]: (x, y, features)
-            # batch_y = _transform_labels_to_network_format(batch_y, FLAGS.num_classes)
-            inputa = batch_x[:, :int(FLAGS.num_samples_each_task / 2), :]  # a used for training
-            labela = batch_y[:, :int(FLAGS.num_samples_each_task / 2), :]
-            inputb = batch_x[:, int(FLAGS.num_samples_each_task / 2):, :]  # b used for testing
-            labelb = batch_y[:, int(FLAGS.num_samples_each_task / 2):, :]
+            # # batch_y = _transform_labels_to_network_format(batch_y, FLAGS.num_classes)
+            # inputa = batch_x[:, :int(FLAGS.num_samples_each_task / 2), :]  # a used for training
+            # labela = batch_y[:, :int(FLAGS.num_samples_each_task / 2), :]
+            # inputb = batch_x[:, int(FLAGS.num_samples_each_task / 2):, :]  # b used for testing
+            # labelb = batch_y[:, int(FLAGS.num_samples_each_task / 2):, :]
             # # when deal with few-shot problem
-            # inputa = batch_x[:, :int(len(batch_x[0]) / 2), :]  # a used for training
-            # labela = batch_y[:, :int(len(batch_y[0]) / 2), :]
-            # inputb = batch_x[:, int(len(batch_x[0]) / 2):, :]  # b used for testing
-            # labelb = batch_y[:, int(len(batch_y[0]) / 2):, :]
+            inputa = batch_x[:, :int(len(batch_x[0]) / 2), :]  # a used for training
+            labela = batch_y[:, :int(len(batch_y[0]) / 2), :]
+            inputb = batch_x[:, int(len(batch_x[0]) / 2):, :]  # b used for testing
+            labelb = batch_y[:, int(len(batch_y[0]) / 2):, :]
 
             feed_dict = {model.inputa: inputa, model.inputb: inputb, model.labela: labela,
                          model.labelb: labelb, model.cnt_sample: cnt_sample}
@@ -188,8 +188,6 @@ def main():
         # positive samples
         p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
         p_samples = p_data[1:, :-3].astype(np.float32)
-        f_names = p_data[0, :-4].astype(str)
-        years = p_data[1:, -3].astype(int)
         # negative samples
         n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
         n_samples = n_data[1:, :-2].astype(np.float32)
@@ -199,17 +197,31 @@ def main():
         p_samples_norm = np.hstack((sample_f[:len(p_samples), :], p_samples[:, -1].reshape(-1, 1)))
         n_samples_norm = np.hstack((sample_f[len(p_samples):, :], n_samples[:, -1].reshape(-1, 1)))
 
-        # TODO: divide positive samples yearly (option 1)
-        # tasks_train, tasks_test = metatask_sampling(p_samples, years)
+        '''divide by year (1964-2019)'''
+        p_years = np.hstack((p_samples_norm, p_data[1:, -3].reshape(-1, 1)))
+        years = np.unique(p_data[1:, -3])  # years that have landslide records
+        # transform to pdDataframe for grouping
+        p_years = pd.DataFrame(p_years)
+        f_names = p_data[0, :-2].astype(str)
+        p_years.columns = f_names
+        groups = p_years.groupby('year')
 
-        # divide equally (option 2)
-        K = 100  # number of p_samples each meta task
+        # meta-task generation
         meta_tasks = []
-        for k in range(60):
-            p_samples_ = p_samples_norm[k * K: (k + 1) * K, :]
+        for year in years:
+            p_samples_ = groups.get_group(str(year)).reset_index().values[:-1, 1: -1]
             np.random.shuffle(n_samples_norm)
-            n_samples_ = n_samples_norm[:K, :]
+            n_samples_ = n_samples_norm[:len(p_samples_), :]
             meta_tasks.append(np.vstack((p_samples_, n_samples_)))
+
+        '''divide equally by number of landslides (optional)'''
+        # K = 50  # number of p_samples each meta task
+        # meta_tasks = []
+        # for k in range(int(6000 / K)):
+        #     p_samples_ = p_samples_norm[k * K: (k + 1) * K, :]
+        #     np.random.shuffle(n_samples_norm)
+        #     n_samples_ = n_samples_norm[:K, :]
+        #     meta_tasks.append(np.vstack((p_samples_, n_samples_)))
 
         def transform_data(meta_tasks):
             tasks = [[] for i in range(len(meta_tasks))]
@@ -248,9 +260,9 @@ def main():
     init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要初始化
     sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
-    exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
-                 str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
-                 '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
+    exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.nset' + \
+                 str(FLAGS.num_samples_each_task) + '.nu' + str(FLAGS.num_updates) + '.in_lr' + str(FLAGS.update_lr) \
+                 + '.meta_lr' + str(FLAGS.meta_lr) + '.iter' + str(FLAGS.metatrain_iterations)
 
     resume_itr = 0
 
