@@ -36,7 +36,7 @@ flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_integer('num_samples_each_task', 16,
                      'number of samples sampling from each task when training, inner_batch_size')
-flags.DEFINE_integer('test_update_batch_size', 8,
+flags.DEFINE_integer('test_update_batch_size', 16,
                      'number of examples used for gradient update during adapting.')
 flags.DEFINE_integer('metatrain_iterations', 5001, 'number of meta-training iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')

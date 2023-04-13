@@ -98,22 +98,35 @@ for i in range(51, len(tasks), 10):
     # SHAP demo are using dataframe instead of nparray
     X_ = pd.DataFrame(tasks[i][:, :-1])  # convert np.array to pd.dataframe
     X_.columns = feature_names  # 添加特征名称
-    X_ = X_[0:100]
-    # explainer = shap.KernelExplainer(pred_prob, shap.kmeans(x_train, 80))
-    explainer = shap.KernelExplainer(pred_prob, shap.sample(X_, 50))
-    shap_values = explainer.shap_values(X_, nsamples=50)  # shap_values
+    X_ = X_.iloc[:50, :]
 
+    # explainer = shap.KernelExplainer(pred_prob, shap.kmeans(x_train, 80))
+    explainer = shap.KernelExplainer(pred_prob, X_)
+    shap_values = explainer.shap_values(X_, nsamples=100)  # shap_values
+
+    '''local (for each sample)'''
     # waterfall
     # _waterfall.waterfall_legacy(shap_values, max_display=15, show=False)
     _waterfall.waterfall_legacy(explainer.expected_value[1], shap_values[1][0], feature_names=feature_names,
-                                max_display=15, show=False)
+                                max_display=15, show=False)  # label = 1 (landslide)
     font_setting(plt)
     plt.tight_layout()  # keep labels within frame
     plt.savefig('tmp/waterfall' + str(i) + '.pdf')
     plt.close()
 
+    # force plot
+    shap.force_plot(base_value=explainer.expected_value[1], shap_values=shap_values[1][0], features=X_.iloc[0],
+                    matplotlib=True, show=False)
+    font_setting(plt)
+    plt.tight_layout()  # keep labels within frame
+    plt.savefig('tmp/force_plot' + str(i) + '.pdf')
+    plt.close()
+
+
+    '''global (for mulyiple samples)'''
     # bar
     shap.summary_plot(shap_values, X_, plot_type="bar", show=False)
+    # X_.iloc()
     font_setting(plt, "LIF importance")
     plt.tight_layout()  #
     plt.savefig('tmp/bar' + str(i) + '.pdf')
@@ -121,8 +134,15 @@ for i in range(51, len(tasks), 10):
 
     #
     # violin
+    # shap.summary_plot(shap_values[1], features=X_, plot_type="dot", show=False, max_display=15)  # summary points
     shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False, max_display=15)
     font_setting(plt, "impact on model output")
     plt.savefig('tmp/violin' + str(i) + '.pdf')
+    plt.close()
+
+    # scatter (interdependence of two features)
+    _scatter.dependence_legacy('Slope', shap_values[1], features=X_)
+    font_setting(plt, "impact on model output")
+    plt.savefig('tmp/scatter' + str(i) + '.pdf')
     plt.close()
 

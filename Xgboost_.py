@@ -120,12 +120,14 @@ if __name__ == "__main__":
     """input data"""
     # positive samples
     p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-    p_samples = np.hstack((p_data[1:, :-3], p_data[1:, -1].reshape(-1, 1))).astype(np.float32)
-    f_names = p_data[0, :-3].astype(str)
+    # p_samples = np.hstack((p_data[1:, :-3], p_data[1:, -1].reshape(-1, 1))).astype(np.float32)
+    p_samples = p_data[1:, :-3].astype(np.float32)
+    f_names = p_data[0, :-4].astype(str)
 
     # negative samples
     n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8')
-    n_samples = np.hstack((n_data[1:, :-3], n_data[1:, -1].reshape(-1, 1))).astype(np.float32)
+    # n_samples = np.hstack((n_data[1:, :-3], n_data[1:, -1].reshape(-1, 1))).astype(np.float32)
+    n_samples = n_data[1:, :-2].astype(np.float32)
 
     # 样本集 （按时间分三段）
     np.random.shuffle(n_samples)  # shuffle n_samples
