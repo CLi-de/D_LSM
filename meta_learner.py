@@ -33,7 +33,7 @@ flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and c
 
 flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
-flags.DEFINE_integer('meta_batch_size', 8, 'number of tasks sampled per meta-update, not nums tasks')
+flags.DEFINE_integer('meta_batch_size', 4, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_integer('num_samples_each_task', 8,
                      'number of samples sampling from each task when training, inner_batch_size')
 flags.DEFINE_integer('test_update_batch_size', 4,
@@ -42,8 +42,8 @@ flags.DEFINE_integer('metatrain_iterations', 3001, 'number of meta-training iter
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 # flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK, see samples_HK.')
-flags.DEFINE_float('update_lr', 1e-3, 'learning rate of single task objective (inner)')  # le-2 is the best
-flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
+flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')  # le-2 is the best
+flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
 
@@ -93,11 +93,10 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
                     print_str = 'Pretrain Iteration ' + str(itr)
                 else:
                     print_str = 'Iteration ' + str(itr - FLAGS.pretrain_iterations)
-                print_str += ': ' + 'mean inner loss:' + str(np.mean(prelosses)) + '; ' \
-                                                                                   'outer loss:' + str(
-                    np.mean(postlosses))
+                print_str += ': ' + 'mean inner loss:' + str(np.mean(prelosses)) + \
+                             '; ' 'outer loss:' + str(np.mean(postlosses))
                 print(print_str)
-                print('inner lr:', sess.run(model.update_lr))
+                print('inner lr:', sess.run(model.update_lr))  # deprecated for not setting update_lr trainable
                 prelosses, postlosses = [], []
             #  save model
             if (itr != 0) and itr % SAVE_INTERVAL == 0:
