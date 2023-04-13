@@ -36,9 +36,9 @@ model.construct_model(input_tensors_input=input_tensors_input, input_tensors_lab
                       prefix='metatrain_')
 
 '''path of meta-learned model'''
-exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.nset' + \
-             str(FLAGS.num_samples_each_task) + '.nu' + str(FLAGS.num_updates) + '.in_lr' + str(FLAGS.update_lr) \
-             + '.meta_lr' + str(FLAGS.meta_lr) + '.iter' + str(FLAGS.metatrain_iterations)
+exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.nset' + str(FLAGS.num_samples_each_task) \
+                 + '.nu' + str(FLAGS.test_update_batch_size) + '.in_lr' + str(FLAGS.update_lr) \
+                 + '.meta_lr' + str(FLAGS.meta_lr) + '.iter' + str(FLAGS.metatrain_iterations)
 
 '''restoring from meta-trained model'''
 saver = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES))

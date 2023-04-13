@@ -31,10 +31,9 @@ class Meta_learner:
 
     def construct_model(self, input_tensors_input=None, input_tensors_label=None, prefix='metatrain_'):
         # a: training data for inner gradient, b: test data for meta gradient
-        self.inputa = tf.compat.v1.placeholder(tf.float32,
-                                               shape=input_tensors_input)  # for train in a task, shape should be specified for tf.slim (but not should be correct)
-        self.inputb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_input)
-        self.labela = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_label)  # for test in a task
+        self.inputa = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_input)   # for train in a task
+        self.inputb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_input)   # for test in a task
+        self.labela = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_label)
         self.labelb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_label)
         self.cnt_sample = tf.compat.v1.placeholder(tf.float32)  # count number of samples for each task in the batch
 
@@ -103,7 +102,7 @@ class Meta_learner:
                 lossesb[i]:i是迭代次数，不同迭代次数的预测值(num_tasks, value)"""
             outputas, outputbs, lossesa, lossesb = result  # outputas:(num_tasks, num_samples, value)
 
-        ## Performance & Optimization
+        # Performance & Optimization
         if 'train' in prefix:
             self.total_loss1 = total_loss1 = tf.reduce_sum(input_tensor=lossesa) / tf.cast(FLAGS.meta_batch_size,
                                                                                            dtype=tf.float32)  # total loss的均值,finn论文中的pretrain（对比用）
@@ -126,14 +125,14 @@ class Meta_learner:
             self.gvs = gvs = optimizer.compute_gradients(self.total_losses2[
                                                              FLAGS.num_updates - 1])  # 取最后一次迭代的Lossb，gvs：gradients and variables，对所有trainable variables求梯度
             self.metatrain_op = optimizer.apply_gradients(gvs)  # outer
-        else:  # 20/11待删
+        else:
             self.metaval_total_loss1 = total_loss1 = tf.reduce_sum(input_tensor=lossesa) / tf.cast(
                 FLAGS.meta_batch_size, dtype=tf.float32)  # inner loss
             self.metaval_total_losses2 = total_losses2 = [
                 tf.reduce_sum(input_tensor=lossesb[j]) / tf.cast(FLAGS.meta_batch_size, dtype=tf.float32) for j in
                 range(num_updates)]  # outer losses(每次迭代的)
 
-        ## Summaries
+        # Summaries
         tf.compat.v1.summary.scalar(prefix + 'Pre-update loss', total_loss1)  # for test accuracy
         for j in range(num_updates):
             tf.compat.v1.summary.scalar(prefix + 'Post-update loss, step ' + str(j + 1), total_losses2[j])

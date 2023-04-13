@@ -23,7 +23,7 @@ os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'
 
 FLAGS = flags.FLAGS
 """for meta-task generation"""
-flags.DEFINE_integer('K', 100, 'step for dividing samples')
+# flags.DEFINE_integer('K', 100, 'step for dividing samples')  # deprecated
 
 """for meta-train"""
 flags.DEFINE_string('basemodel', 'MLP', 'MLP: no unsupervised pretraining; DAS: pretraining with DAS')
@@ -33,17 +33,17 @@ flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and c
 
 flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
-flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
-flags.DEFINE_integer('num_samples_each_task', 16,
+flags.DEFINE_integer('meta_batch_size', 8, 'number of tasks sampled per meta-update, not nums tasks')
+flags.DEFINE_integer('num_samples_each_task', 8,
                      'number of samples sampling from each task when training, inner_batch_size')
-flags.DEFINE_integer('test_update_batch_size', 8,
+flags.DEFINE_integer('test_update_batch_size', 4,
                      'number of examples used for gradient update during adapting.')
 flags.DEFINE_integer('metatrain_iterations', 3001, 'number of meta-training iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 # flags.DEFINE_integer('num_samples', 18469, 'total number of samples in HK, see samples_HK.')
-flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')  # le-2 is the best
-flags.DEFINE_float('meta_lr', 1e-2, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
+flags.DEFINE_float('update_lr', 1e-3, 'learning rate of single task objective (inner)')  # le-2 is the best
+flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
 
@@ -51,7 +51,7 @@ flags.DEFINE_bool('resume', True, 'resume training if there is a model available
 def train(model, saver, sess, exp_string, tasks, resume_itr):
     SUMMARY_INTERVAL = 100
     SAVE_INTERVAL = 1000
-    PRINT_INTERVAL = 1000
+    PRINT_INTERVAL = 100
 
     print('Done model initializing, starting training...')
     prelosses, postlosses = [], []
@@ -63,16 +63,11 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
                                                                 , FLAGS.num_samples_each_task,
                                                                 FLAGS.dim_input,
                                                                 FLAGS.dim_output)  # task_batch[i]: (x, y, features)
-            # # batch_y = _transform_labels_to_network_format(batch_y, FLAGS.num_classes)
-            # inputa = batch_x[:, :int(FLAGS.num_samples_each_task / 2), :]  # a used for training
-            # labela = batch_y[:, :int(FLAGS.num_samples_each_task / 2), :]
-            # inputb = batch_x[:, int(FLAGS.num_samples_each_task / 2):, :]  # b used for testing
-            # labelb = batch_y[:, int(FLAGS.num_samples_each_task / 2):, :]
-            # # when deal with few-shot problem
-            inputa = batch_x[:, :int(len(batch_x[0]) / 2), :]  # a used for training
-            labela = batch_y[:, :int(len(batch_y[0]) / 2), :]
-            inputb = batch_x[:, int(len(batch_x[0]) / 2):, :]  # b used for testing
-            labelb = batch_y[:, int(len(batch_y[0]) / 2):, :]
+            # batch_y = _transform_labels_to_network_format(batch_y, FLAGS.num_classes)
+            inputa = batch_x[:, :int(FLAGS.num_samples_each_task / 2), :]  # a used for training
+            labela = batch_y[:, :int(FLAGS.num_samples_each_task / 2), :]
+            inputb = batch_x[:, int(FLAGS.num_samples_each_task / 2):, :]  # b used for testing
+            labelb = batch_y[:, int(FLAGS.num_samples_each_task / 2):, :]
 
             feed_dict = {model.inputa: inputa, model.inputb: inputb, model.labela: labela,
                          model.labelb: labelb, model.cnt_sample: cnt_sample}
@@ -208,13 +203,19 @@ def main():
 
         # meta-task generation
         meta_tasks = []
+
         for year in years:
             p_samples_ = groups.get_group(str(year)).reset_index().values[:-1, 1: -1]
             np.random.shuffle(n_samples_norm)
             n_samples_ = n_samples_norm[:len(p_samples_), :]
             meta_tasks.append(np.vstack((p_samples_, n_samples_)))
-
+        # delete years with too few samples (<8)
+        meta_tasks_ = []
+        for i in range(len(years)):
+            if len(meta_tasks[i]) > 8:
+                meta_tasks_.append(meta_tasks[i])
         '''divide equally by number of landslides (optional)'''
+
         # K = 50  # number of p_samples each meta task
         # meta_tasks = []
         # for k in range(int(6000 / K)):
@@ -234,7 +235,7 @@ def main():
             return tasks
 
         # meta-datasets for meta-training and meta-testing
-        meta_tasks_ = transform_data(meta_tasks)
+        meta_tasks_ = transform_data(meta_tasks_)
         save_tasks(meta_tasks_, 'task_sampling/meta_task.xlsx')  # save meta_tasks to excel
     else:
         print('read meta_tasks from excel...')
@@ -260,8 +261,8 @@ def main():
     init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要初始化
     sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
-    exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.nset' + \
-                 str(FLAGS.num_samples_each_task) + '.nu' + str(FLAGS.num_updates) + '.in_lr' + str(FLAGS.update_lr) \
+    exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.nset' + str(FLAGS.num_samples_each_task) \
+                 + '.nu' + str(FLAGS.test_update_batch_size) + '.in_lr' + str(FLAGS.update_lr) \
                  + '.meta_lr' + str(FLAGS.meta_lr) + '.iter' + str(FLAGS.metatrain_iterations)
 
     resume_itr = 0
