@@ -72,14 +72,14 @@ def font_setting(plt, xlabel=None):
     plt.xlabel(xlabel, fontdict=font2)
 
 
-print('construct model...')
+print('\n construct model...')
 tf.compat.v1.disable_eager_execution()
 model = Meta_learner(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
 input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_input)
 input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_output)
 model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label,
                       prefix='metatrain_')
-print('read meta-tasks from file...')
+print('\n read meta-tasks from file...')
 tasks = read_tasks('task_sampling/meta_task.xlsx')  # read meta_tasks from excel file
 
 p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
@@ -93,7 +93,7 @@ sess.run(tf.compat.v1.variables_initializer(var_list=init))
 for i in range(2, len(tasks), 10):
     model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
-    print('shap_round_' + str(i))
+    print('\n shap_round_' + str(i))
     shap.initjs()
     # SHAP demo are using dataframe instead of nparray
     X_ = pd.DataFrame(tasks[i][:, :-1])  # convert np.array to pd.dataframe
@@ -104,41 +104,38 @@ for i in range(2, len(tasks), 10):
     explainer = shap.KernelExplainer(pred_prob, X_)
     shap_values = explainer.shap_values(X_, nsamples=100)  # shap_values
 
+
+    def save_pic(savename, xlabel=None):
+        font_setting(plt, xlabel)
+        plt.tight_layout()  # keep labels within frame
+        plt.savefig(savename)
+        plt.close()
+
+
     '''local (for each sample)'''
     # waterfall
     _waterfall.waterfall_legacy(explainer.expected_value[1], shap_values[1][0], feature_names=feature_names,
                                 max_display=15, show=False)  # label = 1 (landslide)
-    font_setting(plt)
-    plt.tight_layout()  # keep labels within frame
-    plt.savefig('tmp/waterfall' + str(i) + '.pdf')
-    plt.close()
+    save_pic('tmp/waterfall' + str(i) + '.pdf')
 
     # force plot
     shap.force_plot(base_value=explainer.expected_value[1], shap_values=shap_values[1][0], features=X_.iloc[0],
                     matplotlib=True, show=False)
-    font_setting(plt)
-    plt.tight_layout()  # keep labels within frame
-    plt.savefig('tmp/force_plot' + str(i) + '.pdf')
-    plt.close()
+    save_pic('tmp/force_plot' + str(i) + '.pdf')
 
     '''global (for mulyiple samples)'''
     # bar
-    shap.summary_plot(shap_values, X_, plot_type="bar", show=False)
-    # X_.iloc()
-    font_setting(plt, "LIF importance")
-    plt.tight_layout()  #
-    plt.savefig('tmp/bar' + str(i) + '.pdf')
-    plt.close()
+    shap.summary_plot(shap_values[1], X_, plot_type="bar", show=False)
+
+    save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance')
 
     # violin
     # shap.summary_plot(shap_values[1], features=X_, plot_type="dot", show=False, max_display=15)  # summary points
     shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False, max_display=15)
-    font_setting(plt, "impact on model output")
-    plt.savefig('tmp/violin' + str(i) + '.pdf')
-    plt.close()
+    save_pic('tmp/violin' + str(i) + '.pdf', 'impact on model output')
 
     # scatter (interdependence of two features)
     _scatter.dependence_legacy('Slope', shap_values[1], features=X_, show=False)
-    font_setting(plt, "impact on model output")
-    plt.savefig('tmp/scatter' + str(i) + '.pdf')
-    plt.close()
+    save_pic('tmp/scatter' + str(i) + '.pdf')
+
+print('\n finish SHAP!')

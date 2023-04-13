@@ -36,9 +36,9 @@ model.construct_model(input_tensors_input=input_tensors_input, input_tensors_lab
                       prefix='metatrain_')
 
 '''path of meta-learned model'''
-exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.ubs_' + \
-             str(FLAGS.num_samples_each_task) + '.numstep' + str(FLAGS.num_updates) + \
-             '.updatelr' + str(FLAGS.update_lr) + '.meta_lr' + str(FLAGS.meta_lr)
+exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.nset' + \
+             str(FLAGS.num_samples_each_task) + '.nu' + str(FLAGS.num_updates) + '.in_lr' + str(FLAGS.update_lr) \
+             + '.meta_lr' + str(FLAGS.meta_lr) + '.iter' + str(FLAGS.metatrain_iterations)
 
 '''restoring from meta-trained model'''
 saver = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES))
@@ -50,7 +50,7 @@ if model_file:
     print("Restoring model weights from " + model_file)
     saver.restore(sess, model_file)  # 以model_file初始化sess中图
 else:
-    print("no meta-learned model found!")
+    print("\n no meta-learned model found!")
 
 '''Adaptation and predict'''
 meta_tasks = read_tasks('task_sampling/meta_task.xlsx')
@@ -88,4 +88,4 @@ for i in range(len(meta_tasks)):
                  adapted_weights['w3'], adapted_weights['b3'],
                  adapted_weights['w4'], adapted_weights['b4'])
 
-print("model adaptation and LSM prediction finished!")
+print("model adaptation and LSM prediction finished! \n")
