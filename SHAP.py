@@ -22,17 +22,17 @@ warnings.filterwarnings("ignore")
 # construct model
 def init_weights(file):
     """读取DAS权参"""
-    with tf.compat.v1.variable_scope('model'):  # get variable in 'model' scope, to reuse variables
-        npzfile = np.load(file)
-        weights = {}
-        weights['w1'] = npzfile['arr_0']
-        weights['b1'] = npzfile['arr_1']
-        weights['w2'] = npzfile['arr_2']
-        weights['b2'] = npzfile['arr_3']
-        weights['w3'] = npzfile['arr_4']
-        weights['b3'] = npzfile['arr_5']
-        weights['w4'] = npzfile['arr_6']
-        weights['b4'] = npzfile['arr_7']
+    # with tf.compat.v1.variable_scope('model'):  # get variable in 'model' scope, to reuse variables
+    npzfile = np.load(file)
+    weights = {}
+    weights['w1'] = npzfile['arr_0']
+    weights['b1'] = npzfile['arr_1']
+    weights['w2'] = npzfile['arr_2']
+    weights['b2'] = npzfile['arr_3']
+    weights['w3'] = npzfile['arr_4']
+    weights['b3'] = npzfile['arr_5']
+    weights['w4'] = npzfile['arr_6']
+    weights['b4'] = npzfile['arr_7']
     return weights
 
 
@@ -90,10 +90,10 @@ init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # SHAP for ith subtasks(TODO: not enough memory)
-for i in range(51, len(tasks), 10):
+for i in range(2, len(tasks), 10):
     model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
-    print('shap_round' + str(i))
+    print('shap_round_' + str(i))
     shap.initjs()
     # SHAP demo are using dataframe instead of nparray
     X_ = pd.DataFrame(tasks[i][:, :-1])  # convert np.array to pd.dataframe
@@ -106,7 +106,6 @@ for i in range(51, len(tasks), 10):
 
     '''local (for each sample)'''
     # waterfall
-    # _waterfall.waterfall_legacy(shap_values, max_display=15, show=False)
     _waterfall.waterfall_legacy(explainer.expected_value[1], shap_values[1][0], feature_names=feature_names,
                                 max_display=15, show=False)  # label = 1 (landslide)
     font_setting(plt)
@@ -122,7 +121,6 @@ for i in range(51, len(tasks), 10):
     plt.savefig('tmp/force_plot' + str(i) + '.pdf')
     plt.close()
 
-
     '''global (for mulyiple samples)'''
     # bar
     shap.summary_plot(shap_values, X_, plot_type="bar", show=False)
@@ -132,7 +130,6 @@ for i in range(51, len(tasks), 10):
     plt.savefig('tmp/bar' + str(i) + '.pdf')
     plt.close()
 
-    #
     # violin
     # shap.summary_plot(shap_values[1], features=X_, plot_type="dot", show=False, max_display=15)  # summary points
     shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False, max_display=15)
@@ -141,8 +138,7 @@ for i in range(51, len(tasks), 10):
     plt.close()
 
     # scatter (interdependence of two features)
-    _scatter.dependence_legacy('Slope', shap_values[1], features=X_)
+    _scatter.dependence_legacy('Slope', shap_values[1], features=X_, show=False)
     font_setting(plt, "impact on model output")
     plt.savefig('tmp/scatter' + str(i) + '.pdf')
     plt.close()
-
