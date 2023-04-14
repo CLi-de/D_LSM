@@ -35,7 +35,6 @@ class Meta_learner:
         self.inputb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_input)   # for test in a task
         self.labela = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_label)
         self.labelb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_label)
-        self.cnt_sample = tf.compat.v1.placeholder(tf.float32)  # count number of samples for each task in the batch
 
         with tf.compat.v1.variable_scope('model', reuse=None) as training_scope:
             # Attention module
@@ -111,11 +110,6 @@ class Meta_learner:
             self.total_losses2 = total_losses2 = [
                 tf.reduce_sum(lossesb[j]) / tf.cast(FLAGS.meta_batch_size, dtype=tf.float32) \
                 for j in range(num_updates)]
-
-            # w = self.cnt_sample / tf.cast(FLAGS.num_samples, dtype=tf.float32)
-            # self.total_losses2 = total_losses2 = [tf.reduce_sum(
-            #     input_tensor=tf.multiply(tf.nn.softmax(w), tf.reduce_sum(input_tensor=lossesb[j], axis=1)))
-            #     for j in range(num_updates)]
 
             # after the map_fn
             self.outputas, self.outputbs = outputas, outputbs  # outputbs：25个task, 每个task迭代五次，value（25,5,1）
