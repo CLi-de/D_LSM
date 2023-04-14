@@ -90,7 +90,7 @@ init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # SHAP for ith subtasks(TODO: not enough memory)
-for i in range(82, len(tasks), 10):
+for i in range(0, len(tasks), 10):
     model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
     print('\n shap_round_' + str(i))

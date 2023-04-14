@@ -53,11 +53,13 @@ else:
     print("\n no meta-learned model found!")
 
 '''Adaptation and predict'''
+print('\n model adaptation and LSM prediction...')
 meta_tasks = read_tasks('task_sampling/meta_task_2.xlsx')
 for i in range(len(meta_tasks)):
-    np.random.shuffle(meta_tasks[i])
+    # np.random.shuffle(meta_tasks[i])
     with tf.compat.v1.variable_scope('model', reuse=True):  # Variable reuse in np.normalize()
-        train_ = meta_tasks[i][:int(len(meta_tasks[i]) / 2)]
+        # train_ = meta_tasks[i][:int(len(meta_tasks[i]) / 2)]
+        train_ = meta_tasks[i]  # all samples in a certain meta_task can be used for adaptation
         batch_size = FLAGS.test_update_batch_size
         fast_weights = model.weights
         for j in range(FLAGS.num_updates):
@@ -87,4 +89,4 @@ for i in range(len(meta_tasks)):
                  adapted_weights['w3'], adapted_weights['b3'],
                  adapted_weights['w4'], adapted_weights['b4'])
 
-print("model adaptation and LSM prediction finished! \n")
+print("\n finished!")

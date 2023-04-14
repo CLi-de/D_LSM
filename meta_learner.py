@@ -34,15 +34,15 @@ flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and c
 flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
-flags.DEFINE_integer('num_samples_each_task', 8,
+flags.DEFINE_integer('num_samples_each_task', 16,
                      'number of samples sampling from each task when training, inner_batch_size')
-flags.DEFINE_integer('test_update_batch_size', 4,
+flags.DEFINE_integer('test_update_batch_size', 8,
                      'number of examples used for gradient update during adapting.')
 flags.DEFINE_integer('metatrain_iterations', 3001, 'number of meta-training iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
-flags.DEFINE_float('update_lr', 1e-3, 'learning rate of single task objective (inner)')  # le-2 is the best
-flags.DEFINE_float('meta_lr', 1e-4, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
+flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')  # le-2 is the best
+flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')  # le-2 or le-3
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
 
@@ -104,7 +104,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
 
 def test(model, saver, sess, exp_string, tasks, num_updates=5):
     print('start evaluation...')
-    print(exp_string)
+    # print(exp_string)
     total_Ytest, total_Ypred, total_Ytest1, total_Ypred1, sum_accuracies, sum_accuracies1 = [], [], [], [], [], []
 
     for i in range(len(tasks)):
@@ -197,15 +197,14 @@ def main():
         f_names = p_data[0, :-2].astype(str)
         p_years.columns = f_names
         groups = p_years.groupby('year')
-
         # meta-task generation
         meta_tasks = []
-
         for year in years:
             p_samples_ = groups.get_group(str(year)).reset_index().values[:-1, 1: -1].astype(np.float32)
             np.random.shuffle(n_samples_norm)
             n_samples_ = n_samples_norm[:len(p_samples_), :]
             meta_tasks.append(np.vstack((p_samples_, n_samples_)))
+
         # enlarge meta-tasks by dividing years with abundant samples
         meta_tasks_1 = []  # used for meta-training intermediate model
         n_divide = 50
@@ -216,10 +215,10 @@ def main():
                 n_eql = int(len_ / n_divide)
                 for j in range(n_eql):
                     meta_tasks_1.append(meta_tasks[i][j * int(len_ / n_eql): (j + 1) * int(len_ / n_eql), :])
-            if n_divide >= len_ > 8:
+            if n_divide >= len_ > FLAGS.num_samples_each_task:
                 meta_tasks_1.append(meta_tasks[i])
 
-        # delete years with too few samples (<8)
+        # delete years with too few samples
         meta_tasks_2 = []  # used for model adaptation
         for i in range(len(years)):
             if len(meta_tasks[i]) > 8:
