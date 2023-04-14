@@ -38,7 +38,7 @@ flags.DEFINE_integer('num_samples_each_task', 8,
                      'number of samples sampling from each task when training, inner_batch_size')
 flags.DEFINE_integer('test_update_batch_size', 4,
                      'number of examples used for gradient update during adapting.')
-flags.DEFINE_integer('metatrain_iterations', 3001, 'number of meta-training iterations.')
+flags.DEFINE_integer('metatrain_iterations', 5001, 'number of meta-training iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 flags.DEFINE_float('update_lr', 1e-3, 'learning rate of single task objective (inner)')  # le-2 is the best
@@ -57,7 +57,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
         if FLAGS.log:
             train_writer = tf.compat.v1.summary.FileWriter(FLAGS.logdir + '/' + exp_string, sess.graph)
         for itr in range(resume_itr, FLAGS.pretrain_iterations + FLAGS.metatrain_iterations):
-            batch_x, batch_y, cnt_sample = tasksbatch_generator(tasks, FLAGS.meta_batch_size
+            batch_x, batch_y = tasksbatch_generator(tasks, FLAGS.meta_batch_size
                                                                 , FLAGS.num_samples_each_task,
                                                                 FLAGS.dim_input,
                                                                 FLAGS.dim_output)  # task_batch[i]: (x, y, features)
@@ -68,7 +68,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
             labelb = batch_y[:, int(FLAGS.num_samples_each_task / 2):, :]
 
             feed_dict = {model.inputa: inputa, model.inputb: inputb, model.labela: labela,
-                         model.labelb: labelb, model.cnt_sample: cnt_sample}
+                         model.labelb: labelb}
 
             if itr < FLAGS.pretrain_iterations:
                 input_tensors = [model.pretrain_op]  # for comparison
@@ -94,7 +94,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
                 print_str += ': ' + 'mean inner loss:' + str(np.mean(prelosses)) + \
                              '; ' 'outer loss:' + str(np.mean(postlosses))
                 print(print_str)
-                print('inner lr:', sess.run(model.update_lr))  # deprecated for not setting update_lr trainable
+                print('inner lr:', sess.run(model.update_lr))
                 prelosses, postlosses = [], []
             #  save model
             if (itr != 0) and itr % SAVE_INTERVAL == 0:

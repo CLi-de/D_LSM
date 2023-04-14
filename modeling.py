@@ -1,4 +1,3 @@
-
 from __future__ import print_function
 import numpy as np
 import tensorflow as tf
@@ -31,8 +30,8 @@ class Meta_learner:
 
     def construct_model(self, input_tensors_input=None, input_tensors_label=None, prefix='metatrain_'):
         # a: training data for inner gradient, b: test data for meta gradient
-        self.inputa = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_input)   # for train in a task
-        self.inputb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_input)   # for test in a task
+        self.inputa = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_input)  # for train in a task
+        self.inputb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_input)  # for test in a task
         self.labela = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_label)
         self.labelb = tf.compat.v1.placeholder(tf.float32, shape=input_tensors_label)
 

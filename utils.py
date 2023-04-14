@@ -71,10 +71,6 @@ def tasksbatch_generator(data, batch_size, num_samples, dim_input, dim_output):
     start_index = np.random.randint(0, len(data) - batch_size)
     batch_tasks = data[start_index:(start_index + batch_size)]
 
-    cnt_sample = []
-    for i in range(batch_size):
-        cnt_sample.append(len(batch_tasks[i]))
-
     for i in range(batch_size):
         np.random.shuffle(batch_tasks[i])  # shuffle samples in each task
         start_index1 = np.random.randint(0, len(batch_tasks[i]) - num_samples)
@@ -85,7 +81,7 @@ def tasksbatch_generator(data, batch_size, num_samples, dim_input, dim_output):
                 labels[i][j][1] = 1  # 滑坡
             else:
                 labels[i][j][0] = 1  # 非滑坡
-    return init_inputs, labels, np.array(cnt_sample).astype(np.float32)
+    return init_inputs, labels
 
 
 def batch_generator(one_task, dim_input, dim_output, batch_size):
