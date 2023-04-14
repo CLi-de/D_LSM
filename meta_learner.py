@@ -33,12 +33,12 @@ flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and c
 
 flags.DEFINE_integer('dim_input', 13, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
-flags.DEFINE_integer('meta_batch_size', 4, 'number of tasks sampled per meta-update, not nums tasks')
+flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_integer('num_samples_each_task', 8,
                      'number of samples sampling from each task when training, inner_batch_size')
 flags.DEFINE_integer('test_update_batch_size', 4,
                      'number of examples used for gradient update during adapting.')
-flags.DEFINE_integer('metatrain_iterations', 5001, 'number of meta-training iterations.')
+flags.DEFINE_integer('metatrain_iterations', 3001, 'number of meta-training iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 flags.DEFINE_float('update_lr', 1e-3, 'learning rate of single task objective (inner)')  # le-2 is the best
@@ -58,9 +58,9 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
             train_writer = tf.compat.v1.summary.FileWriter(FLAGS.logdir + '/' + exp_string, sess.graph)
         for itr in range(resume_itr, FLAGS.pretrain_iterations + FLAGS.metatrain_iterations):
             batch_x, batch_y = tasksbatch_generator(tasks, FLAGS.meta_batch_size
-                                                                , FLAGS.num_samples_each_task,
-                                                                FLAGS.dim_input,
-                                                                FLAGS.dim_output)  # task_batch[i]: (x, y, features)
+                                                    , FLAGS.num_samples_each_task,
+                                                    FLAGS.dim_input,
+                                                    FLAGS.dim_output)  # task_batch[i]: (x, y, features)
             # batch_y = _transform_labels_to_network_format(batch_y, FLAGS.num_classes)
             inputa = batch_x[:, :int(FLAGS.num_samples_each_task / 2), :]  # a used for training
             labela = batch_y[:, :int(FLAGS.num_samples_each_task / 2), :]
@@ -175,7 +175,7 @@ def metatask_sampling(p_samples, years):
 
 def main():
     """input data"""
-    if not os.path.exists('./task_sampling/meta_task.xlsx'):
+    if not os.path.exists('./task_sampling/meta_task_1.xlsx'):
         print('meta_task generation...')
         # positive samples
         p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
@@ -202,15 +202,29 @@ def main():
         meta_tasks = []
 
         for year in years:
-            p_samples_ = groups.get_group(str(year)).reset_index().values[:-1, 1: -1]
+            p_samples_ = groups.get_group(str(year)).reset_index().values[:-1, 1: -1].astype(np.float32)
             np.random.shuffle(n_samples_norm)
             n_samples_ = n_samples_norm[:len(p_samples_), :]
             meta_tasks.append(np.vstack((p_samples_, n_samples_)))
+        # enlarge meta-tasks by dividing years with abundant samples
+        meta_tasks_1 = []  # used for meta-training intermediate model
+        n_divide = 50
+        for i in range(len(meta_tasks)):
+            len_ = len(meta_tasks[i])
+            np.random.shuffle(meta_tasks[i])
+            if len_ > n_divide:
+                n_eql = int(len_ / n_divide)
+                for j in range(n_eql):
+                    meta_tasks_1.append(meta_tasks[i][j * int(len_ / n_eql): (j + 1) * int(len_ / n_eql), :])
+            if n_divide >= len_ > 8:
+                meta_tasks_1.append(meta_tasks[i])
+
         # delete years with too few samples (<8)
-        meta_tasks_ = []
+        meta_tasks_2 = []  # used for model adaptation
         for i in range(len(years)):
             if len(meta_tasks[i]) > 8:
-                meta_tasks_.append(meta_tasks[i])
+                meta_tasks_2.append(meta_tasks[i])
+
         '''divide equally by number of landslides (optional)'''
 
         # K = 50  # number of p_samples each meta task
@@ -232,14 +246,16 @@ def main():
             return tasks
 
         # meta-datasets for meta-training and meta-testing
-        meta_tasks_ = transform_data(meta_tasks_)
-        save_tasks(meta_tasks_, 'task_sampling/meta_task.xlsx')  # save meta_tasks to excel
+        meta_tasks_1 = transform_data(meta_tasks_1)
+        meta_tasks_2 = transform_data(meta_tasks_2)
+        save_tasks(meta_tasks_1, 'task_sampling/meta_task_1.xlsx')
+        save_tasks(meta_tasks_2, 'task_sampling/meta_task_2.xlsx')
     else:
         print('read meta_tasks from excel...')
-        meta_tasks_ = read_tasks('task_sampling/meta_task.xlsx')
+        meta_tasks_1 = read_tasks('task_sampling/meta_task_1.xlsx')
 
-    tasks_train = meta_tasks_[:int(3 / 4 * len(meta_tasks_))]
-    tasks_test = meta_tasks_[int(3 / 4 * len(meta_tasks_)):]
+    tasks_train = meta_tasks_1[:int(3 / 4 * len(meta_tasks_1))]
+    tasks_test = meta_tasks_1[int(3 / 4 * len(meta_tasks_1)):]
 
     """meta-training and -testing"""
     print('model construction...')

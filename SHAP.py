@@ -80,7 +80,7 @@ input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 
 model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label,
                       prefix='metatrain_')
 print('\n read meta-tasks from file...')
-tasks = read_tasks('task_sampling/meta_task.xlsx')  # read meta_tasks from excel file
+tasks = read_tasks('task_sampling/meta_task_2.xlsx')  # read meta_tasks from excel file
 
 p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
 feature_names = p_data[0, :-4]

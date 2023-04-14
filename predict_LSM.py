@@ -53,7 +53,7 @@ else:
     print("\n no meta-learned model found!")
 
 '''Adaptation and predict'''
-meta_tasks = read_tasks('task_sampling/meta_task.xlsx')
+meta_tasks = read_tasks('task_sampling/meta_task_2.xlsx')
 for i in range(len(meta_tasks)):
     np.random.shuffle(meta_tasks[i])
     with tf.compat.v1.variable_scope('model', reuse=True):  # Variable reuse in np.normalize()
@@ -61,8 +61,7 @@ for i in range(len(meta_tasks)):
         batch_size = FLAGS.test_update_batch_size
         fast_weights = model.weights
         for j in range(FLAGS.num_updates):
-            inputa, labela = batch_generator(train_, FLAGS.dim_input, FLAGS.dim_output,
-                                             batch_size)
+            inputa, labela = batch_generator(train_, FLAGS.dim_input, FLAGS.dim_output, batch_size)
             loss = model.loss_func(model.forward(inputa, fast_weights, reuse=True), labela)
             grads = tf.gradients(ys=loss, xs=list(fast_weights.values()))
             gradients = dict(zip(fast_weights.keys(), grads))
