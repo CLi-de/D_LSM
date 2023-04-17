@@ -90,7 +90,7 @@ init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # SHAP for ith subtasks(TODO: not enough memory)
-for i in range(0, len(tasks), 10):
+for i in range(4, len(tasks), 5):
     model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
     print('\n shap_round_' + str(i))
@@ -125,13 +125,14 @@ for i in range(0, len(tasks), 10):
 
     '''global (for mulyiple samples)'''
     # bar
-    shap.summary_plot(shap_values[1], X_, plot_type="bar", show=False)
+    # shap.summary_plot(shap_values[1], X_, plot_type="bar", color='r', show=False)
+    shap.summary_plot(shap_values, X_, plot_type="bar", show=False)
 
     save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance')
 
     # violin
-    # shap.summary_plot(shap_values[1], features=X_, plot_type="dot", show=False, max_display=15)  # summary points
-    shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False, max_display=15)
+    shap.summary_plot(shap_values[1], features=X_, plot_type="dot", show=False, max_display=15)  # summary points
+    # shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False, max_display=15)
     save_pic('tmp/violin' + str(i) + '.pdf', 'impact on model output')
 
     # scatter (interdependence of two features)
