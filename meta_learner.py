@@ -166,13 +166,6 @@ def test(model, saver, sess, exp_string, tasks, num_updates=5):
     sess.close()
 
 
-def metatask_sampling(p_samples, years):
-    metatask_p = []
-    # for year in years:
-    #     if year
-    return metatask_p
-
-
 def main():
     """input data"""
     if not os.path.exists('./task_sampling/meta_task_1.xlsx'):
