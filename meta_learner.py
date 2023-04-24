@@ -31,7 +31,7 @@ flags.DEFINE_string('norm', 'batch_norm', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('log', './tmp/data', 'batch_norm, layer_norm, or None')
 flags.DEFINE_string('logdir', './checkpoint_dir', 'directory for summaries and checkpoints.')
 
-flags.DEFINE_integer('dim_input', 13, 'dim of input data')
+flags.DEFINE_integer('dim_input', 15, 'dim of input data')
 flags.DEFINE_integer('dim_output', 2, 'dim of output data')
 flags.DEFINE_integer('meta_batch_size', 16, 'number of tasks sampled per meta-update, not nums tasks')
 flags.DEFINE_integer('num_samples_each_task', 16,
@@ -172,10 +172,10 @@ def main():
         print('meta_task generation...')
         # positive samples
         p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-        p_samples = p_data[1:, :-3].astype(np.float32)
+        p_samples = p_data[1:, :-5].astype(np.float32)
         # negative samples
         n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-        n_samples = n_data[1:, :-2].astype(np.float32)
+        n_samples = n_data[1:, :-3].astype(np.float32)
 
         # feature normalization
         sample_f, mean, std = feature_normalization(np.vstack((p_samples, n_samples))[:, :-1])
@@ -183,11 +183,11 @@ def main():
         n_samples_norm = np.hstack((sample_f[len(p_samples):, :], n_samples[:, -1].reshape(-1, 1)))
 
         '''divide by year (1964-2019)'''
-        p_years = np.hstack((p_samples_norm, p_data[1:, -3].reshape(-1, 1)))
-        years = np.unique(p_data[1:, -3])  # years that have landslide records
+        p_years = np.hstack((p_samples_norm, p_data[1:, -5].reshape(-1, 1)))
+        years = np.unique(p_data[1:, -5])  # years that have landslide records
         # transform to pdDataframe for grouping
         p_years = pd.DataFrame(p_years)
-        f_names = p_data[0, :-2].astype(str)
+        f_names = p_data[0, :-4].astype(str)
         p_years.columns = f_names
         groups = p_years.groupby('year')
         # meta-task generation
