@@ -211,12 +211,6 @@ def main():
             if n_divide >= len_ > FLAGS.num_samples_each_task:
                 meta_tasks_.append(meta_tasks[i])
 
-        # delete years with too few samples
-        # meta_tasks_2 = []  # used for model adaptation
-        # for i in range(len(years)):
-        #     if len(meta_tasks[i]) > 8:
-        #         meta_tasks_2.append(meta_tasks[i])
-
         def transform_data(meta_tasks):
             tasks = [[] for i in range(len(meta_tasks))]
             for k in range(len(meta_tasks)):
