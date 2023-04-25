@@ -151,8 +151,8 @@ def test(model, saver, sess, exp_string, tasks, num_updates=5):
     total_acc = accuracy_score(total_Ytest, total_Ypred)
     print('Test_Accuracy: %f' % total_acc)
     cal_measure(total_Ypred, total_Ytest)
-    kappa_value = cohen_kappa_score(total_Ypred, total_Ytest)
-    print('Cohen_Kappa: %f' % kappa_value)
+    # kappa_value = cohen_kappa_score(total_Ypred, total_Ytest)
+    # print('Cohen_Kappa: %f' % kappa_value)
 
     # save prediction for test samples, which can be used in calculating statistical measure such as AUROC
     pred_prob = np.array(total_Ypred1)

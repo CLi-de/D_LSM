@@ -72,6 +72,14 @@ def font_setting(plt, xlabel=None):
     plt.xlabel(xlabel, fontdict=font2)
 
 
+print('\n read meta-tasks from file...')
+tasks = read_tasks('task_sampling/meta_task.xlsx')  # read meta_tasks from excel file
+# tasks = supplement_samples(tasks)
+years = [str(1992 + i) for i in range(28)]
+
+p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
+feature_names = p_data[0, :-6]
+
 print('\n construct model...')
 tf.compat.v1.disable_eager_execution()
 model = Meta_learner(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
@@ -79,67 +87,62 @@ input_tensors_input = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 
 input_tensors_label = (FLAGS.meta_batch_size, int(FLAGS.num_samples_each_task / 2), FLAGS.dim_output)
 model.construct_model(input_tensors_input=input_tensors_input, input_tensors_label=input_tensors_label,
                       prefix='metatrain_')
-print('\n read meta-tasks from file...')
-tasks = read_tasks('task_sampling/meta_task.xlsx')  # read meta_tasks from excel file
-years = [str(1992 + i) for i in range(28)]
-
-p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-feature_names = p_data[0, :-6]
 
 sess = tf.compat.v1.InteractiveSession()
 init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要初始化
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # SHAP for ith subtasks(TODO: not enough memory)
-for i in range(0, len(tasks), 7):
-    model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
+for i in range(len(tasks)):
+    if len(tasks > 0):
+        model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
-    print('\n shap_round_' + str(i))
-    shap.initjs()
-    # SHAP demo are using dataframe instead of nparray
-    X_ = pd.DataFrame(tasks[i][:, :-1])  # convert np.array to pd.dataframe
-    X_.columns = feature_names  # 添加特征名称
-    X_ = X_.iloc[:50, :]
+        print('\n shap_round_' + str(i))
+        shap.initjs()
+        # SHAP demo are using dataframe instead of nparray
+        X_ = pd.DataFrame(tasks[i][:, :-1])  # convert np.array to pd.dataframe
+        X_.columns = feature_names  # 添加特征名称
+        X_ = X_.iloc[:50, :]
 
-    # explainer = shap.KernelExplainer(pred_prob, shap.kmeans(x_train, 80))
-    explainer = shap.KernelExplainer(pred_prob, X_)
-    shap_values = explainer.shap_values(X_, nsamples=100)  # shap_values
-
-
-    def save_pic(savename, xlabel=None):
-        font_setting(plt, xlabel)
-        plt.tight_layout()  # keep labels within frame
-        plt.savefig(savename)
-        plt.close()
+        # explainer = shap.KernelExplainer(pred_prob, shap.kmeans(x_train, 80))
+        explainer = shap.KernelExplainer(pred_prob, X_)
+        shap_values = explainer.shap_values(X_, nsamples=100)  # shap_values
 
 
-    '''local (for each sample)'''
-    # waterfall
-    _waterfall.waterfall_legacy(explainer.expected_value[1], shap_values[1][0], feature_names=feature_names,
-                                max_display=15, show=False)  # label = 1 (landslide)
-    save_pic('tmp/waterfall' + str(i) + '.pdf')
+        def save_pic(savename, xlabel=None):
+            font_setting(plt, xlabel)
+            plt.tight_layout()  # keep labels within frame
+            plt.savefig(savename)
+            plt.close()
 
-    # force plot
-    shap.force_plot(base_value=explainer.expected_value[1], shap_values=shap_values[1][0], features=X_.iloc[0],
-                    matplotlib=True, show=False)
-    save_pic('tmp/force_plot' + str(i) + '.pdf')
 
-    '''global (for mulyiple samples)'''
-    # bar
-    # shap.summary_plot(shap_values[1], X_, plot_type="bar", color='r', show=False)
-    shap.summary_plot(shap_values, X_, plot_type="bar", show=False, class_names=['landslide', 'non-landslide'],
-                      title=years[i])
+        '''local (for each sample)'''
+        # waterfall
+        _waterfall.waterfall_legacy(explainer.expected_value[1], shap_values[1][0], feature_names=feature_names,
+                                    max_display=15, show=False)  # label = 1 (landslide)
+        save_pic('tmp/waterfall' + str(i) + '.pdf')
 
-    save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance')
+        # # force plot
+        # shap.force_plot(base_value=explainer.expected_value[1], shap_values=shap_values[1][0], features=X_.iloc[0],
+        #                 matplotlib=True, show=False)
+        # save_pic('tmp/force_plot' + str(i) + '.pdf')
 
-    # violin
-    shap.summary_plot(shap_values[1], features=X_, plot_type="dot", show=False, max_display=15,
-                      title=years[i])  # summary points
-    # shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False, max_display=15)
-    save_pic('tmp/violin' + str(i) + '.pdf', 'impact on model output')
+        '''global (for mulyiple samples)'''
+        # bar
+        # shap.summary_plot(shap_values[1], X_, plot_type="bar", color='r', show=False)
+        shap.summary_plot(shap_values, X_, plot_type="bar", show=False, class_names=['landslide', 'non-landslide'],
+                          title=years[i])
 
-    # scatter (interdependence of two features)
-    _scatter.dependence_legacy('Slope', shap_values[1], features=X_, show=False)
-    save_pic('tmp/scatter' + str(i) + '.pdf')
+        save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance')
+
+        # violin
+        shap.summary_plot(shap_values[1], features=X_, plot_type="dot", show=False, max_display=15,
+                          title=years[i])  # summary points
+        # shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False, max_display=15)
+        save_pic('tmp/violin' + str(i) + '.pdf', 'impact on model output')
+
+        # scatter (interdependence of two features)
+        _scatter.dependence_legacy('Slope', shap_values[1], features=X_, show=False)
+        save_pic('tmp/scatter' + str(i) + '.pdf')
 
 print('\n finish SHAP!')
