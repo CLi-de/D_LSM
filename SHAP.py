@@ -93,8 +93,8 @@ init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # SHAP for ith subtasks(TODO: not enough memory)
-for i in range(len(tasks)):
-    if len(tasks > 0):
+for i in range(0, len(tasks), 2):
+    if len(tasks[i]) > 0:
         model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
         print('\n shap_round_' + str(i))
@@ -133,7 +133,7 @@ for i in range(len(tasks)):
         shap.summary_plot(shap_values, X_, plot_type="bar", show=False, class_names=['landslide', 'non-landslide'],
                           title=years[i])
 
-        save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance')
+        save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance('+years[i]+')')
 
         # violin
         shap.summary_plot(shap_values[1], features=X_, plot_type="dot", show=False, max_display=15,
