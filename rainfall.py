@@ -61,6 +61,6 @@ def value_n():
 # writer.close()
 
 if __name__ == "__main__":
-    # value_p('./data_src/p_samples.csv', './tmp/stations2.csv', 'tmp/' + 'p_rainfall.xlsx')
+    # value_p('./data_src/p_samples.csv', './data_src/stations2.csv', 'data_src/p_rainfall.xlsx')
 
     print('finished!')

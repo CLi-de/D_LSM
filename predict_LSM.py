@@ -11,6 +11,7 @@ import pandas as pd
 
 from meta_learner import FLAGS
 from modeling import Meta_learner
+import os
 
 from utils import read_tasks, batch_generator
 
@@ -38,8 +39,8 @@ model.construct_model(input_tensors_input=input_tensors_input, input_tensors_lab
 
 '''path of meta-learned model'''
 exp_string = '.mbs' + str(FLAGS.meta_batch_size) + '.nset' + str(FLAGS.num_samples_each_task) \
-                 + '.nu' + str(FLAGS.test_update_batch_size) + '.in_lr' + str(FLAGS.update_lr) \
-                 + '.meta_lr' + str(FLAGS.meta_lr) + '.iter' + str(FLAGS.metatrain_iterations)
+             + '.nu' + str(FLAGS.test_update_batch_size) + '.in_lr' + str(FLAGS.update_lr) \
+             + '.meta_lr' + str(FLAGS.meta_lr) + '.iter' + str(FLAGS.metatrain_iterations)
 
 '''restoring from meta-trained model'''
 saver = tf.compat.v1.train.Saver(tf.compat.v1.get_collection(tf.compat.v1.GraphKeys.TRAINABLE_VARIABLES))
@@ -51,11 +52,25 @@ if model_file:
     print("Restoring model weights from " + model_file)
     saver.restore(sess, model_file)  # 以model_file初始化sess中图
 else:
-    print("\n no meta-learned model found!")
+    print("\nno meta-learned model found!")
 
 '''Adaptation and predict'''
-print('\n model adaptation and LSM prediction...')
-meta_tasks = read_tasks('task_sampling/meta_task_2.xlsx')
+if not os.path.exists('./task_sampling/meta_task.xlsx'):
+    pass
+else:
+    print('\nmodel adaptation and LSM prediction...')
+    meta_tasks = read_tasks('task_sampling/meta_task.xlsx')  # TODO: too slow reading
+
+'''for meta-tasks with too few samples'''
+for i in range(len(meta_tasks)):
+    len_ = len(meta_tasks[i])
+    if len_ < 8:
+        # 从相邻年份补充样本
+        if i - 1 >= 0:
+            meta_tasks[i].extend(meta_tasks[i - 1][:8 - len_])
+        else:
+            meta_tasks[i].extend(meta_tasks[i + 1][:8 - len_])
+
 for i in range(len(meta_tasks)):
     # np.random.shuffle(meta_tasks[i])
     with tf.compat.v1.variable_scope('model', reuse=True):  # Variable reuse in np.normalize()

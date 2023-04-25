@@ -168,7 +168,7 @@ def test(model, saver, sess, exp_string, tasks, num_updates=5):
 
 def main():
     """input data"""
-    if not os.path.exists('./task_sampling/meta_task_1.xlsx'):
+    if not os.path.exists('./task_sampling/meta_task_.xlsx'):
         print('meta_task generation...')
         # positive samples
         p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
@@ -199,7 +199,7 @@ def main():
             meta_tasks.append(np.vstack((p_samples_, n_samples_)))
 
         # enlarge meta-tasks by dividing years with abundant samples
-        meta_tasks_1 = []  # used for meta-training intermediate model
+        meta_tasks_ = []  # used for meta-training intermediate model
         n_divide = 50
         for i in range(len(meta_tasks)):
             len_ = len(meta_tasks[i])
@@ -207,15 +207,15 @@ def main():
             if len_ > n_divide:
                 n_eql = int(len_ / n_divide)
                 for j in range(n_eql):
-                    meta_tasks_1.append(meta_tasks[i][j * int(len_ / n_eql): (j + 1) * int(len_ / n_eql), :])
+                    meta_tasks_.append(meta_tasks[i][j * int(len_ / n_eql): (j + 1) * int(len_ / n_eql), :])
             if n_divide >= len_ > FLAGS.num_samples_each_task:
-                meta_tasks_1.append(meta_tasks[i])
+                meta_tasks_.append(meta_tasks[i])
 
         # delete years with too few samples
-        meta_tasks_2 = []  # used for model adaptation
-        for i in range(len(years)):
-            if len(meta_tasks[i]) > 8:
-                meta_tasks_2.append(meta_tasks[i])
+        # meta_tasks_2 = []  # used for model adaptation
+        # for i in range(len(years)):
+        #     if len(meta_tasks[i]) > 8:
+        #         meta_tasks_2.append(meta_tasks[i])
 
         def transform_data(meta_tasks):
             tasks = [[] for i in range(len(meta_tasks))]
@@ -228,16 +228,16 @@ def main():
             return tasks
 
         # meta-datasets for meta-training and meta-testing
-        meta_tasks_1 = transform_data(meta_tasks_1)
-        meta_tasks_2 = transform_data(meta_tasks_2)
-        save_tasks(meta_tasks_1, 'task_sampling/meta_task_1.xlsx')
-        save_tasks(meta_tasks_2, 'task_sampling/meta_task_2.xlsx')
+        meta_tasks_ = transform_data(meta_tasks_)
+        meta_tasks = transform_data(meta_tasks)
+        save_tasks(meta_tasks_, 'task_sampling/meta_task_.xlsx')  # for training and testing
+        save_tasks(meta_tasks, 'task_sampling/meta_task.xlsx')  # for adaptation in predict_LSM.py
     else:
         print('read meta_tasks from excel...')
-        meta_tasks_1 = read_tasks('task_sampling/meta_task_1.xlsx')
+        meta_tasks_ = read_tasks('task_sampling/meta_task_.xlsx')
 
-    tasks_train = meta_tasks_1[:int(3 / 4 * len(meta_tasks_1))]
-    tasks_test = meta_tasks_1[int(3 / 4 * len(meta_tasks_1)):]
+    tasks_train = meta_tasks_[:int(3 / 4 * len(meta_tasks_))]
+    tasks_test = meta_tasks_[int(3 / 4 * len(meta_tasks_)):]
 
     """meta-training and -testing"""
     print('model construction...')
