@@ -16,13 +16,14 @@ from utils import read_tasks, batch_generator
 
 '''load grid data'''
 samples = np.loadtxt('./data_src/grid_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-f = samples[1:, :-2].astype(np.float32)
-xy = samples[1:, -2:].astype(np.float32)
+f = samples[1:, :-3].astype(np.float32)
+xy = samples[1:, -3:-1].astype(np.float32)
 
+# calculate mean and std
 p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-p_samples = p_data[1:, :-3].astype(np.float32)
+p_samples = p_data[1:, :-5].astype(np.float32)
 n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-n_samples = n_data[1:, :-2].astype(np.float32)
+n_samples = n_data[1:, :-3].astype(np.float32)
 mean = np.mean(np.vstack((p_samples, n_samples))[:, :-1], axis=0)
 std = np.std(np.vstack((p_samples, n_samples))[:, :-1], axis=0)
 f = (f - mean) / std  # normalization

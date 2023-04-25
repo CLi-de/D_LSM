@@ -83,14 +83,14 @@ print('\n read meta-tasks from file...')
 tasks = read_tasks('task_sampling/meta_task_2.xlsx')  # read meta_tasks from excel file
 
 p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-feature_names = p_data[0, :-4]
+feature_names = p_data[0, :-6]
 
 sess = tf.compat.v1.InteractiveSession()
 init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要初始化
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # SHAP for ith subtasks(TODO: not enough memory)
-for i in range(4, len(tasks), 5):
+for i in range(3, len(tasks), 5):
     model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
     print('\n shap_round_' + str(i))
@@ -126,7 +126,7 @@ for i in range(4, len(tasks), 5):
     '''global (for mulyiple samples)'''
     # bar
     # shap.summary_plot(shap_values[1], X_, plot_type="bar", color='r', show=False)
-    shap.summary_plot(shap_values, X_, plot_type="bar", show=False)
+    shap.summary_plot(shap_values, X_, plot_type="bar", show=False, class_names=['landslide', 'non-landslide'])
 
     save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance')
 

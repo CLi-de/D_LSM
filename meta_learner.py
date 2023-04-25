@@ -217,16 +217,6 @@ def main():
             if len(meta_tasks[i]) > 8:
                 meta_tasks_2.append(meta_tasks[i])
 
-        '''divide equally by number of landslides (optional)'''
-
-        # K = 50  # number of p_samples each meta task
-        # meta_tasks = []
-        # for k in range(int(6000 / K)):
-        #     p_samples_ = p_samples_norm[k * K: (k + 1) * K, :]
-        #     np.random.shuffle(n_samples_norm)
-        #     n_samples_ = n_samples_norm[:K, :]
-        #     meta_tasks.append(np.vstack((p_samples_, n_samples_)))
-
         def transform_data(meta_tasks):
             tasks = [[] for i in range(len(meta_tasks))]
             for k in range(len(meta_tasks)):
