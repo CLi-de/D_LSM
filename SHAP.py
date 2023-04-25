@@ -75,7 +75,7 @@ def font_setting(plt, xlabel=None):
 print('\n read meta-tasks from file...')
 tasks = read_tasks('task_sampling/meta_task.xlsx')  # read meta_tasks from excel file
 # tasks = supplement_samples(tasks)
-years = [str(1992 + i) for i in range(28)]
+years = [str(2019 - i) for i in range(28)]
 
 p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
 feature_names = p_data[0, :-6]
@@ -93,7 +93,7 @@ init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # SHAP for ith subtasks(TODO: not enough memory)
-for i in range(0, len(tasks), 2):
+for i in range(1, len(tasks), 2):
     if len(tasks[i]) > 0:
         model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
@@ -133,13 +133,13 @@ for i in range(0, len(tasks), 2):
         shap.summary_plot(shap_values, X_, plot_type="bar", show=False, class_names=['landslide', 'non-landslide'],
                           title=years[i])
 
-        save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance('+years[i]+')')
+        save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance ('+years[i]+')')
 
         # violin
         shap.summary_plot(shap_values[1], features=X_, plot_type="dot", show=False, max_display=15,
                           title=years[i])  # summary points
         # shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False, max_display=15)
-        save_pic('tmp/violin' + str(i) + '.pdf', 'impact on model output')
+        save_pic('tmp/violin' + str(i) + '.pdf', 'LIF impact on model output ('+years[i]+')')
 
         # scatter (interdependence of two features)
         _scatter.dependence_legacy('Slope', shap_values[1], features=X_, show=False)
