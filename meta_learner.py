@@ -182,9 +182,9 @@ def main():
         p_samples_norm = np.hstack((sample_f[:len(p_samples), :], p_samples[:, -1].reshape(-1, 1)))
         n_samples_norm = np.hstack((sample_f[len(p_samples):, :], n_samples[:, -1].reshape(-1, 1)))
 
-        '''divide by year (1964-2019)'''
+        '''divide by year (1992-2019)'''
         p_years = np.hstack((p_samples_norm, p_data[1:, -5].reshape(-1, 1)))
-        years = np.unique(p_data[1:, -5])  # years that have landslide records
+        years = np.unique(p_data[1:, -5])  # years (ascending order) that have landslide records
         # transform to pdDataframe for grouping
         p_years = pd.DataFrame(p_years)
         f_names = p_data[0, :-4].astype(str)
