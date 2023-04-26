@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 # @Author  : CHEN Li
 # @Time    : 2023/4/11 16:02
-# @File    : predict_LSM.py
+# @File    : adaptation.py
 # @annotation
 
 import numpy as np

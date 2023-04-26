@@ -18,7 +18,7 @@ from sklearn.metrics import roc_auc_score
 from sklearn import svm
 from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
-from unsupervised_pretraining.dbn_.models import SupervisedDBNClassification
+# from unsupervised_pretraining.dbn_.models import SupervisedDBNClassification
 from scipy.interpolate import make_interp_spline
 from sklearn.metrics._classification import accuracy_score
 
@@ -565,22 +565,22 @@ def MLP_fit_pred(x_train, x_test, y_train, y_test):
     return classifier.predict_proba(x_test)
 
 
-def DBN_fit_pred(x_train, x_test, y_train, y_test):
-    classifier = SupervisedDBNClassification(hidden_layers_structure=[32, 32],
-                                             learning_rate_rbm=0.001,
-                                             learning_rate=0.5,
-                                             n_epochs_rbm=10,
-                                             n_iter_backprop=200,
-                                             batch_size=64,
-                                             activation_function='relu',
-                                             dropout_p=0.1)
-    classifier.fit(x_train, y_train)
-    pred_prob = classifier.predict_proba(x_test)
-
-    # if pred_prob[0][0] > 0.5:
-    #     pred_prob = np.vstack((pred_prob[:, 0], pred_prob[:, -1])).T  # swap 0, 1 prediction
-
-    return pred_prob
+# def DBN_fit_pred(x_train, x_test, y_train, y_test):
+#     classifier = SupervisedDBNClassification(hidden_layers_structure=[32, 32],
+#                                              learning_rate_rbm=0.001,
+#                                              learning_rate=0.5,
+#                                              n_epochs_rbm=10,
+#                                              n_iter_backprop=200,
+#                                              batch_size=64,
+#                                              activation_function='relu',
+#                                              dropout_p=0.1)
+#     classifier.fit(x_train, y_train)
+#     pred_prob = classifier.predict_proba(x_test)
+#
+#     # if pred_prob[0][0] > 0.5:
+#     #     pred_prob = np.vstack((pred_prob[:, 0], pred_prob[:, -1])).T  # swap 0, 1 prediction
+#
+#     return pred_prob
 
 
 def RF_fit_pred(x_train, x_test, y_train, y_test):

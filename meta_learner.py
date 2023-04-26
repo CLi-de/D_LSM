@@ -225,7 +225,7 @@ def main():
         meta_tasks_ = transform_data(meta_tasks_)
         meta_tasks = transform_data(meta_tasks)
         save_tasks(meta_tasks_, 'task_sampling/meta_task_.xlsx')  # for training and testing
-        save_tasks(meta_tasks, 'task_sampling/meta_task.xlsx')  # for adaptation in predict_LSM.py
+        save_tasks(meta_tasks, 'task_sampling/meta_task.xlsx')  # for adaptation in adaptation.py
     else:
         print('read meta_tasks from excel...')
         meta_tasks_ = read_tasks('task_sampling/meta_task_.xlsx')
