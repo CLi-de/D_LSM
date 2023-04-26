@@ -184,18 +184,21 @@ def main():
 
         '''divide by year (1992-2019)'''
         p_years = np.hstack((p_samples_norm, p_data[1:, -5].reshape(-1, 1)))
+        n_years = np.hstack((n_samples_norm, n_data[1:, -3].reshape(-1, 1)))
         years = np.unique(p_data[1:, -5])  # years (ascending order) that have landslide records
         # transform to pdDataframe for grouping
         p_years = pd.DataFrame(p_years)
-        f_names = p_data[0, :-4].astype(str)
+        n_years = pd.DataFrame(n_years)
+        f_names = p_data[0, :-4].astype(str)  # to feature 'year'
         p_years.columns = f_names
-        groups = p_years.groupby('year')
+        n_years.columns = f_names
+        groups_p = p_years.groupby('year')
+        groups_n = n_years.groupby('year')
         # meta-task generation
         meta_tasks = []
         for year in years:
-            p_samples_ = groups.get_group(str(year)).reset_index().values[:-1, 1: -1].astype(np.float32)
-            np.random.shuffle(n_samples_norm)
-            n_samples_ = n_samples_norm[:len(p_samples_), :]
+            p_samples_ = groups_p.get_group(str(year)).reset_index().values[:-1, 1: -1].astype(np.float32)
+            n_samples_ = groups_n.get_group(str(year)).reset_index().values[:-1, 1: -1].astype(np.float32)
             meta_tasks.append(np.vstack((p_samples_, n_samples_)))
 
         # enlarge meta-tasks by dividing years with abundant samples
