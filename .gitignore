@@ -3,26 +3,13 @@
 /*.xls
 #/*.txt
 
-# pycache
-
-
-
-
-# DAS_logs
-unsupervised_pretraining/model_init/*.npz
-
-# figs
+*.xlsx
 figs/*.pdf
-
-# models_of_blocks
 models_of_blocks/**/*.npz
-
-# metatask_sampling
 metatask_sampling/*.tif
 metatask_sampling/*.xlsx
-
-# src_data_
 data_src/*.csv
+rainfall.py
 
 # folder
 tmp/
@@ -32,10 +19,6 @@ __pycache__/
 task_sampling/
 adapted_models/
 
-# Unsupervised_Pretraining
-
-# file
-*.xlsx
 
 *~
 
