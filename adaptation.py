@@ -13,14 +13,14 @@ from meta_learner import FLAGS
 from modeling import Meta_learner
 import os
 
-from utils import read_tasks, batch_generator
+from utils import read_tasks, batch_generator, feature_normalization
 
 '''load grid data'''
 samples = np.loadtxt('./data_src/grid_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
 f = samples[1:, :-3].astype(np.float32)
 xy = samples[1:, -3:-1].astype(np.float32)
 
-# calculate mean and std
+'''calculate mean and std'''
 p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
 p_samples = p_data[1:, :-5].astype(np.float32)
 n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')

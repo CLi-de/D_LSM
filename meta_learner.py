@@ -38,7 +38,7 @@ flags.DEFINE_integer('num_samples_each_task', 16,
                      'number of samples sampling from each task when training, inner_batch_size')
 flags.DEFINE_integer('test_update_batch_size', 8,
                      'number of examples used for gradient update during adapting.')
-flags.DEFINE_integer('metatrain_iterations', 3001, 'number of meta-training iterations.')
+flags.DEFINE_integer('metatrain_iterations', 5001, 'number of meta-training iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
 flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')  # le-2 is the best
@@ -94,7 +94,7 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
                 print_str += ': ' + 'mean inner loss:' + str(np.mean(prelosses)) + \
                              '; ' 'outer loss:' + str(np.mean(postlosses))
                 print(print_str)
-                print('inner lr:', sess.run(model.update_lr))
+                # print('inner lr:', sess.run(model.update_lr))
                 prelosses, postlosses = [], []
             #  save model
             if (itr != 0) and itr % SAVE_INTERVAL == 0:
