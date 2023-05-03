@@ -39,8 +39,8 @@ class Meta_learner:
             # Attention module
             self.A = tf.Variable(tf.zeros([self.dim_input, self.dim_input]))
             # initialize the inner learning rate as tf.Variable within 'model' scope
-            # self.update_lr = tf.Variable(FLAGS.update_lr)
-            self.update_lr = FLAGS.update_lr
+            self.update_lr = tf.Variable(FLAGS.update_lr)
+            # self.update_lr = FLAGS.update_lr
             if 'weights' in dir(self):
                 training_scope.reuse_variables()
                 weights = self.weights
