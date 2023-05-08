@@ -72,6 +72,13 @@ def font_setting(plt, xlabel=None):
     plt.xlabel(xlabel, fontdict=font2)
 
 
+def save_pic(savename, xlabel=None):
+    font_setting(plt, xlabel)
+    plt.tight_layout()  # keep labels within frame
+    plt.savefig(savename)
+    plt.close()
+
+
 print('\n read meta-tasks from file...')
 tasks = read_tasks('task_sampling/meta_task.xlsx')  # read meta_tasks from excel file
 # tasks = supplement_samples(tasks)
@@ -93,8 +100,8 @@ init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # SHAP for ith subtasks(TODO: not enough memory)
-for i in range(0, len(tasks), 2):
-    if len(tasks[i]) > 0:
+for i in range(0, len(tasks), 3):
+    if tasks[i].shape[0] > 0:
         model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
         print('\n shap_round_' + str(i))
@@ -102,25 +109,22 @@ for i in range(0, len(tasks), 2):
         # SHAP demo are using dataframe instead of nparray
         X_ = pd.DataFrame(tasks[i][:, :-1])  # convert np.array to pd.dataframe
         X_.columns = feature_names  # 添加特征名称
-        X_ = X_.iloc[:50, :]
+        X_ = X_.iloc[:100, :]
 
         # explainer = shap.KernelExplainer(pred_prob, shap.kmeans(x_train, 80))
         explainer = shap.KernelExplainer(pred_prob, X_)
         shap_values = explainer.shap_values(X_, nsamples=100)  # shap_values
 
-
-        def save_pic(savename, xlabel=None):
-            font_setting(plt, xlabel)
-            plt.tight_layout()  # keep labels within frame
-            plt.savefig(savename)
-            plt.close()
-
-
         '''local (for each sample)'''
         # waterfall
-        _waterfall.waterfall_legacy(explainer.expected_value[1], shap_values[1][0], feature_names=feature_names,
-                                    max_display=15, show=False)  # label = 1 (landslide)
-        save_pic('tmp/waterfall' + str(i) + '.pdf')
+        num_samples = 4
+        if tasks[i].shape[0] < 4:
+            num_samples = tasks[i].shape[0]
+        else:
+            for j in range(num_samples):
+                _waterfall.waterfall_legacy(explainer.expected_value[1], shap_values[1][j], feature_names=feature_names,
+                                            max_display=7, show=False)  # label = 1 (landslide)
+                save_pic('tmp/waterfall' + str(i) + '_' + str(j) + '.pdf')
 
         # # force plot
         # shap.force_plot(base_value=explainer.expected_value[1], shap_values=shap_values[1][0], features=X_.iloc[0],
@@ -133,16 +137,17 @@ for i in range(0, len(tasks), 2):
         shap.summary_plot(shap_values, X_, plot_type="bar", show=False, class_names=['landslide', 'non-landslide'],
                           title=years[i])
 
-        save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance ('+years[i]+')')
+        save_pic('tmp/bar' + str(i) + '.pdf', 'LIF importance (' + years[i] + ')')
 
         # violin
         shap.summary_plot(shap_values[1], features=X_, plot_type="dot", show=False, max_display=15,
                           title=years[i])  # summary points
         # shap.summary_plot(shap_values[1], X_, plot_type="violin", show=False, max_display=15)
-        save_pic('tmp/violin' + str(i) + '.pdf', 'LIF impact on model output ('+years[i]+')')
+        save_pic('tmp/violin' + str(i) + '.pdf', 'LIF impact on model output (' + years[i] + ')')
 
-        # scatter (interdependence of two features)
-        _scatter.dependence_legacy('Slope', shap_values[1], features=X_, show=False)
-        save_pic('tmp/scatter' + str(i) + '.pdf')
+        # scatter (interdependence of two features, in supplemental materials)
+        # for name in feature_names.tolist():
+        #     _scatter.dependence_legacy(name, shap_values[1], features=X_, show=False, interaction_index=None)
+        #     save_pic('tmp/scatter' + str(i) + '_' + name + '.pdf')
 
 print('\n finish SHAP!')
