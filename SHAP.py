@@ -100,7 +100,7 @@ init = tf.compat.v1.global_variables()  # optimizer里会有额外variable需要
 sess.run(tf.compat.v1.variables_initializer(var_list=init))
 
 # SHAP for ith subtasks(TODO: not enough memory)
-for i in range(0, len(tasks), 3):
+for i in range(2, len(tasks), 3):
     if tasks[i].shape[0] > 0:
         model.weights = init_weights('./adapted_models/' + str(i) + 'th_model.npz')
 
@@ -124,7 +124,8 @@ for i in range(0, len(tasks), 3):
             for j in range(num_samples):
                 _waterfall.waterfall_legacy(explainer.expected_value[1], shap_values[1][j], feature_names=feature_names,
                                             max_display=7, show=False)  # label = 1 (landslide)
-                save_pic('tmp/waterfall' + str(i) + '_' + str(j) + '.pdf')
+                save_pic('tmp/waterfall' + str(i) + '_' + str(j) + '.pdf',
+                         'Contribution of different features to output in a single sample')
 
         # # force plot
         # shap.force_plot(base_value=explainer.expected_value[1], shap_values=shap_values[1][0], features=X_.iloc[0],
