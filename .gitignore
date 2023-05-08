@@ -11,6 +11,7 @@ metatask_sampling/*.xlsx
 data_src/*.csv
 rainfall.py
 Xgboost_.py
+test.py
 
 # folder
 tmp/
