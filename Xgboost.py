@@ -6,7 +6,7 @@
 # @annotation
 
 """
-For whole samples performance evaluation
+Overall performance evaluation by XGB
 """
 
 import numpy as np
@@ -29,17 +29,15 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     # print('start Xgboost evaluation...')
     model = xgboost.XGBClassifier().fit(x_train, y_train)
     pred_train = model.predict(x_train)
-
     pred_test = model.predict(x_test)
-
     # 训练精度
     print('train_Accuracy: %f' % accuracy_score(y_train, pred_train))
     # 测试精度
     print('test_Accuracy: %f' % accuracy_score(y_test, pred_test))
     # pred1 = clf2.predict_proba() # 预测类别概率
     cal_measure(pred_test, y_test)
-    kappa_value = cohen_kappa_score(pred_test, y_test)
-    print('Cohen_Kappa: %f' % kappa_value)
+    # kappa_value = cohen_kappa_score(pred_test, y_test)
+    # print('Cohen_Kappa: %f' % kappa_value)
 
     # SHAP
     print('SHAP...')
@@ -52,16 +50,16 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     x_test.columns = f_names
 
     explainer = shap.Explainer(model)
-    shap_values = explainer(x_train)
+    shap_values = explainer(x_train[:1000])
 
     def font_setting(plt, xlabel=None):
         font1 = {'family': 'Times New Roman',
                  'weight': 'normal',
-                 'size': 14,
+                 'size': 20,
                  }
         font2 = {'family': 'Times New Roman',
                  'weight': 'normal',
-                 'size': 18,
+                 'size': 20,
                  }
         plt.yticks(fontsize=10, font=font1)
         plt.xlabel(xlabel, fontdict=font2)
@@ -91,7 +89,8 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     save_pic('tmp/scatter' + savefig_name + '.pdf')
 
     # heatmap
-
+    shap.plots.heatmap(shap_values, max_display=15, show=False)
+    save_pic('tmp/heatmap' + savefig_name + '.pdf')
 
     '''failures'''
     # # force
@@ -140,11 +139,5 @@ if __name__ == "__main__":
                                                         shuffle=True)
     Xgboost_(x_train, y_train, x_test, y_test, f_names, '_XGB')
 
-    '''grid unit prediction'''
-    # grid_f = np.loadtxt('./data_src/grid_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-    # grid_samples_f = grid_f[1:, :-2].astype(np.float32)
-    # xy = grid_f[1:, -2:].astype(np.float32)
-    # # samples_f = samples_f / samples_f.max(axis=0)
-    # grid_samples_f = (grid_samples_f - mean) / std
 
     print('done Xgboost-based LSM prediction! \n')
