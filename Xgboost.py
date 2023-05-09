@@ -55,11 +55,11 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
     def font_setting(plt, xlabel=None):
         font1 = {'family': 'Times New Roman',
                  'weight': 'normal',
-                 'size': 20,
+                 'size': 14,
                  }
         font2 = {'family': 'Times New Roman',
                  'weight': 'normal',
-                 'size': 20,
+                 'size': 14,
                  }
         plt.yticks(fontsize=10, font=font1)
         plt.xlabel(xlabel, fontdict=font2)
@@ -82,15 +82,18 @@ def Xgboost_(x_train, y_train, x_test, y_test, f_names, savefig_name):
 
     # violin
     shap.summary_plot(shap_values, max_display=15, show=False, plot_type='violin')
-    save_pic('tmp/violin' + savefig_name + '.pdf', 'LIF impact on model output')
+    save_pic('tmp/violin' + savefig_name + '.pdf', 'SHAP values')
 
     # scatter
-    shap.plots.scatter(shap_values, show=False)
-    save_pic('tmp/scatter' + savefig_name + '.pdf')
-
+    shap.plots.scatter(shap_values, show=False, color='blue')
+    # save_pic('tmp/scatter' + savefig_name + '.pdf')
+    # font_setting(plt, xlabel)
+    plt.tight_layout()  # keep labels within frame
+    plt.savefig('tmp/scatter' + savefig_name + '.pdf')
+    plt.close()
     # heatmap
     shap.plots.heatmap(shap_values, max_display=15, show=False)
-    save_pic('tmp/heatmap' + savefig_name + '.pdf')
+    save_pic('tmp/heatmap' + savefig_name + '.pdf', 'Non-landslide/Landslide samples')
 
     '''failures'''
     # # force
