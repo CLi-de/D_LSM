@@ -15,20 +15,6 @@ import os
 
 from utils import read_tasks, batch_generator, feature_normalization
 
-'''load grid data'''
-samples = np.loadtxt('./data_src/grid_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-f = samples[1:, :-3].astype(np.float32)
-xy = samples[1:, -3:-1].astype(np.float32)
-
-'''calculate mean and std'''
-p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-p_samples = p_data[1:, :-5].astype(np.float32)
-n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
-n_samples = n_data[1:, :-3].astype(np.float32)
-mean = np.mean(np.vstack((p_samples, n_samples))[:, :-1], axis=0)
-std = np.std(np.vstack((p_samples, n_samples))[:, :-1], axis=0)
-f = (f - mean) / std  # normalization
-
 '''construct model'''
 tf.compat.v1.disable_eager_execution()
 model = Meta_learner(FLAGS.dim_input, FLAGS.dim_output, test_num_updates=5)
@@ -87,22 +73,39 @@ for i in range(len(meta_tasks)):
                                     [fast_weights[key] - model.update_lr * gradients[key] for key in
                                      fast_weights.keys()]))
 
-        """predict and save LSM result..."""
-        pred = model.forward(f, fast_weights, reuse=True)
-        pred = sess.run(tf.nn.softmax(pred))
-        arr = np.hstack((xy, pred))
-
-        writer = pd.ExcelWriter('tmp/' + str(i) + 'th_LSM.xlsx')
-        data_df = pd.DataFrame(arr)
-        data_df.to_excel(writer)
-        writer.close()
-
-        """save model parameters ..."""
+        """save model parameters"""
         adapted_weights = sess.run(fast_weights)
         np.savez('adapted_models/' + str(i) + 'th_model',
                  adapted_weights['w1'], adapted_weights['b1'],
                  adapted_weights['w2'], adapted_weights['b2'],
                  adapted_weights['w3'], adapted_weights['b3'],
                  adapted_weights['w4'], adapted_weights['b4'])
+
+        """predict and save LSM result for 1992, 2008, 2017"""
+        if i == 0 or i == 16 or i == 25:
+            '''load grid data'''
+            samples = np.loadtxt('./data_sup/grid_samples_' + str(1992 + i) + '.csv', dtype=str, delimiter=",",
+                                 encoding='UTF-8-sig')
+            f = samples[1:, :-3].astype(np.float32)
+            xy = samples[1:, -3:-1].astype(np.float32)
+
+            '''calculate mean and std'''
+            p_data = np.loadtxt('./data_src/p_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
+            p_samples = p_data[1:, :-5].astype(np.float32)
+            n_data = np.loadtxt('./data_src/n_samples.csv', dtype=str, delimiter=",", encoding='UTF-8-sig')
+            n_samples = n_data[1:, :-3].astype(np.float32)
+            mean = np.mean(np.vstack((p_samples, n_samples))[:, :-1], axis=0)
+            std = np.std(np.vstack((p_samples, n_samples))[:, :-1], axis=0)
+
+            f = (f - mean) / std  # normalization
+
+            pred = model.forward(f, fast_weights, reuse=True)
+            pred = sess.run(tf.nn.softmax(pred))
+            arr = np.hstack((xy, pred))
+
+            writer = pd.ExcelWriter('tmp/' + str(i) + 'th_LSM.xlsx')
+            data_df = pd.DataFrame(arr)
+            data_df.to_excel(writer)
+            writer.close()
 
 print("\n finished!")

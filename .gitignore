@@ -20,6 +20,7 @@ checkpoint_dir/
 __pycache__/
 task_sampling/
 adapted_models/
+data_sup/
 
 
 *~

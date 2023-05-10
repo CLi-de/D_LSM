@@ -132,7 +132,7 @@ for i in range(2, len(tasks), 3):
         #                 matplotlib=True, show=False)
         # save_pic('tmp/force_plot' + str(i) + '.pdf')
 
-        '''global (for mulyiple samples)'''
+        '''global (for multiple samples)'''
         # bar
         # shap.summary_plot(shap_values[1], X_, plot_type="bar", color='r', show=False)
         shap.summary_plot(shap_values, X_, plot_type="bar", show=False, class_names=['landslide', 'non-landslide'],
