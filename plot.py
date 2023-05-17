@@ -414,6 +414,9 @@ def plot_scatter(arr):
              'weight': 'normal',
              'size': 12,
              }
+    '''设置长宽比'''
+    plt.figure(figsize=(20, 4))
+
     plt.xlabel("Subtasks", fontdict=font1)
     plt.ylabel("Mean accuracy(%)", fontdict=font1)
 
@@ -421,13 +424,13 @@ def plot_scatter(arr):
     plt.ylim((50, 100))
     my_y_ticks = np.arange(50, 100, 5)
     plt.yticks(my_y_ticks)
-    my_x_ticks = [i for i in range(1, 204, 40)]
-    my_x_ticklabel = [str(i) + 'th' for i in range(1, 204, 40)]
+    my_x_ticks = [i for i in range(1, 28, 5)]
+    my_x_ticklabel = [str(i) + 'th' for i in range(1, 28, 5)]
     plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
     '''格网设置'''
     plt.grid(linestyle="--")
 
-    x_ = [i for i in range(arr.shape[0])]
+    x_ = [i+1 for i in range(arr.shape[0])]
     '''draw scatter'''
     L1 = plt.scatter(x_, arr[:, 0], label="L=1", c="none", s=20, edgecolors='magenta')
     L2 = plt.scatter(x_, arr[:, 1], label="L=2", c="none", s=20, edgecolors='cyan')
@@ -437,8 +440,8 @@ def plot_scatter(arr):
 
     '''设置图例'''
     legend = plt.legend(loc="lower left", prop=font2, ncol=3)
-    # plt.savefig("C:\\Users\\hj\\Desktop\\brokenline_A")
-    # plt.show()
+
+
 
 
 def plot_lines(arr):
@@ -669,35 +672,35 @@ def read_f_l_csv(file):
 
 
 """draw AUR"""
-print('drawing ROC...')
-x, y = read_f_l_csv('data_src/samples.csv')
-y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], []
-n_times = 5
-for i in range(n_times):
-    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.03, shuffle=True)
-    """fit and predict"""
-    # for other methods
-    y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
-    y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-    y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
-    y_test_.append(y_test)
-    # for proposed-
-    tmp = pd.read_excel('proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
-    y_score_proposed.append(tmp[:, 1:3])
-    y_test_proposed.append(tmp[:, -1])
-# draw roc
-plt.clf()
-plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
-plt.savefig('ROC.pdf')
-plt.show()
-print('finish drawing ROC')
+# print('drawing ROC...')
+# x, y = read_f_l_csv('data_src/samples.csv')
+# y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], []
+# n_times = 5
+# for i in range(n_times):
+#     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.03, shuffle=True)
+#     """fit and predict"""
+#     # for other methods
+#     y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
+#     y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+#     y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
+#     y_test_.append(y_test)
+#     # for proposed-
+#     tmp = pd.read_excel('proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
+#     y_score_proposed.append(tmp[:, 1:3])
+#     y_test_proposed.append(tmp[:, -1])
+# # draw roc
+# plt.clf()
+# plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
+# plt.savefig('ROC.pdf')
+# plt.show()
+# print('finish drawing ROC')
 
 """draw scatters for fast adaption performance"""
-# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2.csv"
-# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-# plot_scatter(arr)
-# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-# plt.show()
+filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2 - 副本.csv"
+arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+plot_scatter(arr)
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+plt.show()
 
 """draw lines for fast adaption performance"""
 # filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
