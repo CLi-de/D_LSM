@@ -675,7 +675,7 @@ for i in range(n_times):
     y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
     y_test_.append(y_test)
     # for proposed-
-    tmp = pd.read_excel('proposed_test' + '.xlsx').values.astype(np.float32)
+    tmp = pd.read_excel('proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
     y_score_proposed.append(tmp[:, 1:3])
     y_test_proposed.append(tmp[:, -1])
 # draw roc
