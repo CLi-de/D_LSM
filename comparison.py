@@ -14,6 +14,7 @@ from sklearn.ensemble import RandomForestClassifier
 
 from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score
+from sklearn.model_selection import train_test_split
 
 from utils import cal_measure
 import warnings
@@ -42,7 +43,7 @@ def ANN_(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start ANN evaluation...')
     model = MLPClassifier(hidden_layer_sizes=(32, 32, 16), activation='relu', solver='adam', alpha=0.01,
-                          batch_size=32, max_iter=1000)
+                          batch_size=32, max_iter=3000)
     model.fit(x_train, y_train)
     pred_train = model.predict(x_train)
     print('Train Accuracy: %f' % accuracy_score(y_train, pred_train))
@@ -76,25 +77,17 @@ def RF_(x_train, y_train, x_test, y_test):
     return model
 
 
+def read_f_l_csv(file):
+    tmp = np.loadtxt(file, dtype=str, delimiter=",", encoding='UTF-8')
+    features = tmp[1:, :-2].astype(np.float32)
+    features = features / features.max(axis=0)
+    label = tmp[1:, -1].astype(np.float32)
+    return features, label
+
+
 if __name__ == "__main__":
-    """Input data"""
-    tmp = np.loadtxt('./src_data/samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
-    f_names = tmp[0, :-3].astype(np.str)
-    tmp_ = np.hstack((tmp[1:, :-3], tmp[1:, -1].reshape(-1, 1))).astype(np.float32)
-    np.random.shuffle(tmp_)  # shuffle
-    # 训练集
-    x_train = tmp_[:int(tmp_.shape[0] / 4 * 3), :-1]  # 加载i行数据部分
-    y_train = tmp_[:int(tmp_.shape[0] / 4 * 3), -1]  # 加载类别标签部分
-    x_train = x_train / x_train.max(axis=0)
-    # 测试集
-    x_test = tmp_[int(tmp_.shape[0] / 4 * 3):, :-1]  # 加载i行数据部分
-    y_test = tmp_[int(tmp_.shape[0] / 4 * 3):, -1]  # 加载类别标签部分
-    x_test = x_test / x_test.max(axis=0)
-    #
-    grid_f = np.loadtxt('./src_data/grid_samples_HK.csv', dtype=str, delimiter=",", encoding='UTF-8')
-    samples_f = grid_f[1:, :-2].astype(np.float32)
-    xy = grid_f[1:, -2:].astype(np.float32)
-    samples_f = samples_f / samples_f.max(axis=0)
+    x, y = read_f_l_csv('data_src/samples.csv')
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.05, shuffle=True)
 
     """evaluate and save LSM result"""
     # SVM-based
@@ -109,5 +102,3 @@ if __name__ == "__main__":
     model_rf = RF_(x_train, y_train, x_test, y_test)
 
     print('done RF-based LSM prediction! \n')
-
-
