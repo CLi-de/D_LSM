@@ -128,6 +128,9 @@ def test(model, saver, sess, exp_string, tasks, num_updates=5):
             inputb, labelb = batch_generator(test_, FLAGS.dim_input, FLAGS.dim_output, len(test_))
             Y_array = sess.run(tf.nn.softmax(model.forward(inputb, fast_weights, reuse=True)))  # pred_prob
 
+            total_Ypred1.extend(Y_array)  # pred_prob_test
+            total_Ytest1.extend(labelb)  # label
+
             Y_test = []  # for single task test
             for j in range(len(labelb)):
                 Y_test.append(labelb[j][0])
@@ -149,6 +152,15 @@ def test(model, saver, sess, exp_string, tasks, num_updates=5):
     total_acc = accuracy_score(total_Ytest, total_Ypred)
     print('Test_Accuracy: %f' % total_acc)
     cal_measure(total_Ypred, total_Ytest)
+
+    "save prediction for test samples, which can be used in calculating statistical measure such as AUROC"
+    pred_prob = np.array(total_Ypred1)
+    label_bi = np.array(total_Ytest1)
+    savearr = np.hstack((pred_prob, label_bi))
+    writer = pd.ExcelWriter('proposed_test.xlsx')
+    data_df = pd.DataFrame(savearr)
+    data_df.to_excel(writer)
+    writer.close()
 
     sess.close()
 

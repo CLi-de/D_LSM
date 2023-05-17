@@ -565,31 +565,13 @@ def MLP_fit_pred(x_train, x_test, y_train, y_test):
     return classifier.predict_proba(x_test)
 
 
-# def DBN_fit_pred(x_train, x_test, y_train, y_test):
-#     classifier = SupervisedDBNClassification(hidden_layers_structure=[32, 32],
-#                                              learning_rate_rbm=0.001,
-#                                              learning_rate=0.5,
-#                                              n_epochs_rbm=10,
-#                                              n_iter_backprop=200,
-#                                              batch_size=64,
-#                                              activation_function='relu',
-#                                              dropout_p=0.1)
-#     classifier.fit(x_train, y_train)
-#     pred_prob = classifier.predict_proba(x_test)
-#
-#     # if pred_prob[0][0] > 0.5:
-#     #     pred_prob = np.vstack((pred_prob[:, 0], pred_prob[:, -1])).T  # swap 0, 1 prediction
-#
-#     return pred_prob
-
-
 def RF_fit_pred(x_train, x_test, y_train, y_test):
     classifier = RandomForestClassifier(n_estimators=200, max_depth=None)
     classifier.fit(x_train, y_train)
     return classifier.predict_proba(x_test)
 
 
-def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test, y_test_proposed):
+def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test, y_test_proposed):
     # Compute ROC curve and ROC area for each class
     def cal_(y_score, y_test):
         fpr, tpr = [], []
@@ -615,7 +597,7 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
         all_fpr, mean_tpr, mean_auc, fpr, tpr = cal_(y_score, y_test)
         # draw mean
         plt.plot(all_fpr, mean_tpr,
-                 label=method + '_mean_AUC (area = {0:0.3f})'''.format(mean_auc),
+                 label=method + '(area = {0:0.3f})'''.format(mean_auc),
                  color=color, linewidth=1.5)
         # draw each
         for i in range(n_times):
@@ -628,7 +610,6 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_sco
     # ax.set_facecolor("WhiteSmoke")  # background color
     plot_(y_score_SVM, y_test, color='dodgerblue', method='SVM')
     plot_(y_score_MLP, y_test, color='lawngreen', method='MLP')
-    plot_(y_score_DBN, y_test, color='gold', method='DBN')
     plot_(y_score_RF, y_test, color='magenta', method='RF')
     plot_(y_score_proposed, y_test_proposed, color='red', method='Proposed')
 
@@ -680,37 +661,36 @@ def read_f_l_csv(file):
     return features, label
 
 
-# """draw AUR"""
-# print('drawing ROC...')
-# x, y = read_f_l_csv('src_data/samples_HK.csv')
-# y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], [], []
-# n_times = 5
-# for i in range(n_times):
-#     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=0.75, test_size=.02, shuffle=True)
-#     """fit and predict"""
-#     # for other methods
-#     y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
-#     y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-#     y_score_DBN.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-#     y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
-#     y_test_.append(y_test)
-#     # for proposed-
-#     tmp = pd.read_excel('tmp/' + 'proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
-#     y_score_proposed.append(tmp[:, 1:3])
-#     y_test_proposed.append(tmp[:, -1])
-# # draw roc
-# plt.clf()
-# plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_DBN, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
-# plt.savefig('ROC.pdf')
-# plt.show()
-# print('finish')
+"""draw AUR"""
+print('drawing ROC...')
+x, y = read_f_l_csv('data_src/samples.csv')
+y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], []
+n_times = 5
+for i in range(n_times):
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.02, shuffle=True)
+    """fit and predict"""
+    # for other methods
+    y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
+    y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+    y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
+    y_test_.append(y_test)
+    # for proposed-
+    tmp = pd.read_excel('proposed_test' + '.xlsx').values.astype(np.float32)
+    y_score_proposed.append(tmp[:, 1:3])
+    y_test_proposed.append(tmp[:, -1])
+# draw roc
+plt.clf()
+plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
+plt.savefig('ROC.pdf')
+plt.show()
+print('finish drawing ROC')
 
 """draw scatters for fast adaption performance"""
-filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2.csv"
-arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-plot_scatter(arr)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-plt.show()
+# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2.csv"
+# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+# plot_scatter(arr)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+# plt.show()
 
 """draw lines for fast adaption performance"""
 # filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
