@@ -1,3 +1,10 @@
+#!/usr/bin/env pytho
+# -*- coding: utf-8 -*-
+# @Author  : CHEN Li
+# @Time    : 2023/4/19 14:32
+# @File    : plot.py
+# @annotation
+
 import numpy as np
 
 import matplotlib.pyplot as plt
@@ -667,7 +674,7 @@ x, y = read_f_l_csv('data_src/samples.csv')
 y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], []
 n_times = 5
 for i in range(n_times):
-    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.02, shuffle=True)
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.05, shuffle=True)
     """fit and predict"""
     # for other methods
     y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))

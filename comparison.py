@@ -1,7 +1,11 @@
-# -*- coding:utf-8 -*-
+#!/usr/bin/env pytho
+# -*- coding: utf-8 -*-
+# @Author  : CHEN Li
+# @Time    : 2023/5/17 14:32
+# @File    : comparison.py
+# @annotation
 
 import numpy as np
-import pandas as pd
 
 from sklearn import metrics, svm
 
@@ -12,9 +16,6 @@ from sklearn.metrics import accuracy_score
 from sklearn.metrics import cohen_kappa_score
 
 from utils import cal_measure
-import shap
-import matplotlib.pyplot as plt
-
 import warnings
 
 warnings.filterwarnings("ignore")
@@ -32,12 +33,6 @@ def SVM_(x_train, y_train, x_test, y_test):
     print('test accuracy:' + str(metrics.accuracy_score(y_test, pred_test)))
     # Precision, Recall, F1-score
     cal_measure(pred_test, y_test)
-    # kappa_value = cohen_kappa_score(pred_test, y_test)
-    # print('Cohen_Kappa: %f' % kappa_value)
-
-    # feature permutation
-    # print('SHAP...')
-    # SHAP_(model.predict_proba, x_train, x_test, f_names)
 
     return model
 
@@ -57,10 +52,6 @@ def ANN_(x_train, y_train, x_test, y_test):
     cal_measure(pred_test, y_test)
     kappa_value = cohen_kappa_score(pred_test, y_test)
     print('Cohen_Kappa: %f' % kappa_value)
-
-    # SHAP
-    # print('SHAP...')
-    # SHAP_(model.predict_proba, x_train, x_test, f_names)
 
     return model
 
@@ -82,13 +73,6 @@ def RF_(x_train, y_train, x_test, y_test):
     kappa_value = cohen_kappa_score(pred_test, y_test)
     print('Cohen_Kappa: %f' % kappa_value)
 
-    # # SHAP
-    # print('SHAP...')
-    # # SHAP_(model.predict_proba, x_train, x_test, f_names)
-    # shap.initjs()
-    # explainer = shap.Explainer(model)
-    # shap_values = explainer(x_train)
-    # shap.plots.bar(shap_values[:100, :, 0])  # shap_values(n_samples, features, _prob)
     return model
 
 
