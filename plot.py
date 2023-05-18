@@ -8,13 +8,8 @@
 import numpy as np
 
 import matplotlib.pyplot as plt
-from sklearn import manifold
-from sklearn.decomposition import PCA
-import umap
 
-from mpl_toolkits.mplot3d import Axes3D  # 3D plot
 import pandas as pd
-import tensorflow as tf
 
 from sklearn.metrics import roc_curve, auc
 from sklearn.model_selection import train_test_split
@@ -27,6 +22,7 @@ from sklearn.neural_network import MLPClassifier
 from sklearn.ensemble import RandomForestClassifier
 # from unsupervised_pretraining.dbn_.models import SupervisedDBNClassification
 from scipy.interpolate import make_interp_spline
+
 from sklearn.metrics._classification import accuracy_score
 
 """for visiualization"""
@@ -51,262 +47,6 @@ def read_csv(path):
     label_attr = tmp_feature[:, -1].astype(np.float32)  #
     data_atrr = tmp_feature[:, :-1].astype(np.float32)  #
     return data_atrr, label_attr
-
-
-def load_weights(npzfile):
-    npzfile = np.load(npzfile)
-    weights = {}
-    weights['w0'] = npzfile['arr_0']
-    weights['b0'] = npzfile['arr_1']
-    weights['w1'] = npzfile['arr_2']
-    weights['b1'] = npzfile['arr_3']
-    weights['w2'] = npzfile['arr_4']
-    weights['b2'] = npzfile['arr_5']
-    return weights
-
-
-def transform_relu(inputX, weights, bias, activations=tf.nn.relu):
-    return activations(tf.transpose(a=tf.matmul(weights, tf.transpose(a=inputX))) + bias)
-
-
-def forward(inp, weights, sess):
-    for i in range(int(len(weights) / 2)):  # 3 layers
-        inp = transform_relu(inp, tf.transpose(a=weights['w' + str(i)]), weights['b' + str(i)])
-    return sess.run(inp)
-
-
-def _PCA(X, y, figsavename):
-    pca = PCA(n_components=3)
-    X_pca = pca.fit_transform(X)
-
-    x_min, x_max = X_pca.min(0), X_pca.max(0)
-    X_norm = (X_pca - x_min) / (x_max - x_min)
-
-    fig = plt.figure()
-    ax = Axes3D(fig)
-    # ax.scatter(x1,x2,x3,c=pre
-
-    landslide_pts_x = []
-    landslide_pts_y = []
-    landslide_pts_z = []
-    nonlandslide_pts_x = []
-    nonlandslide_pts_y = []
-    nonlandslide_pts_z = []
-
-    for i in range(len(y)):
-        if y[i] == 0:
-            nonlandslide_pts_x.append(X_norm[i][0])
-            nonlandslide_pts_y.append(X_norm[i][1])
-            nonlandslide_pts_z.append(X_norm[i][2])
-        if y[i] == 1:
-            landslide_pts_x.append(X_norm[i][0])
-            landslide_pts_y.append(X_norm[i][1])
-            landslide_pts_z.append(X_norm[i][2])
-
-    type_landslide = ax.scatter(landslide_pts_x, landslide_pts_y, landslide_pts_z, c='red')
-    type_nonlandslide = ax.scatter(nonlandslide_pts_x, nonlandslide_pts_y, nonlandslide_pts_z, c='blue')
-
-    ax.legend((type_landslide, type_nonlandslide), ('landslide points', 'nonlandslide points'), loc=2)
-    # plt.legend( bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-    # 设置坐标标签
-    ax.set_xlabel('x-axis')
-    ax.set_ylabel('y-axis')
-    ax.set_zlabel('z-axis')
-
-    # 设置标题
-    plt.title("Visualization with PCA")
-    plt.savefig(figsavename)
-    # 显示图形
-    plt.show()
-
-
-def ISOMAP(X, y, figsavename):
-    isomap = manifold.Isomap(n_components=3)
-    X_isomap = isomap.fit_transform(X)
-
-    x_min, x_max = X_isomap.min(0), X_isomap.max(0)
-    X_norm = (X_isomap - x_min) / (x_max - x_min)
-
-    fig = plt.figure()
-    ax = Axes3D(fig)
-    # ax.scatter(x1,x2,x3,c=pre
-
-    landslide_pts_x = []
-    landslide_pts_y = []
-    landslide_pts_z = []
-    nonlandslide_pts_x = []
-    nonlandslide_pts_y = []
-    nonlandslide_pts_z = []
-
-    for i in range(len(y)):
-        if y[i] == 0:
-            nonlandslide_pts_x.append(X_norm[i][0])
-            nonlandslide_pts_y.append(X_norm[i][1])
-            nonlandslide_pts_z.append(X_norm[i][2])
-        if y[i] == 1:
-            landslide_pts_x.append(X_norm[i][0])
-            landslide_pts_y.append(X_norm[i][1])
-            landslide_pts_z.append(X_norm[i][2])
-
-    type_landslide = ax.scatter(landslide_pts_x, landslide_pts_y, landslide_pts_z, c='red')
-    type_nonlandslide = ax.scatter(nonlandslide_pts_x, nonlandslide_pts_y, nonlandslide_pts_z, c='blue')
-
-    ax.legend((type_landslide, type_nonlandslide), ('landslide points', 'nonlandslide points'), loc=2)
-    # plt.legend( bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-    # 设置坐标标签
-    ax.set_xlabel('x-axis')
-    ax.set_ylabel('y-axis')
-    ax.set_zlabel('z-axis')
-    # 设置标题
-    plt.title("Visualization with Isomap")
-    plt.savefig(figsavename)
-    # 显示图形
-    plt.show()
-
-
-def t_SNE(X, y, figsavename):
-    tsne = manifold.TSNE(n_components=3, init='random', random_state=501)
-    X_tsne = tsne.fit_transform(X)
-
-    """嵌入空间可视化"""
-    x_min, x_max = X_tsne.min(0), X_tsne.max(0)
-    X_norm = (X_tsne - x_min) / (x_max - x_min)
-
-    fig = plt.figure()
-    ax = Axes3D(fig)
-    # ax.scatter(x1,x2,x3,c=pre
-
-    landslide_pts_x = []
-    landslide_pts_y = []
-    landslide_pts_z = []
-    nonlandslide_pts_x = []
-    nonlandslide_pts_y = []
-    nonlandslide_pts_z = []
-
-    for i in range(len(y)):
-        if y[i] == 0:
-            nonlandslide_pts_x.append(X_norm[i][0])
-            nonlandslide_pts_y.append(X_norm[i][1])
-            nonlandslide_pts_z.append(X_norm[i][2])
-        if y[i] == 1:
-            landslide_pts_x.append(X_norm[i][0])
-            landslide_pts_y.append(X_norm[i][1])
-            landslide_pts_z.append(X_norm[i][2])
-
-    type_landslide = ax.scatter(landslide_pts_x, landslide_pts_y, landslide_pts_z, c='red')
-    type_nonlandslide = ax.scatter(nonlandslide_pts_x, nonlandslide_pts_y, nonlandslide_pts_z, c='blue')
-
-    ax.legend((type_landslide, type_nonlandslide), ('landslide points', 'nonlandslide points'), loc=2)
-    # plt.legend( bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-    # 设置坐标标签
-    ax.set_xlabel('x-axis')
-    ax.set_ylabel('y-axis')
-    ax.set_zlabel('z-axis')
-    # 设置标题
-    plt.title("Visualization with t-SNE")
-    plt.savefig(figsavename)
-    # 显示图形
-    plt.show()
-
-
-def UMAP(X, y, figsavename):
-    reducer = umap.UMAP(n_components=3)
-    X_umap = reducer.fit_transform(X)
-
-    x_min, x_max = X_umap.min(0), X_umap.max(0)
-    X_norm = (X_umap - x_min) / (x_max - x_min)
-
-    fig = plt.figure()
-    ax = Axes3D(fig)
-    # ax.scatter(x1,x2,x3,c=pre
-
-    landslide_pts_x = []
-    landslide_pts_y = []
-    landslide_pts_z = []
-    nonlandslide_pts_x = []
-    nonlandslide_pts_y = []
-    nonlandslide_pts_z = []
-
-    for i in range(len(y)):
-        if y[i] == 0:
-            nonlandslide_pts_x.append(X_norm[i][0])
-            nonlandslide_pts_y.append(X_norm[i][1])
-            nonlandslide_pts_z.append(X_norm[i][2])
-        if y[i] == 1:
-            landslide_pts_x.append(X_norm[i][0])
-            landslide_pts_y.append(X_norm[i][1])
-            landslide_pts_z.append(X_norm[i][2])
-
-    type_landslide = ax.scatter(landslide_pts_x, landslide_pts_y, landslide_pts_z, c='red')
-    type_nonlandslide = ax.scatter(nonlandslide_pts_x, nonlandslide_pts_y, nonlandslide_pts_z, c='blue')
-
-    ax.legend((type_landslide, type_nonlandslide), ('landslide points', 'nonlandslide points'), loc=2)
-    # plt.legend( bbox_to_anchor=(1.05, 1), loc=2, borderaxespad=0.)
-    # 设置坐标标签
-    ax.set_xlabel('x-axis')
-    ax.set_ylabel('y-axis')
-    ax.set_zlabel('z-axis')
-    # 设置标题
-    plt.title("Visualization with UMAP")
-    plt.savefig(figsavename)
-    # 显示图形
-    plt.show()
-
-
-def visualization():
-    fj_tasks = read_tasks('./metatask_sampling/FJ_tasks.xlsx')  # task里的samplles
-    # fl_tasks = read_tasks('./metatask_sampling/FL_tasks.xlsx')  # num_samples of FL is too scarce to visualize
-
-    """select part of FJ and FL data for visualization"""
-    # def get_oriandinf_Xs(tasks, regionname):
-    #     ori_Xs, inf_Xs, Ys = [], [], []
-    #     for i in range(len(tasks)):
-    #         if tasks[i][0].shape[0] > 30:
-    #             """download model parameters"""
-    #             w = load_weights('models_of_blocks/'+ regionname +'/model'+str(i) + '.npz')
-    #             ori_Xs.append(tasks[i][0])
-    #             inf_Xs.append(forward(tasks[i][0], w))
-    #             Ys.append(tasks[i][1])
-    #     return ori_Xs, inf_Xs, Ys
-    """overall FJ and FL data for visualization"""
-
-    def get_oriandinf_Xs(tasks, regionname):
-        with tf.compat.v1.Session() as sess:  # for tf calculation
-            w = load_weights('models_of_blocks/' + 'overall_' + regionname + '/model_MAML' + '.npz')
-            ori_Xs = tasks[0][0]
-            inf_Xs = forward(tasks[0][0], w, sess)
-            Ys = tasks[0][1]
-            for i in range(len(tasks) - 1):
-                if len(tasks[i + 1][0]) > 0:
-                    ori_Xs = np.vstack((ori_Xs, tasks[i + 1][0]))
-                    inf_Xs = np.vstack((inf_Xs, forward(tasks[i + 1][0], w, sess)))
-                    Ys = np.vstack((Ys, tasks[i + 1][1]))
-            return ori_Xs, inf_Xs, Ys
-
-    ori_FJ_Xs, inf_FJ_Xs, FJ_Ys = get_oriandinf_Xs(fj_tasks, 'FJ')
-
-    # ori_FL_Xs, inf_FL_Xs, FL_Ys = get_oriandinf_Xs(fl_tasks, 'FL')
-
-    # ori_X, y = read_csv('src_data/FJ_FL.csv')
-    #
-    # tmp = np.loadtxt('src_data/FJ_FL.csv', dtype=np.str, delimiter=",",encoding='UTF-8')
-    # w = load_weights('unsupervised_pretraining/model_init/savedmodel.npz')
-    # unsupervised_X = forward(ori_X, w)
-    def plot_points(ori_X, inf_X, Y, regionname):
-        _PCA(ori_X, Y, './figs/' + regionname + '_ori_PCA.pdf')
-        _PCA(inf_X, Y, './figs/' + regionname + '_inf_PCA.pdf')
-
-        t_SNE(ori_X, Y, './figs/' + regionname + '_ori_t_SNE.pdf')
-        t_SNE(inf_X, Y, './figs/' + regionname + '_inf_SNE.pdf')
-
-        ISOMAP(ori_X, Y, './figs/' + regionname + '_ori_Isomap.pdf')
-        ISOMAP(inf_X, Y, './figs/' + regionname + '_inf_Isomap.pdf')
-
-        UMAP(ori_X, Y, './figs/' + regionname + '_ori_UMAP.pdf')
-        UMAP(inf_X, Y, './figs/' + regionname + '_inf_UMAP.pdf')
-
-    plot_points(ori_FJ_Xs, inf_FJ_Xs, FJ_Ys, 'FJ')
-    # plot_points(ori_FL_Xs, inf_FL_Xs, FL_Ys, 'FL')
 
 
 """for figure plotting"""
@@ -414,34 +154,50 @@ def plot_scatter(arr):
              'weight': 'normal',
              'size': 12,
              }
-    '''设置长宽比'''
-    plt.figure(figsize=(20, 4))
+    '''设置长宽'''
+    plt.figure(figsize=(10, 4.5))
 
-    plt.xlabel("Subtasks", fontdict=font1)
+    # plt.xlabel("Subtasks", fontdict=font1)
     plt.ylabel("Mean accuracy(%)", fontdict=font1)
 
     '''设置刻度'''
-    plt.ylim((50, 100))
-    my_y_ticks = np.arange(50, 100, 5)
+    plt.ylim((60, 100))
+    my_y_ticks = np.arange(60, 100, 5)
     plt.yticks(my_y_ticks)
-    my_x_ticks = [i for i in range(1, 28, 5)]
-    my_x_ticklabel = [str(i) + 'th' for i in range(1, 28, 5)]
+    my_x_ticks = [i for i in range(1, 30, 3)]
+    my_x_ticklabel = [str(1991 + i) for i in range(1, 30, 3)]
     plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
     '''格网设置'''
     plt.grid(linestyle="--")
 
-    x_ = [i+1 for i in range(arr.shape[0])]
-    '''draw scatter'''
-    L1 = plt.scatter(x_, arr[:, 0], label="L=1", c="none", s=20, edgecolors='magenta')
-    L2 = plt.scatter(x_, arr[:, 1], label="L=2", c="none", s=20, edgecolors='cyan')
-    L3 = plt.scatter(x_, arr[:, 2], label="L=3", c="none", s=20, edgecolors='b')
-    L4 = plt.scatter(x_, arr[:, 3], label="L=4", c="none", s=20, edgecolors='g')
-    L5 = plt.scatter(x_, arr[:, 4], label="L=5", c="none", s=20, edgecolors='r')
+    # x_ = [i + 1 for i in range(arr.shape[0])]
+    x_ = np.arange(1, 29, 1)  # para: start, stop, step
+
+    '''draw scatters'''
+    # S1 = plt.scatter(x_, arr[:, 0], label="L=1", c="none", s=20, edgecolors='magenta')
+    # S2 = plt.scatter(x_, arr[:, 1], label="L=2", c="none", s=20, edgecolors='cyan')
+    # S3 = plt.scatter(x_, arr[:, 2], label="L=3", c="none", s=20, edgecolors='b')
+    # S4 = plt.scatter(x_, arr[:, 3], label="L=4", c="none", s=20, edgecolors='g')
+    # S5 = plt.scatter(x_, arr[:, 4], label="L=5", c="none", s=20, edgecolors='r')
+    '''draw lines'''
+    L1 = plt.plot(x_, arr[:, 0], color="gold", linestyle=":", marker='o',
+                  linewidth=1.5, label="L=1", markerfacecolor='white', ms=7)
+    L2 = plt.plot(x_, arr[:, 1], color="c", linestyle=":", marker='^',
+                  linewidth=1.5, label="L=2", markerfacecolor='white', ms=8)
+    L3 = plt.plot(x_, arr[:, 2], color="b", linestyle=":", marker='s',
+                  linewidth=1.5, label="L=3", markerfacecolor='white', ms=7)
+    L4 = plt.plot(x_, arr[:, 3], color="g", linestyle=":", marker='p',
+                  linewidth=1.5, label="L=4", markerfacecolor='white', ms=9)
+    L5 = plt.plot(x_, arr[:, 4], color="r", linestyle=":", marker='*',
+                  linewidth=1.5, label="L=5", markerfacecolor='white', ms=10)
+
+    # plt.fill_between(x_, L1, L5,  # 上限，下限
+    #                  # facecolor='green',  # 填充颜色
+    #                  # edgecolor='red',  # 边界颜色
+    #                  alpha=0.3)  # 透明度
 
     '''设置图例'''
     legend = plt.legend(loc="lower left", prop=font2, ncol=3)
-
-
 
 
 def plot_lines(arr):
@@ -469,9 +225,7 @@ def plot_lines(arr):
     plt.grid(linestyle="--")
 
     x_ = np.array([i for i in range(6)])
-    # smooth
-    # x_ = np.linspace(x_.min(), x_.max(), 400)
-    # arr = make_interp_spline(x_, arr)(x_)
+
     '''draw line'''
     L1 = plt.plot(x_, arr[:, 0], color="r", linestyle="solid",
                   linewidth=1, label="L=1", markerfacecolor='white', ms=10)
@@ -671,6 +425,64 @@ def read_f_l_csv(file):
     return features, label
 
 
+def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
+    # 设置框图
+    # plt.figure("", facecolor="lightgray")
+    # plt.style.use('ggplot')
+    # 设置图例并且设置图例的字体及大小
+    font1 = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 14,
+             }
+    font2 = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 16,
+             }
+
+    # legend = plt.legend(handles=[A,B],prop=font1)
+    # plt.title(scenes, fontdict=font2)
+    plt.xlabel("Number of iterations", fontdict=font1)
+    plt.ylabel("OA(%)", fontdict=font2)
+
+    my_x_ticks = [1, 2, 3, 4, 5]
+    my_x_ticklabels = ['1', '2', '3', '4', '5']
+    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabels, fontsize=14, fontdict=font2)
+
+    plt.ylim((65, 100))
+    my_y_ticks = np.arange(65, 100, 5)
+    plt.yticks(ticks=my_y_ticks, fontsize=14, font=font2)
+
+    '''格网设置'''
+    plt.grid(linestyle="--", zorder=-1)
+
+    colors = ['dodgerblue', 'lawngreen', 'gold', 'magenta', 'red']
+    edge_colors = np.zeros(5, dtype="U1")
+    edge_colors[:] = 'black'
+
+    # draw bar
+    barwidth = 0.15
+    K = K + barwidth * pos_
+    plt.bar(K, 2 * std, barwidth, bottom=meanOA - std, color=color_,
+            edgecolor=edge_colors, linewidth=1, zorder=20, label=label_, alpha=0.5)
+    # draw vertical line
+    plt.vlines(K, minOA, meanOA - std, color='black', linestyle='solid', zorder=10)
+    plt.vlines(K, maxOA, meanOA + std, color='black', linestyle='solid', zorder=10)
+    plt.hlines(meanOA, K - barwidth / 2, K + barwidth / 2, color='blue', linestyle='solid', zorder=30)
+    plt.hlines(minOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
+    plt.hlines(maxOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
+
+    # 绘制趋势曲线
+
+    # trend curve
+    model = make_interp_spline(K, meanOA)
+    xs = np.linspace(1, 5, 500)
+    ys = model(xs)
+    plt.plot(xs, ys, color=color_, linestyle='--', lw=1.5, label=label_)
+
+    # 设置图例
+    legend = plt.legend(loc="lower right", prop=font1, ncol=3, fontsize=24, ncols=2)
+
+
 """draw AUR"""
 # print('drawing ROC...')
 # x, y = read_f_l_csv('data_src/samples.csv')
@@ -696,7 +508,7 @@ def read_f_l_csv(file):
 # print('finish drawing ROC')
 
 """draw scatters for fast adaption performance"""
-filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_sheet2 - 副本.csv"
+filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
 arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
 plot_scatter(arr)
 plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
@@ -709,67 +521,12 @@ plt.show()
 # plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\broken.pdf")
 # plt.show()
 
-"""
-label: for legend
-pos_: -2, -1, 0, 1, 2
-"""
-
-
-def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
-    # 设置框图
-    # plt.figure("", facecolor="lightgray")
-    # plt.style.use('ggplot')
-    # 设置图例并且设置图例的字体及大小
-    font1 = {'family': 'Times New Roman',
-             'weight': 'normal',
-             'size': 14,
-             }
-    font2 = {'family': 'Times New Roman',
-             'weight': 'normal',
-             'size': 16,
-             }
-
-    # legend = plt.legend(handles=[A,B],prop=font1)
-    # plt.title(scenes, fontdict=font2)
-    plt.xlabel("Number of samples", fontdict=font1)
-    plt.ylabel("OA(%)", fontdict=font2)
-
-    my_x_ticks = [1, 2, 3, 4, 5]
-    my_x_ticklabels = ['1', '2', '3', '4', '5']
-    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabels, fontsize=14, fontdict=font2)
-
-    plt.ylim((50, 100))
-    my_y_ticks = np.arange(50, 100, 5)
-    plt.yticks(ticks=my_y_ticks, fontsize=14, font=font2)
-
-    '''格网设置'''
-    plt.grid(linestyle="--", zorder=-1)
-
-    colors = ['dodgerblue', 'lawngreen', 'gold', 'magenta', 'red']
-    edge_colors = np.zeros(5, dtype="U1")
-    edge_colors[:] = 'black'
-
-    # draw bar
-    barwidth = 0.15
-    K = K + barwidth * pos_
-    plt.bar(K, 2 * std, barwidth, bottom=meanOA - std, color=color_,
-            edgecolor=edge_colors, linewidth=1, zorder=20, label=label_, alpha=0.5)
-    # draw vertical line
-    plt.vlines(K, minOA, meanOA - std, color='black', linestyle='solid', zorder=10)
-    plt.vlines(K, maxOA, meanOA + std, color='black', linestyle='solid', zorder=10)
-    plt.hlines(meanOA, K - barwidth / 2, K + barwidth / 2, color='blue', linestyle='solid', zorder=30)
-    plt.hlines(minOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
-    plt.hlines(maxOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
-    # 设置图例
-    legend = plt.legend(loc="lower right", prop=font1, ncol=3, fontsize=24)
-
-
 """draw candles for fast adaption performance"""
-# K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption_candle.xlsx")
-# colors = ['magenta', 'cyan', 'b', 'g', 'r']
-# labels = ['L=1', 'L=2', 'L=3', 'L=4', 'L=5']
-# pos = [-2, -1, 0, 1, 2]
-# for i in range(5):
+# K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\candles.xlsx")
+# colors = ['b', 'g', 'r']
+# labels = ['1992', '2008', '2017']
+# pos = [-1, 0, 1]
+# for i in range(3):
 #     plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
-# # plt.show()
 # plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
+# plt.show()
