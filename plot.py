@@ -233,10 +233,6 @@ def plot_lines(arr):
                   linewidth=1, label="L=2", markerfacecolor='white', ms=10)
     L3 = plt.plot(x_, arr[:, 2], color="gold", linestyle="solid",
                   linewidth=1, label="L=3", markerfacecolor='white', ms=10)
-    L4 = plt.plot(x_, arr[:, 3], color="g", linestyle="solid",
-                  linewidth=1, label="L=4", markerfacecolor='white', ms=10)
-    L5 = plt.plot(x_, arr[:, 4], color="b", linestyle="solid",
-                  linewidth=1, label="L=5", markerfacecolor='white', ms=10)
 
 
 def plot_histogram(region, measures):
@@ -483,6 +479,9 @@ def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
     legend = plt.legend(loc="lower right", prop=font1, ncol=3, fontsize=24, ncols=2)
 
 
+def plot_scatter1():
+    pass
+
 """draw AUR"""
 # print('drawing ROC...')
 # x, y = read_f_l_csv('data_src/samples.csv')
@@ -508,11 +507,11 @@ def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
 # print('finish drawing ROC')
 
 """draw scatters for fast adaption performance"""
-filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
-arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-plot_scatter(arr)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-plt.show()
+# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
+# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+# plot_scatter(arr)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+# plt.show()
 
 """draw lines for fast adaption performance"""
 # filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
@@ -524,9 +523,18 @@ plt.show()
 """draw candles for fast adaption performance"""
 # K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\candles.xlsx")
 # colors = ['b', 'g', 'r']
-# labels = ['1992', '2008', '2017']
+# labels = ['1999', '2008', '2017']
 # pos = [-1, 0, 1]
 # for i in range(3):
 #     plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
 # plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
 # plt.show()
+
+"""draw rainfall and deformation time series (1992, 2008, 2017)"""
+filename_rainfall = './rainfall3.csv'
+arr = np.loadtxt(filename_rainfall, dtype=float, delimiter=',', encoding='utf-8-sig')
+plot_lines(arr)  # rainfall plotting
+
+filename_TS = './TS3.csv'
+arr = np.loadtxt(filename_TS, dtype=float, delimiter=',', encoding='utf-8-sig')
+plot_scatter1(arr)
