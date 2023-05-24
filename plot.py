@@ -444,8 +444,8 @@ def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
     my_x_ticklabels = ['1', '2', '3', '4', '5']
     plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabels, fontsize=14, fontdict=font2)
 
-    plt.ylim((65, 100))
-    my_y_ticks = np.arange(65, 100, 5)
+    plt.ylim((60, 100))
+    my_y_ticks = np.arange(60, 100, 5)
     plt.yticks(ticks=my_y_ticks, fontsize=14, font=font2)
 
     '''格网设置'''
@@ -479,8 +479,48 @@ def plot_candle1(K, meanOA, maxOA, minOA, std, color_, label_, pos_):
     legend = plt.legend(loc="lower right", prop=font1, ncol=3, fontsize=24, ncols=2)
 
 
-def plot_scatter1():
-    pass
+def plot_rainfall(f_name):
+    '''read data'''
+    data = pd.read_excel(f_name, header=None)
+    AVD_AR = data.iloc[0:1, 1:-1].values.reshape(-1)
+    AVG_AERD = data.iloc[1:2, 1:-1].values.reshape(-1)
+    # years = [str(1992 + i) for i in range(28)]
+    x_ = np.arange(1, 29, 1)  # para: start, stop, step
+
+    '''plotting'''
+    font = {'family': 'Times New Roman',
+             'weight': 'normal',
+             'size': 14,
+             }
+
+    fig, ax = plt.subplots()
+    lns1 = ax.bar(x_, AVD_AR, label='AR', color='blue')
+    ax2 = ax.twinx()
+    lns2 = ax2.plot(x_, AVG_AERD, '-', label='AERD', color='red')
+
+    lns2.append(lns1)
+    labs = [l.get_label() for l in lns2]
+    ax.legend(lns2, labs, loc="upper right")
+
+    # ax.grid()
+    ax.set_xlabel('Years', fontdict=font)
+    ax.set_ylabel('Annual Rainfall(AR)', fontdict=font)
+    ax2.set_ylabel('Annual Extreme Rainfall Days(AERD)', fontdict=font)
+    ax.set_ylim(AVD_AR.min() - 100, AVD_AR.max() + 200)
+    ax2.set_ylim(AVG_AERD.min(), AVG_AERD.max() + 1)
+
+    my_x_ticks = [i for i in range(1, 30, 3)]
+    my_x_ticklabel = [str(1991 + i) for i in range(1, 30, 3)]
+    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
+
+    # ax = plt.gca()  # gca:get current axis得到当前轴
+    ax.spines['top'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\rainfall_DV.pdf")
+    plt.show()
+
+    '''others'''
+
 
 """draw AUR"""
 # print('drawing ROC...')
@@ -531,10 +571,113 @@ def plot_scatter1():
 # plt.show()
 
 """draw rainfall and deformation time series (1992, 2008, 2017)"""
-filename_rainfall = './rainfall3.csv'
-arr = np.loadtxt(filename_rainfall, dtype=float, delimiter=',', encoding='utf-8-sig')
-plot_lines(arr)  # rainfall plotting
+f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
 
-filename_TS = './TS3.csv'
-arr = np.loadtxt(filename_TS, dtype=float, delimiter=',', encoding='utf-8-sig')
-plot_scatter1(arr)
+
+def plot_AR_DV_2008(f_name):
+    data = pd.read_excel(f_name, header=None)
+    MR_2008 = data.iloc[4:5, 1:13].values.reshape(-1)
+    TSdate_2008 = data.iloc[9:10, 1:7].values.reshape(-1)
+    P1_2008 = data.iloc[10:11, 1:7].values.reshape(-1)
+    # P2_2008 = data.iloc[11:12, 1:7].values.reshape(-1)
+    P2_2008 = data.iloc[12:13, 1:7].values.reshape(-1)
+    P3_2008 = data.iloc[13:14, 1:7].values.reshape(-1)
+
+    x_ = np.arange(1, 13, 1)
+    TSdate_2008 = TSdate_2008 - 20080000
+    x_TS = [int(TSdate_2008[i] / 100) + TSdate_2008[i] % 100 / 30
+            for i in range(len(TSdate_2008))]
+
+    '''plotting'''
+    font = {'family': 'Times New Roman',
+            'weight': 'normal',
+            'size': 14,
+            }
+    fig, ax = plt.subplots()
+    lns1 = ax.bar(x_, MR_2008, label='AR', color='blue')
+    ax2 = ax.twinx()
+
+    L1 = ax2.plot(x_TS, P1_2008, color="red", linestyle="--", marker='o',
+                  linewidth=2, label="P1", markerfacecolor='white', ms=7)
+    # L2 = ax2.plot(x_TS, P2_2008, color="red", linestyle="--", marker='*',
+    #               linewidth=2, label="P2", markerfacecolor='white', ms=7)
+    L2 = ax2.plot(x_TS, P2_2008, color="green", linestyle="--", marker='s',
+                  linewidth=2, label="P2", markerfacecolor='white', ms=7)
+    L3 = ax2.plot(x_TS, P3_2008, color="gold", linestyle="--", marker='^',
+                      linewidth=2, label="P3", markerfacecolor='white', ms=7)
+
+    lns = L1 + L2 + L3
+    lns.append(lns1)
+    labs = [l.get_label() for l in lns]
+    ax.legend(lns, labs, loc="upper right")
+
+    ax.set_xlabel('2008', fontdict=font)
+    ax.set_ylabel('Monthly Rainfall(MR)', fontdict=font)
+    ax2.set_ylabel('Displacement', fontdict=font)
+    # ax.set_ylim(MR_2008.min() - 100, MR_2008.max() + 200)
+    ax.set_ylim(MR_2008.min(), MR_2008.max())
+    ax2.set_ylim(-250, 200)
+
+    my_x_ticks = [i for i in range(1, 13, 1)]
+    my_x_ticklabel = [str(i) for i in range(1, 13, 1)]
+    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
+
+    ax.spines['top'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    plt.tight_layout()
+    plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\rainfall_DV_2008.pdf")
+    plt.show()
+
+
+def plot_AR_DV_2017(f_name):
+    data = pd.read_excel(f_name, header=None)
+    MR_2017 = data.iloc[5:6, 1:13].values.reshape(-1)
+    TSdate_2017 = data.iloc[14:15, 1:].values.reshape(-1)
+    P1_2017 = data.iloc[15:16, 1:].values.reshape(-1)
+    P2_2017 = data.iloc[16:17, 1:].values.reshape(-1)
+
+    x_ = np.arange(1, 13, 1)
+    TSdate_2017 = TSdate_2017 - 20170000
+    x_TS = [int(TSdate_2017[i] / 100) + TSdate_2017[i] % 100 / 30
+            for i in range(len(TSdate_2017))]
+
+    '''plotting'''
+    font = {'family': 'Times New Roman',
+            'weight': 'normal',
+            'size': 14,
+            }
+    fig, ax = plt.subplots()
+    lns1 = ax.bar(x_, MR_2017, label='AR', color='blue')
+    ax2 = ax.twinx()
+
+    L1 = ax2.plot(x_TS, P1_2017, color="red", linestyle="--", marker='o',
+                  linewidth=2, label="P4", markerfacecolor='white', ms=7)
+    L2 = ax2.plot(x_TS, P2_2017, color="green", linestyle="--", marker='s',
+                  linewidth=2, label="P5", markerfacecolor='white', ms=7)
+
+    lns = L1 + L2
+    lns.append(lns1)
+    labs = [l.get_label() for l in lns]
+    ax.legend(lns, labs, loc="upper right")
+
+    ax.set_xlabel('2017', fontdict=font)
+    ax.set_ylabel('Monthly Rainfall(MR)', fontdict=font)
+    ax2.set_ylabel('Displacement', fontdict=font)
+    ax.set_ylim(MR_2017.min(), MR_2017.max())
+    ax2.set_ylim(-100, 50)
+
+    my_x_ticks = [i for i in range(1, 13, 1)]
+    my_x_ticklabel = [str(i) for i in range(1, 13, 1)]
+    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
+
+    ax.spines['top'].set_visible(False)
+    ax2.spines['top'].set_visible(False)
+    plt.tight_layout()
+    plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\rainfall_DV_2017.pdf")
+    plt.show()
+
+
+
+plot_rainfall(f_name)
+plot_AR_DV_2008(f_name)
+plot_AR_DV_2017(f_name)
