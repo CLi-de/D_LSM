@@ -8,6 +8,7 @@
 import numpy as np
 
 import matplotlib.pyplot as plt
+import seaborn as sns
 
 import pandas as pd
 
@@ -489,9 +490,10 @@ def plot_rainfall(f_name):
 
     '''plotting'''
     font = {'family': 'Times New Roman',
-             'weight': 'normal',
-             'size': 14,
-             }
+            'weight': 'normal',
+            'size': 14,
+            }
+    plt.figure(figsize=(10, 4.5))
 
     fig, ax = plt.subplots()
     lns1 = ax.bar(x_, AVD_AR, label='AR', color='blue')
@@ -502,7 +504,6 @@ def plot_rainfall(f_name):
     labs = [l.get_label() for l in lns2]
     ax.legend(lns2, labs, loc="upper right")
 
-    # ax.grid()
     ax.set_xlabel('Years', fontdict=font)
     ax.set_ylabel('Annual Rainfall(AR)', fontdict=font)
     ax2.set_ylabel('Annual Extreme Rainfall Days(AERD)', fontdict=font)
@@ -587,43 +588,78 @@ def plot_AR_DV_2008(f_name):
     TSdate_2008 = TSdate_2008 - 20080000
     x_TS = [int(TSdate_2008[i] / 100) + TSdate_2008[i] % 100 / 30
             for i in range(len(TSdate_2008))]
-
+    x_TS = np.array(x_TS)
     '''plotting'''
     font = {'family': 'Times New Roman',
             'weight': 'normal',
             'size': 14,
             }
-    fig, ax = plt.subplots()
+    # fig, ax = plt.subplots()
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(1, 1, 1)
     lns1 = ax.bar(x_, MR_2008, label='AR', color='blue')
     ax2 = ax.twinx()
 
-    L1 = ax2.plot(x_TS, P1_2008, color="red", linestyle="--", marker='o',
-                  linewidth=2, label="P1", markerfacecolor='white', ms=7)
-    # L2 = ax2.plot(x_TS, P2_2008, color="red", linestyle="--", marker='*',
+    # L1 = ax2.plot(x_TS, P1_2008, color="red", linestyle="--", marker='o',
+    #               linewidth=2, label="P1", markerfacecolor='white', ms=7)
+    # # L2 = ax2.plot(x_TS, P2_2008, color="red", linestyle="--", marker='*',
+    # #               linewidth=2, label="P2", markerfacecolor='white', ms=7)
+    # L2 = ax2.plot(x_TS, P2_2008, color="green", linestyle="--", marker='s',
     #               linewidth=2, label="P2", markerfacecolor='white', ms=7)
-    L2 = ax2.plot(x_TS, P2_2008, color="green", linestyle="--", marker='s',
-                  linewidth=2, label="P2", markerfacecolor='white', ms=7)
-    L3 = ax2.plot(x_TS, P3_2008, color="gold", linestyle="--", marker='^',
-                      linewidth=2, label="P3", markerfacecolor='white', ms=7)
+    # L3 = ax2.plot(x_TS, P3_2008, color="gold", linestyle="--", marker='^',
+    #               linewidth=2, label="P3", markerfacecolor='white', ms=7)
 
-    lns = L1 + L2 + L3
-    lns.append(lns1)
+    arr1 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P1_2008.reshape(-1, 1))), columns=['x', 'y'])
+    arr2 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P2_2008.reshape(-1, 1))), columns=['x', 'y'])
+    arr3 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P3_2008.reshape(-1, 1))), columns=['x', 'y'])
+
+    sns.set(style="whitegrid", font_scale=1.2)
+    P1 = sns.regplot(x='x', y='y', data=arr1,
+                     marker='*', label="P1",
+                     order=1,  # 默认为1，越大越弯曲
+                     scatter_kws={'s': 60, 'color': 'red'},  # 设置散点属性，参考plt.scatter
+                     line_kws={'linestyle': '--', 'color': 'red'}  # 设置线属性，参考 plt.plot
+                     )
+    P2 = sns.regplot(x='x', y='y', data=arr2,
+                     marker='*', label="P2",
+                     order=1,  # 默认为1，越大越弯曲
+                     scatter_kws={'s': 60, 'color': 'green', },  # 设置散点属性，参考plt.scatter
+                     line_kws={'linestyle': '--', 'color': 'green'}  # 设置线属性，参考 plt.plot
+                     )
+    P3 = sns.regplot(x='x', y='y', data=arr3,
+                     marker='*', label="P3",
+                     order=1,  # 默认为1，越大越弯曲
+                     scatter_kws={'s': 60, 'color': 'blue', },  # 设置散点属性，参考plt.scatter
+                     line_kws={'linestyle': '--', 'color': 'blue'}  # 设置线属性，参考 plt.plot
+                     )
+
+    # lns = [P1, P2, P3, lns1]
+    lns = [P1, lns1]
     labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, loc="upper right")
-
+    ax.legend(lns, labs, loc="upper left")
+    P1.legend(title='Displacement', loc='upper right')
+    '''x,y labels'''
     ax.set_xlabel('2008', fontdict=font)
     ax.set_ylabel('Monthly Rainfall(MR)', fontdict=font)
     ax2.set_ylabel('Displacement', fontdict=font)
-    # ax.set_ylim(MR_2008.min() - 100, MR_2008.max() + 200)
-    ax.set_ylim(MR_2008.min(), MR_2008.max())
-    ax2.set_ylim(-250, 200)
-
+    '''y ticks'''
+    ax.set_ylim(MR_2008.min(), MR_2008.max() + 1000)
+    ax2.set_ylim(-250, 100)
+    '''x ticks'''
     my_x_ticks = [i for i in range(1, 13, 1)]
-    my_x_ticklabel = [str(i) for i in range(1, 13, 1)]
+    my_x_ticklabel = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+                      'Sep', 'Oct', 'Nov', 'Dec']
     plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
+    '''x,y ticks font'''
+    ax.tick_params(labelsize=14)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # 旋转
+    labels = ax.get_xticklabels() + ax.get_yticklabels()
+    [label.set_fontname('Times New Roman') for label in labels]
 
     ax.spines['top'].set_visible(False)
     ax2.spines['top'].set_visible(False)
+    ax.grid(visible=False)
+    ax2.grid(visible=False)
     plt.tight_layout()
     plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\rainfall_DV_2008.pdf")
     plt.show()
@@ -640,42 +676,68 @@ def plot_AR_DV_2017(f_name):
     TSdate_2017 = TSdate_2017 - 20170000
     x_TS = [int(TSdate_2017[i] / 100) + TSdate_2017[i] % 100 / 30
             for i in range(len(TSdate_2017))]
-
+    x_TS = np.array(x_TS)
     '''plotting'''
     font = {'family': 'Times New Roman',
             'weight': 'normal',
             'size': 14,
             }
-    fig, ax = plt.subplots()
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(1, 1, 1)
     lns1 = ax.bar(x_, MR_2017, label='AR', color='blue')
     ax2 = ax.twinx()
 
-    L1 = ax2.plot(x_TS, P1_2017, color="red", linestyle="--", marker='o',
-                  linewidth=2, label="P4", markerfacecolor='white', ms=7)
-    L2 = ax2.plot(x_TS, P2_2017, color="green", linestyle="--", marker='s',
-                  linewidth=2, label="P5", markerfacecolor='white', ms=7)
+    # L1 = ax2.plot(x_TS, P1_2017, color="red", linestyle="--", marker='o',
+    #               linewidth=2, label="P4", markerfacecolor='white', ms=7)
+    # L2 = ax2.plot(x_TS, P2_2017, color="green", linestyle="--", marker='s',
+    #               linewidth=2, label="P5", markerfacecolor='white', ms=7)
 
-    lns = L1 + L2
-    lns.append(lns1)
+    arr1 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P1_2017.reshape(-1, 1))), columns=['x', 'y'])
+    arr2 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P2_2017.reshape(-1, 1))), columns=['x', 'y'])
+
+    sns.set(style="whitegrid", font_scale=1.2)
+    P1 = sns.regplot(x='x', y='y', data=arr1,
+                     marker='*', label="P4",
+                     order=3,  # 默认为1，越大越弯曲
+                     scatter_kws={'s': 60, 'color': 'red'},  # 设置散点属性，参考plt.scatter
+                     line_kws={'linestyle': '--', 'color': 'red'}  # 设置线属性，参考 plt.plot
+                     )
+    P2 = sns.regplot(x='x', y='y', data=arr2,
+                     marker='*', label="P5",
+                     order=3,  # 默认为1，越大越弯曲
+                     scatter_kws={'s': 60, 'color': 'green', },  # 设置散点属性，参考plt.scatter
+                     line_kws={'linestyle': '--', 'color': 'green'}  # 设置线属性，参考 plt.plot
+                     )
+
+    lns = [P1, lns1]
     labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, loc="upper right")
-
+    ax.legend(lns, labs, loc="upper left")
+    P1.legend(title='Displacement', loc='upper right')
+    '''x,y labels'''
     ax.set_xlabel('2017', fontdict=font)
     ax.set_ylabel('Monthly Rainfall(MR)', fontdict=font)
     ax2.set_ylabel('Displacement', fontdict=font)
-    ax.set_ylim(MR_2017.min(), MR_2017.max())
-    ax2.set_ylim(-100, 50)
-
+    '''y ticks'''
+    ax.set_ylim(MR_2017.min(), MR_2017.max() + 500)
+    ax2.set_ylim(-150, 50)
+    '''x ticks'''
     my_x_ticks = [i for i in range(1, 13, 1)]
-    my_x_ticklabel = [str(i) for i in range(1, 13, 1)]
+    my_x_ticklabel = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug',
+                      'Sep', 'Oct', 'Nov', 'Dec']
     plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
+    '''x,y ticks font'''
+    ax.tick_params(labelsize=14)
+    ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # 旋转
+    labels = ax.get_xticklabels() + ax.get_yticklabels()
+    [label.set_fontname('Times New Roman') for label in labels]
 
     ax.spines['top'].set_visible(False)
     ax2.spines['top'].set_visible(False)
+    ax.grid(visible=False)
+    ax2.grid(visible=False)
     plt.tight_layout()
     plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\rainfall_DV_2017.pdf")
     plt.show()
-
 
 
 plot_rainfall(f_name)
