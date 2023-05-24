@@ -26,31 +26,9 @@ from scipy.interpolate import make_interp_spline
 
 from sklearn.metrics._classification import accuracy_score
 
-"""for visiualization"""
-
-
-def read_tasks(file, dim_input=16):
-    """read csv and obtain tasks"""
-    f = pd.ExcelFile(file)
-    tasks = []
-    for sheetname in f.sheet_names:
-        attr = pd.read_excel(file, usecols=dim_input - 1, sheet_name=sheetname).values.astype(np.float32)
-        label = pd.read_excel(file, usecols=[dim_input], sheet_name=sheetname).values.reshape((-1, 1)).astype(
-            np.float32)
-        tasks.append([attr, label])
-    return tasks
-
-
-def read_csv(path):
-    tmp = np.loadtxt(path, dtype=np.str, delimiter=",", encoding='UTF-8')
-    tmp_feature = tmp[1:, :]
-    np.random.shuffle(tmp_feature)  # shuffle
-    label_attr = tmp_feature[:, -1].astype(np.float32)  #
-    data_atrr = tmp_feature[:, :-1].astype(np.float32)  #
-    return data_atrr, label_attr
-
-
-"""for figure plotting"""
+"""
+for figure plotting
+"""
 
 
 def read_statistic(file):
@@ -68,80 +46,59 @@ def read_statistic(file):
     return K, meanOA, maxOA, minOA, std
 
 
-def read_statistic1(file):
-    """读取csv获取statistic"""
-    f = pd.ExcelFile(file)
-    K, meanOA = [], []
-    for sheetname in f.sheet_names:
-        tmp_K, tmp_meanOA = np.transpose(pd.read_excel(file, sheet_name=sheetname).values)
-        K.append(tmp_K)
-        meanOA.append(tmp_meanOA)
-    return K, meanOA
-
-
-def read_statistic2(file):
-    """读取csv获取statistic"""
-    f = pd.ExcelFile(file)
-    measures = []
-    for sheetname in f.sheet_names:
-        temp = pd.read_excel(file, sheet_name=sheetname).values
-        measures.append(temp[:, 1:].tolist())
-    return measures
-
-
-def plot_candle(scenes, K, meanOA, maxOA, minOA, std):
-    # 设置框图
-    plt.figure("", facecolor="lightgray")
-    # plt.style.use('ggplot')
-    # 设置图例并且设置图例的字体及大小
-    font1 = {'family': 'Times New Roman',
-             'weight': 'normal',
-             'size': 16,
-             }
-    font2 = {'family': 'Times New Roman',
-             'weight': 'normal',
-             'size': 18,
-             }
-
-    # legend = plt.legend(handles=[A,B],prop=font1)
-    # plt.title(scenes, fontdict=font2)
-    # plt.xlabel("Various methods", fontdict=font1)
-    plt.ylabel("OA(%)", fontdict=font2)
-
-    my_x_ticks = [1, 2, 3, 4, 5]
-    # my_x_ticklabels = ['SVM', 'MLP', 'DBN', 'RF', 'Proposed']
-    plt.xticks(ticks=my_x_ticks, labels='', fontsize=16)
-
-    plt.ylim((60, 100))
-    my_y_ticks = np.arange(60, 100, 5)
-    plt.yticks(ticks=my_y_ticks, fontsize=16)
-
-    colors = ['dodgerblue', 'lawngreen', 'gold', 'magenta', 'red']
-    edge_colors = np.zeros(5, dtype="U1")
-    edge_colors[:] = 'black'
-
-    '''格网设置'''
-    plt.grid(linestyle="--", zorder=-1)
-
-    # draw line
-    # plt.plot(K[0:-1], meanOA[0:-1], color="b", linestyle='solid',
-    #         linewidth=1, label="open", zorder=1)
-    # plt.plot(K[-2:], meanOA[-2:], color="b", linestyle="--",
-    #          linewidth=1, label="open", zorder=1)
-
-    # draw bar
-    barwidth = 0.4
-    plt.bar(K, 2 * std, barwidth, bottom=meanOA - std, color=colors,
-            edgecolor=edge_colors, linewidth=1, zorder=20, label=['SVM', 'MLP', 'DBN', 'RF', 'Proposed'])
-
-    # draw vertical line
-    plt.vlines(K, minOA, maxOA, color='black', linestyle='solid', zorder=10)
-    plt.hlines(meanOA, K - barwidth / 2, K + barwidth / 2, color='black', linestyle='solid', zorder=30)
-    plt.hlines(minOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
-    plt.hlines(maxOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
-
-    # 设置图例
-    legend = plt.legend(loc="lower right", prop=font1, ncol=3, fontsize=24)
+# def plot_candle(scenes, K, meanOA, maxOA, minOA, std):
+#     # 设置框图
+#     plt.figure("", facecolor="lightgray")
+#     # plt.style.use('ggplot')
+#     # 设置图例并且设置图例的字体及大小
+#     font1 = {'family': 'Times New Roman',
+#              'weight': 'normal',
+#              'size': 16,
+#              }
+#     font2 = {'family': 'Times New Roman',
+#              'weight': 'normal',
+#              'size': 18,
+#              }
+#
+#     # legend = plt.legend(handles=[A,B],prop=font1)
+#     # plt.title(scenes, fontdict=font2)
+#     # plt.xlabel("Various methods", fontdict=font1)
+#     plt.ylabel("OA(%)", fontdict=font2)
+#
+#     my_x_ticks = [1, 2, 3, 4, 5]
+#     # my_x_ticklabels = ['SVM', 'MLP', 'DBN', 'RF', 'Proposed']
+#     plt.xticks(ticks=my_x_ticks, labels='', fontsize=16)
+#
+#     plt.ylim((60, 100))
+#     my_y_ticks = np.arange(60, 100, 5)
+#     plt.yticks(ticks=my_y_ticks, fontsize=16)
+#
+#     colors = ['dodgerblue', 'lawngreen', 'gold', 'magenta', 'red']
+#     edge_colors = np.zeros(5, dtype="U1")
+#     edge_colors[:] = 'black'
+#
+#     '''格网设置'''
+#     plt.grid(linestyle="--", zorder=-1)
+#
+#     # draw line
+#     # plt.plot(K[0:-1], meanOA[0:-1], color="b", linestyle='solid',
+#     #         linewidth=1, label="open", zorder=1)
+#     # plt.plot(K[-2:], meanOA[-2:], color="b", linestyle="--",
+#     #          linewidth=1, label="open", zorder=1)
+#
+#     # draw bar
+#     barwidth = 0.4
+#     plt.bar(K, 2 * std, barwidth, bottom=meanOA - std, color=colors,
+#             edgecolor=edge_colors, linewidth=1, zorder=20, label=['SVM', 'MLP', 'DBN', 'RF', 'Proposed'])
+#
+#     # draw vertical line
+#     plt.vlines(K, minOA, maxOA, color='black', linestyle='solid', zorder=10)
+#     plt.hlines(meanOA, K - barwidth / 2, K + barwidth / 2, color='black', linestyle='solid', zorder=30)
+#     plt.hlines(minOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
+#     plt.hlines(maxOA, K - barwidth / 4, K + barwidth / 4, color='black', linestyle='solid', zorder=10)
+#
+#     # 设置图例
+#     legend = plt.legend(loc="lower right", prop=font1, ncol=3, fontsize=24)
 
 
 def plot_scatter(arr):
@@ -236,80 +193,77 @@ def plot_lines(arr):
                   linewidth=1, label="L=3", markerfacecolor='white', ms=10)
 
 
-def plot_histogram(region, measures):
-    '''设置框图'''
-    plt.figure("", facecolor="lightgray")  # 设置框图大小
-    font1 = {'family': 'Times New Roman',
-             'weight': 'normal',
-             'size': 14,
-             }
-    font2 = {'family': 'Times New Roman',
-             'weight': 'normal',
-             'size': 18,
-             }
-    # plt.xlabel("Statistical measures", fontdict=font1)
-    plt.ylabel("Performance(%)", fontdict=font1)
-    plt.title(region, fontdict=font2)
-
-    '''设置刻度'''
-    plt.ylim((60, 90))
-    my_y_ticks = np.arange(60, 90, 3)
-    plt.yticks(my_y_ticks)
-
-    my_x_ticklabels = ['Accuracy', 'Precision', 'Recall', 'F1-score']
-    bar_width = 0.3
-    interval = 0.2
-    my_x_ticks = np.arange(bar_width / 2 + 2.5 * bar_width, 4 * 5 * bar_width + 1, bar_width * 6)
-    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabels, fontproperties='Times New Roman', size=14)
-
-    '''格网设置'''
-    plt.grid(linestyle="--")
-
-    '''draw bar'''
-    rects1 = plt.bar([x - 2 * bar_width for x in my_x_ticks], height=measures[0], width=bar_width, alpha=0.8,
-                     color='dodgerblue', label="MLP")
-    rects2 = plt.bar([x - 1 * bar_width for x in my_x_ticks], height=measures[1], width=bar_width, alpha=0.8,
-                     color='yellowgreen', label="RF")
-    rects3 = plt.bar([x for x in my_x_ticks], height=measures[2], width=bar_width, alpha=0.8, color='gold', label="RL")
-    rects4 = plt.bar([x + 1 * bar_width for x in my_x_ticks], height=measures[3], width=bar_width, alpha=0.8,
-                     color='peru', label="MAML")
-    rects5 = plt.bar([x + 2 * bar_width for x in my_x_ticks], height=measures[4], width=bar_width, alpha=0.8,
-                     color='crimson', label="proposed")
-
-    '''设置图例'''
-    legend = plt.legend(loc="upper left", prop=font1, ncol=3)
-
-    '''add text'''
-    # for rect in rects1:
-    #     height = rect.get_height()
-    #     plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height)+'%', ha="center", va="bottom")
-    # for rect in rects2:
-    #     height = rect.get_height()
-    #     plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height)+'%', ha="center", va="bottom")
-    # for rect in rects3:
-    #     height = rect.get_height()
-    #     plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height)+'%', ha="center", va="bottom")
-    # for rect in rects4:
-    #     height = rect.get_height()
-    #     plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height)+'%', ha="center", va="bottom")
-    # for rect in rects5:
-    #     height = rect.get_height()
-    #     plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height)+'%', ha="center", va="bottom")
-
-    plt.savefig("C:\\Users\\hj\\Desktop\\histogram" + region + '.pdf')
-    plt.show()
-
-
-"""for AUROC plotting"""
+# def plot_histogram(region, measures):
+#     '''设置框图'''
+#     plt.figure("", facecolor="lightgray")  # 设置框图大小
+#     font1 = {'family': 'Times New Roman',
+#              'weight': 'normal',
+#              'size': 14,
+#              }
+#     font2 = {'family': 'Times New Roman',
+#              'weight': 'normal',
+#              'size': 18,
+#              }
+#     # plt.xlabel("Statistical measures", fontdict=font1)
+#     plt.ylabel("Performance(%)", fontdict=font1)
+#     plt.title(region, fontdict=font2)
+#
+#     '''设置刻度'''
+#     plt.ylim((60, 90))
+#     my_y_ticks = np.arange(60, 90, 3)
+#     plt.yticks(my_y_ticks)
+#
+#     my_x_ticklabels = ['Accuracy', 'Precision', 'Recall', 'F1-score']
+#     bar_width = 0.3
+#     interval = 0.2
+#     my_x_ticks = np.arange(bar_width / 2 + 2.5 * bar_width, 4 * 5 * bar_width + 1, bar_width * 6)
+#     plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabels, fontproperties='Times New Roman', size=14)
+#
+#     '''格网设置'''
+#     plt.grid(linestyle="--")
+#
+#     '''draw bar'''
+#     rects1 = plt.bar([x - 2 * bar_width for x in my_x_ticks], height=measures[0], width=bar_width, alpha=0.8,
+#                      color='dodgerblue', label="MLP")
+#     rects2 = plt.bar([x - 1 * bar_width for x in my_x_ticks], height=measures[1], width=bar_width, alpha=0.8,
+#                      color='yellowgreen', label="RF")
+#     rects3 = plt.bar([x for x in my_x_ticks], height=measures[2], width=bar_width, alpha=0.8, color='gold', label="RL")
+#     rects4 = plt.bar([x + 1 * bar_width for x in my_x_ticks], height=measures[3], width=bar_width, alpha=0.8,
+#                      color='peru', label="MAML")
+#     rects5 = plt.bar([x + 2 * bar_width for x in my_x_ticks], height=measures[4], width=bar_width, alpha=0.8,
+#                      color='crimson', label="proposed")
+#
+#     '''设置图例'''
+#     legend = plt.legend(loc="upper left", prop=font1, ncol=3)
+#
+#     '''add text'''
+#     # for rect in rects1:
+#     #     height = rect.get_height()
+#     #     plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height)+'%', ha="center", va="bottom")
+#     # for rect in rects2:
+#     #     height = rect.get_height()
+#     #     plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height)+'%', ha="center", va="bottom")
+#     # for rect in rects3:
+#     #     height = rect.get_height()
+#     #     plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height)+'%', ha="center", va="bottom")
+#     # for rect in rects4:
+#     #     height = rect.get_height()
+#     #     plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height)+'%', ha="center", va="bottom")
+#     # for rect in rects5:
+#     #     height = rect.get_height()
+#     #     plt.text(rect.get_x() + rect.get_width() / 2, height+1, str(height)+'%', ha="center", va="bottom")
+#
+#     plt.savefig("C:\\Users\\hj\\Desktop\\histogram" + region + '.pdf')
+#     plt.show()
 
 
-def load_data(filepath, dim_input):
-    np.loadtxt(filepath, )
-    data = pd.read_excel(filepath).values.astype(np.float32)
-    attr = data[:, :dim_input]
-    attr = attr / attr.max(axis=0)
-    label = data[:, -1].astype(np.int32)
-    return attr, label
+# def load_data(filepath, dim_input):
+#     np.loadtxt(filepath, )
+#     data = pd.read_excel(filepath).values.astype(np.float32)
+#     attr = data[:, :dim_input]
+#     attr = attr / attr.max(axis=0)
+#     label = data[:, -1].astype(np.int32)
+#     return attr, label
 
 
 def SVM_fit_pred(x_train, x_test, y_train, y_test):
@@ -392,28 +346,6 @@ def plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, 
     plt.legend(loc="lower right", prop=font2)
 
 
-"""space visualization"""
-# visualization()
-
-"""draw histogram"""
-
-# regions = ['FJ', 'FL']
-# measures = read_statistic2("C:\\Users\\hj\\Desktop\\performance.xlsx")
-# for i in range(len(regions)):
-#     plot_histogram(regions[i], measures[i])
-
-
-"""draw candle"""
-
-
-# scenes = ['airport', 'urban1', 'urban2', 'plain', 'catchment', 'reservior']
-# K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\statistics_candle.xlsx")
-# for i in range(len(scenes)):
-#     plot_candle(scenes[i], K[i], meanOA[i], maxOA[i], minOA[i], std[i])
-#     plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\" + scenes[i] + '_' + 'candle.pdf')
-#     plt.show()
-
-
 def read_f_l_csv(file):
     tmp = np.loadtxt(file, dtype=str, delimiter=",", encoding='UTF-8')
     features = tmp[1:, :-2].astype(np.float32)
@@ -493,9 +425,9 @@ def plot_rainfall(f_name):
             'weight': 'normal',
             'size': 14,
             }
-    plt.figure(figsize=(10, 4.5))
+    fig = plt.figure(figsize=(10, 6))
+    ax = fig.add_subplot(1, 1, 1)
 
-    fig, ax = plt.subplots()
     lns1 = ax.bar(x_, AVD_AR, label='AR', color='blue')
     ax2 = ax.twinx()
     lns2 = ax2.plot(x_, AVG_AERD, '-', label='AERD', color='red')
@@ -521,58 +453,6 @@ def plot_rainfall(f_name):
     plt.show()
 
     '''others'''
-
-
-"""draw AUR"""
-# print('drawing ROC...')
-# x, y = read_f_l_csv('data_src/samples.csv')
-# y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], []
-# n_times = 5
-# for i in range(n_times):
-#     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.03, shuffle=True)
-#     """fit and predict"""
-#     # for other methods
-#     y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
-#     y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-#     y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
-#     y_test_.append(y_test)
-#     # for proposed-
-#     tmp = pd.read_excel('proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
-#     y_score_proposed.append(tmp[:, 1:3])
-#     y_test_proposed.append(tmp[:, -1])
-# # draw roc
-# plt.clf()
-# plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
-# plt.savefig('ROC.pdf')
-# plt.show()
-# print('finish drawing ROC')
-
-"""draw scatters for fast adaption performance"""
-# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
-# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-# plot_scatter(arr)
-# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-# plt.show()
-
-"""draw lines for fast adaption performance"""
-# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
-# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-# plot_lines(arr)
-# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\broken.pdf")
-# plt.show()
-
-"""draw candles for fast adaption performance"""
-# K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\candles.xlsx")
-# colors = ['b', 'g', 'r']
-# labels = ['1999', '2008', '2017']
-# pos = [-1, 0, 1]
-# for i in range(3):
-#     plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
-# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
-# plt.show()
-
-"""draw rainfall and deformation time series (1992, 2008, 2017)"""
-f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
 
 
 def plot_AR_DV_2008(f_name):
@@ -740,6 +620,56 @@ def plot_AR_DV_2017(f_name):
     plt.show()
 
 
+"""draw AUR"""
+print('drawing ROC...')
+x, y = read_f_l_csv('data_src/samples.csv')
+y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], []
+n_times = 5
+for i in range(n_times):
+    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.03, shuffle=True)
+    """fit and predict"""
+    # for other methods
+    y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
+    y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+    y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
+    y_test_.append(y_test)
+    # for proposed-
+    tmp = pd.read_excel('proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
+    y_score_proposed.append(tmp[:, 1:3])
+    y_test_proposed.append(tmp[:, -1])
+# draw roc
+plt.clf()
+plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
+plt.savefig('ROC.pdf')
+plt.show()
+print('finish drawing ROC')
+
+"""draw scatters for fast adaption performance"""
+filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
+arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+plot_scatter(arr)
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+plt.show()
+
+"""draw lines for fast adaption performance"""
+filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
+arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+plot_lines(arr)
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\broken.pdf")
+plt.show()
+
+"""draw candles for fast adaption performance"""
+K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\candles.xlsx")
+colors = ['b', 'g', 'r']
+labels = ['1999', '2008', '2017']
+pos = [-1, 0, 1]
+for i in range(3):
+    plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
+plt.show()
+
+"""draw rainfall and deformation time series (1992, 2008, 2017)"""
+f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
 plot_rainfall(f_name)
 plot_AR_DV_2008(f_name)
 plot_AR_DV_2017(f_name)
