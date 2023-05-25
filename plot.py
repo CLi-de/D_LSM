@@ -480,44 +480,45 @@ def plot_AR_DV_2008(f_name):
     lns1 = ax.bar(x_, MR_2008, label='AR', color='blue')
     ax2 = ax.twinx()
 
-    # L1 = ax2.plot(x_TS, P1_2008, color="red", linestyle="--", marker='o',
-    #               linewidth=2, label="P1", markerfacecolor='white', ms=7)
-    # # L2 = ax2.plot(x_TS, P2_2008, color="red", linestyle="--", marker='*',
-    # #               linewidth=2, label="P2", markerfacecolor='white', ms=7)
-    # L2 = ax2.plot(x_TS, P2_2008, color="green", linestyle="--", marker='s',
+    L1 = ax2.plot(x_TS, P1_2008, color="red", linestyle="--", marker='o',
+                  linewidth=2, label="P1", markerfacecolor='white', ms=7)
+    # L2 = ax2.plot(x_TS, P2_2008, color="red", linestyle="--", marker='*',
     #               linewidth=2, label="P2", markerfacecolor='white', ms=7)
-    # L3 = ax2.plot(x_TS, P3_2008, color="gold", linestyle="--", marker='^',
-    #               linewidth=2, label="P3", markerfacecolor='white', ms=7)
-
-    arr1 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P1_2008.reshape(-1, 1))), columns=['x', 'y'])
-    arr2 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P2_2008.reshape(-1, 1))), columns=['x', 'y'])
-    arr3 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P3_2008.reshape(-1, 1))), columns=['x', 'y'])
-
-    sns.set(style="whitegrid", font_scale=1.2)
-    P1 = sns.regplot(x='x', y='y', data=arr1,
-                     marker='*', label="P1",
-                     order=1,  # 默认为1，越大越弯曲
-                     scatter_kws={'s': 60, 'color': 'red'},  # 设置散点属性，参考plt.scatter
-                     line_kws={'linestyle': '--', 'color': 'red'}  # 设置线属性，参考 plt.plot
-                     )
-    P2 = sns.regplot(x='x', y='y', data=arr2,
-                     marker='*', label="P2",
-                     order=1,  # 默认为1，越大越弯曲
-                     scatter_kws={'s': 60, 'color': 'green', },  # 设置散点属性，参考plt.scatter
-                     line_kws={'linestyle': '--', 'color': 'green'}  # 设置线属性，参考 plt.plot
-                     )
-    P3 = sns.regplot(x='x', y='y', data=arr3,
-                     marker='*', label="P3",
-                     order=1,  # 默认为1，越大越弯曲
-                     scatter_kws={'s': 60, 'color': 'blue', },  # 设置散点属性，参考plt.scatter
-                     line_kws={'linestyle': '--', 'color': 'blue'}  # 设置线属性，参考 plt.plot
-                     )
+    L2 = ax2.plot(x_TS, P2_2008, color="green", linestyle="--", marker='s',
+                  linewidth=2, label="P2", markerfacecolor='white', ms=7)
+    L3 = ax2.plot(x_TS, P3_2008, color="gold", linestyle="--", marker='^',
+                  linewidth=2, label="P3", markerfacecolor='white', ms=7)
+    '''plot by seaborn'''
+    # arr1 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P1_2008.reshape(-1, 1))), columns=['x', 'y'])
+    # arr2 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P2_2008.reshape(-1, 1))), columns=['x', 'y'])
+    # arr3 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P3_2008.reshape(-1, 1))), columns=['x', 'y'])
+    #
+    # sns.set(style="whitegrid", font_scale=1.2)
+    # P1 = sns.regplot(x='x', y='y', data=arr1,
+    #                  marker='*', label="P1",
+    #                  order=1,  # 默认为1，越大越弯曲
+    #                  scatter_kws={'s': 60, 'color': 'red'},  # 设置散点属性，参考plt.scatter
+    #                  line_kws={'linestyle': '--', 'color': 'red'}  # 设置线属性，参考 plt.plot
+    #                  )
+    # P2 = sns.regplot(x='x', y='y', data=arr2,
+    #                  marker='*', label="P2",
+    #                  order=1,  # 默认为1，越大越弯曲
+    #                  scatter_kws={'s': 60, 'color': 'green', },  # 设置散点属性，参考plt.scatter
+    #                  line_kws={'linestyle': '--', 'color': 'green'}  # 设置线属性，参考 plt.plot
+    #                  )
+    # P3 = sns.regplot(x='x', y='y', data=arr3,
+    #                  marker='*', label="P3",
+    #                  order=1,  # 默认为1，越大越弯曲
+    #                  scatter_kws={'s': 60, 'color': 'blue', },  # 设置散点属性，参考plt.scatter
+    #                  line_kws={'linestyle': '--', 'color': 'blue'}  # 设置线属性，参考 plt.plot
+    #                  )
 
     # lns = [P1, P2, P3, lns1]
-    lns = [P1, lns1]
+    lns = L1 + L2 + L3
+    lns.append(lns1)
     labs = [l.get_label() for l in lns]
     ax.legend(lns, labs, loc="upper left")
-    P1.legend(title='Displacement', loc='upper right')
+    # P1.legend(title='Displacement', loc='upper right')
     '''x,y labels'''
     ax.set_xlabel('2008', fontdict=font)
     ax.set_ylabel('Monthly Rainfall(MR)', fontdict=font)
@@ -577,7 +578,7 @@ def plot_AR_DV_2017(f_name):
 
     sns.set(style="whitegrid", font_scale=1.2)
     P1 = sns.regplot(x='x', y='y', data=arr1,
-                     marker='*', label="P4",
+                     marker='p', label="P4",
                      order=3,  # 默认为1，越大越弯曲
                      scatter_kws={'s': 60, 'color': 'red'},  # 设置散点属性，参考plt.scatter
                      line_kws={'linestyle': '--', 'color': 'red'}  # 设置线属性，参考 plt.plot
@@ -621,52 +622,52 @@ def plot_AR_DV_2017(f_name):
 
 
 """draw AUR"""
-print('drawing ROC...')
-x, y = read_f_l_csv('data_src/samples.csv')
-y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], []
-n_times = 5
-for i in range(n_times):
-    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.03, shuffle=True)
-    """fit and predict"""
-    # for other methods
-    y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
-    y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
-    y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
-    y_test_.append(y_test)
-    # for proposed-
-    tmp = pd.read_excel('proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
-    y_score_proposed.append(tmp[:, 1:3])
-    y_test_proposed.append(tmp[:, -1])
-# draw roc
-plt.clf()
-plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
-plt.savefig('ROC.pdf')
-plt.show()
-print('finish drawing ROC')
+# print('drawing ROC...')
+# x, y = read_f_l_csv('data_src/samples.csv')
+# y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed = [], [], [], [], [], []
+# n_times = 5
+# for i in range(n_times):
+#     x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.03, shuffle=True)
+#     """fit and predict"""
+#     # for other methods
+#     y_score_SVM.append(SVM_fit_pred(x_train, x_test, y_train, y_test))
+#     y_score_MLP.append(MLP_fit_pred(x_train, x_test, y_train, y_test))
+#     y_score_RF.append(RF_fit_pred(x_train, x_test, y_train, y_test))
+#     y_test_.append(y_test)
+#     # for proposed-
+#     tmp = pd.read_excel('proposed_test' + str(i) + '.xlsx').values.astype(np.float32)
+#     y_score_proposed.append(tmp[:, 1:3])
+#     y_test_proposed.append(tmp[:, -1])
+# # draw roc
+# plt.clf()
+# plot_auroc(n_times, y_score_SVM, y_score_MLP, y_score_RF, y_score_proposed, y_test_, y_test_proposed)
+# plt.savefig('ROC.pdf')
+# plt.show()
+# print('finish drawing ROC')
 
 """draw scatters for fast adaption performance"""
-filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
-arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-plot_scatter(arr)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-plt.show()
+# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
+# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+# plot_scatter(arr)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+# plt.show()
 
 """draw lines for fast adaption performance"""
-filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
-arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-plot_lines(arr)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\broken.pdf")
-plt.show()
+# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
+# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+# plot_lines(arr)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\broken.pdf")
+# plt.show()
 
 """draw candles for fast adaption performance"""
-K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\candles.xlsx")
-colors = ['b', 'g', 'r']
-labels = ['1999', '2008', '2017']
-pos = [-1, 0, 1]
-for i in range(3):
-    plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
-plt.show()
+# K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\candles.xlsx")
+# colors = ['b', 'g', 'r']
+# labels = ['1999', '2008', '2017']
+# pos = [-1, 0, 1]
+# for i in range(3):
+#     plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
+# plt.show()
 
 """draw rainfall and deformation time series (1992, 2008, 2017)"""
 f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
