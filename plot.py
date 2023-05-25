@@ -140,13 +140,13 @@ def plot_scatter(arr):
     '''draw lines'''
     L1 = plt.plot(x_, arr[:, 0], color="gold", linestyle=":", marker='o',
                   linewidth=1.5, label="L=1", markerfacecolor='white', ms=7)
-    L2 = plt.plot(x_, arr[:, 1], color="c", linestyle=":", marker='^',
+    L2 = plt.plot(x_, arr[:, 1], color="cyan", linestyle=":", marker='^',
                   linewidth=1.5, label="L=2", markerfacecolor='white', ms=8)
-    L3 = plt.plot(x_, arr[:, 2], color="b", linestyle=":", marker='s',
+    L3 = plt.plot(x_, arr[:, 2], color="blue", linestyle=":", marker='s',
                   linewidth=1.5, label="L=3", markerfacecolor='white', ms=7)
-    L4 = plt.plot(x_, arr[:, 3], color="g", linestyle=":", marker='p',
+    L4 = plt.plot(x_, arr[:, 3], color="green", linestyle=":", marker='p',
                   linewidth=1.5, label="L=4", markerfacecolor='white', ms=9)
-    L5 = plt.plot(x_, arr[:, 4], color="r", linestyle=":", marker='*',
+    L5 = plt.plot(x_, arr[:, 4], color="red", linestyle=":", marker='*',
                   linewidth=1.5, label="L=5", markerfacecolor='white', ms=10)
 
     # plt.fill_between(x_, L1, L5,  # 上限，下限
@@ -646,11 +646,11 @@ def plot_AR_DV_2017(f_name):
 # print('finish drawing ROC')
 
 """draw scatters for fast adaption performance"""
-# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
-# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-# plot_scatter(arr)
-# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-# plt.show()
+filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
+arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+plot_scatter(arr)
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+plt.show()
 
 """draw lines for fast adaption performance"""
 # filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
@@ -717,22 +717,26 @@ def plot_AR_DV_2017(f_name):
 # AERD_AVG = np.array([4.5, 5.3, 4.6, 2.33, 1, 3.25, 3.75, 5.5, 4.75, 6, 3.25, 3.75, 2.8, 6, 4.4, 2,
 #                      10.6, 2.6, 3.2, 1.4, 1, 4.2, 3, 3.2, 2.6, 3.2, 2.4, 1.8])
 # '''plot'''
-# font = {'family': 'Times New Roman',
+# font1 = {'family': 'Times New Roman',
 #         'weight': 'normal',
 #         'size': 18,
+#         }
+# font2 = {'family': 'Times New Roman',
+#         'weight': 'normal',
+#         'size': 12,
 #         }
 # colors = AERDrank_ratio
 # x = AR_AVG
 # y = AERD_AVG
 # fig = plt.figure(figsize=(16, 8))
 # ax = fig.add_subplot(1, 1, 1)
-# sc = ax.scatter(x, y, c=colors, marker='s', s=100, cmap='Wistia', vmin=0.1, vmax=0.17,
+# sc = ax.scatter(x, y, c=colors, marker='s', s=100, cmap='viridis', vmin=0.1, vmax=0.17,
 #                 edgecolors='black', linewidths=1)
 # cbar = fig.colorbar(sc)
-# cbar.set_label("Importance ratio of AERD", fontsize=18, font=font)
+# cbar.set_label("Importance ratio of AERD", fontsize=18, font=font1)
 # '''colorbar ticks'''
 # cbar.set_ticks([0.1, 0.17])   # 设置刻度值
-# cbar.set_ticklabels(['0.1', '0.17'], font=font)   # 设置刻度标签
+# cbar.set_ticklabels(['0.1', '0.17'], font=font1)   # 设置刻度标签
 # cbar.ax.yaxis.set_ticks_position('right')   # 设置刻度的位置
 # cbar.ax.yaxis.set_label_position('right')   # 设置标签的位置
 # # 在散点上添加注释文本
@@ -741,11 +745,12 @@ def plot_AR_DV_2017(f_name):
 #     plt.annotate(
 #         label,
 #         xy=(x_val, y_val),
-#         xytext=(0, -15),
+#         xytext=(-10, -10),
 #         textcoords='offset points',
-#         ha='left', va='top')
+#         ha='left', va='top', font=font2)
 #
 # '''x,y labels'''
-# ax.set_xlabel('Average AR', fontdict=font)
-# ax.set_ylabel('Average AERD', fontdict=font)
+# ax.set_xlabel('Average AR', fontdict=font1)
+# ax.set_ylabel('Average AERD', fontdict=font1)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\AR-AERD-LIF.pdf")
 # plt.show()
