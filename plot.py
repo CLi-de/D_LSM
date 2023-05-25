@@ -670,7 +670,82 @@ def plot_AR_DV_2017(f_name):
 # plt.show()
 
 """draw rainfall and deformation time series (1992, 2008, 2017)"""
-f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
-plot_rainfall(f_name)
-plot_AR_DV_2008(f_name)
-plot_AR_DV_2017(f_name)
+# f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
+# plot_rainfall(f_name)
+# plot_AR_DV_2008(f_name)
+# plot_AR_DV_2017(f_name)
+
+"""plot density scatter(LS-LIF)"""
+# f_LS = './tmp/16th_LSM.xlsx'
+# f_grids = './data_sup/grid_samples_2008.csv'
+# arr_LS = np.array(pd.read_excel(f_LS, usecols=[3]))
+# arr_grids = np.array(pd.read_csv(f_grids, skiprows=0))[:, :15]
+# '''normalization'''
+# mean = np.mean(arr_grids, axis=0)
+# std = np.std(arr_grids, axis=0)
+# arr_grids = (arr_grids - mean) / std
+# y = arr_LS
+# colors = np.random.rand(arr_grids.shape[0])
+# for i in range(15):
+#     x = arr_grids[:, i]
+#     f = plt.figure(figsize=(8, 8))
+#     ax0 = plt.subplot2grid((2, 2), (0, 0), colspan=1)
+#     sc = ax0.scatter(x, y, c=colors)
+#     cbar = f.colorbar(sc)
+#     cbar.set_label("Z", fontsize=15)
+#     plt.show()
+
+
+"""plot scatter(AR-AERD-landslides)"""
+# p_data = pd.read_csv('./data_src/p_samples.csv')
+# years = np.unique(np.array(p_data.iloc[1:, -5]))
+# # groups_p = p_data.groupby('year')
+# # count_list = []
+# # for year in years:
+# #     p_samples_ = groups_p.get_group(year).reset_index().values
+# #     count_list.append(len(p_samples_))
+# # count_arr = np.array(count_list)
+# # count_arr = (count_arr - np.mean(count_arr)) / np.std(count_arr)
+# # count_arr[16] = count_arr[16] - 4
+# # count_arr[1] = count_arr[1] - 1.5
+# # AERDrank_arr = [2, 3, 3, 4, 7, 1, 2, 2, 2, 5, 3, 2, 2, 2, 2, 7, 2, 2, 4, 2, 7, 4, 2, 5, 1, 3, 7, 4]
+# AERDrank_ratio = [0.12, 0.08, 0.08, 0.08, 0.01, 0.17, 0.11, 0.1, 0.16, 0.07,
+#                   0.9, 0.15, 0.1, 0.12, 0.1, 0.05, 0.11, 0.12, 0.10, 0.11,
+#                   0.01, 0.08, 0.09, 0.01, 0.17, 0.09, 0.05, 0.1]  # calculated from bar.pdf
+# AR_AVG = np.array([1751, 1905, 2073, 1697, 1614, 2267, 1919, 1674, 2024, 2545, 1945, 1854, 1370, 2203, 2145,
+#                    1535, 2838, 1698, 1981, 1337, 1644, 2311, 1973, 1820, 2473, 1919, 1784, 2075])
+# AERD_AVG = np.array([4.5, 5.3, 4.6, 2.33, 1, 3.25, 3.75, 5.5, 4.75, 6, 3.25, 3.75, 2.8, 6, 4.4, 2,
+#                      10.6, 2.6, 3.2, 1.4, 1, 4.2, 3, 3.2, 2.6, 3.2, 2.4, 1.8])
+# '''plot'''
+# font = {'family': 'Times New Roman',
+#         'weight': 'normal',
+#         'size': 18,
+#         }
+# colors = AERDrank_ratio
+# x = AR_AVG
+# y = AERD_AVG
+# fig = plt.figure(figsize=(16, 8))
+# ax = fig.add_subplot(1, 1, 1)
+# sc = ax.scatter(x, y, c=colors, marker='s', s=100, cmap='Wistia', vmin=0.1, vmax=0.17,
+#                 edgecolors='black', linewidths=1)
+# cbar = fig.colorbar(sc)
+# cbar.set_label("Importance ratio of AERD", fontsize=18, font=font)
+# '''colorbar ticks'''
+# cbar.set_ticks([0.1, 0.17])   # 设置刻度值
+# cbar.set_ticklabels(['0.1', '0.17'], font=font)   # 设置刻度标签
+# cbar.ax.yaxis.set_ticks_position('right')   # 设置刻度的位置
+# cbar.ax.yaxis.set_label_position('right')   # 设置标签的位置
+# # 在散点上添加注释文本
+# labels = [str(years[i]) for i in range(len(years))]
+# for label, x_val, y_val in zip(labels, x, y):
+#     plt.annotate(
+#         label,
+#         xy=(x_val, y_val),
+#         xytext=(0, -15),
+#         textcoords='offset points',
+#         ha='left', va='top')
+#
+# '''x,y labels'''
+# ax.set_xlabel('Average AR', fontdict=font)
+# ax.set_ylabel('Average AERD', fontdict=font)
+# plt.show()
