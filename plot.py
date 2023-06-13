@@ -646,11 +646,11 @@ def plot_AR_DV_2017(f_name):
 # print('finish drawing ROC')
 
 """draw scatters for fast adaption performance"""
-filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
-arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-plot_scatter(arr)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-plt.show()
+# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
+# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+# plot_scatter(arr)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+# plt.show()
 
 """draw lines for fast adaption performance"""
 # filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
@@ -697,60 +697,75 @@ plt.show()
 
 
 """plot scatter(AR-AERD-landslides)"""
-# p_data = pd.read_csv('./data_src/p_samples.csv')
-# years = np.unique(np.array(p_data.iloc[1:, -5]))
-# # groups_p = p_data.groupby('year')
-# # count_list = []
-# # for year in years:
-# #     p_samples_ = groups_p.get_group(year).reset_index().values
-# #     count_list.append(len(p_samples_))
-# # count_arr = np.array(count_list)
-# # count_arr = (count_arr - np.mean(count_arr)) / np.std(count_arr)
-# # count_arr[16] = count_arr[16] - 4
-# # count_arr[1] = count_arr[1] - 1.5
-# # AERDrank_arr = [2, 3, 3, 4, 7, 1, 2, 2, 2, 5, 3, 2, 2, 2, 2, 7, 2, 2, 4, 2, 7, 4, 2, 5, 1, 3, 7, 4]
-# AERDrank_ratio = [0.12, 0.08, 0.08, 0.08, 0.01, 0.17, 0.11, 0.1, 0.16, 0.07,
-#                   0.9, 0.15, 0.1, 0.12, 0.1, 0.05, 0.11, 0.12, 0.10, 0.11,
-#                   0.01, 0.08, 0.09, 0.01, 0.17, 0.09, 0.05, 0.1]  # calculated from bar.pdf
-# AR_AVG = np.array([1751, 1905, 2073, 1697, 1614, 2267, 1919, 1674, 2024, 2545, 1945, 1854, 1370, 2203, 2145,
-#                    1535, 2838, 1698, 1981, 1337, 1644, 2311, 1973, 1820, 2473, 1919, 1784, 2075])
-# AERD_AVG = np.array([4.5, 5.3, 4.6, 2.33, 1, 3.25, 3.75, 5.5, 4.75, 6, 3.25, 3.75, 2.8, 6, 4.4, 2,
-#                      10.6, 2.6, 3.2, 1.4, 1, 4.2, 3, 3.2, 2.6, 3.2, 2.4, 1.8])
-# '''plot'''
-# font1 = {'family': 'Times New Roman',
-#         'weight': 'normal',
-#         'size': 18,
-#         }
-# font2 = {'family': 'Times New Roman',
-#         'weight': 'normal',
-#         'size': 12,
-#         }
-# colors = AERDrank_ratio
+p_data = pd.read_csv('./data_src/p_samples.csv')
+years = np.unique(np.array(p_data.iloc[1:, -5]))
+# groups_p = p_data.groupby('year')
+# count_list = []
+# for year in years:
+#     p_samples_ = groups_p.get_group(year).reset_index().values
+#     count_list.append(len(p_samples_))
+# count_arr = np.array(count_list)
+# count_arr = (count_arr - np.mean(count_arr)) / np.std(count_arr)
+# count_arr[16] = count_arr[16] - 4
+# count_arr[1] = count_arr[1] - 1.5
+# AERDrank_arr = [2, 3, 3, 4, 7, 1, 2, 2, 2, 5, 3, 2, 2, 2, 2, 7, 2, 2, 4, 2, 7, 4, 2, 5, 1, 3, 7, 4]
+AERDrank_ratio = [0.12, 0.08, 0.08, 0.08, 0.01, 0.17, 0.11, 0.1, 0.16, 0.07,
+                  0.09, 0.15, 0.1, 0.12, 0.1, 0.05, 0.18, 0.12, 0.10, 0.11,
+                  0.01, 0.08, 0.09, 0.01, 0.1, 0.09, 0.05, 0.1]  # calculated from bar.pdf
+AR_AVG = np.array([1751, 1905, 2073, 1697, 1614, 2267, 1919, 1674, 2024, 2545, 1945, 1854, 1370, 2203, 2145,
+                   1535, 2838, 1698, 1981, 1337, 1644, 2311, 1973, 1820, 2473, 1919, 1784, 2075])
+AERD_AVG = np.array([4.5, 5.3, 4.6, 2.33, 1, 3.25, 3.75, 5.5, 4.75, 6, 3.25, 3.75, 2.8, 6, 4.4, 2,
+                     10.6, 2.6, 3.2, 1.4, 1, 4.2, 3, 3.2, 2.6, 3.2, 2.4, 1.8])
+'''plot'''
+font1 = {'family': 'Times New Roman',
+         'weight': 'normal',
+         'size': 18,
+         }
+font2 = {'family': 'Times New Roman',
+         'weight': 'normal',
+         'size': 12,
+         }
+colors = AERDrank_ratio
+colors_ = np.array(AERDrank_ratio)
 # x = AR_AVG
-# y = AERD_AVG
-# fig = plt.figure(figsize=(16, 8))
-# ax = fig.add_subplot(1, 1, 1)
-# sc = ax.scatter(x, y, c=colors, marker='s', s=100, cmap='viridis', vmin=0.1, vmax=0.17,
-#                 edgecolors='black', linewidths=1)
-# cbar = fig.colorbar(sc)
-# cbar.set_label("Importance ratio of AERD", fontsize=18, font=font1)
-# '''colorbar ticks'''
-# cbar.set_ticks([0.1, 0.17])   # 设置刻度值
-# cbar.set_ticklabels(['0.1', '0.17'], font=font1)   # 设置刻度标签
-# cbar.ax.yaxis.set_ticks_position('right')   # 设置刻度的位置
-# cbar.ax.yaxis.set_label_position('right')   # 设置标签的位置
-# # 在散点上添加注释文本
-# labels = [str(years[i]) for i in range(len(years))]
-# for label, x_val, y_val in zip(labels, x, y):
-#     plt.annotate(
-#         label,
-#         xy=(x_val, y_val),
-#         xytext=(-10, -10),
-#         textcoords='offset points',
-#         ha='left', va='top', font=font2)
-#
-# '''x,y labels'''
-# ax.set_xlabel('Average AR', fontdict=font1)
-# ax.set_ylabel('Average AERD', fontdict=font1)
-# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\AR-AERD-LIF.pdf")
-# plt.show()
+x = years
+y = AERD_AVG
+fig = plt.figure(figsize=(16, 8))
+ax = fig.add_subplot(1, 1, 1)
+sc = ax.scatter(x, y, c=colors, marker='s', s=200, cmap='viridis', vmin=0.01, vmax=0.18,
+                edgecolors='black', linewidths=1)
+cbar = fig.colorbar(sc)
+cbar.set_label("Importance ratio of AERD", fontsize=18, font=font1)
+'''colorbar ticks'''
+cbar.set_ticks([0.01, 0.18])  # 设置刻度值
+cbar.set_ticklabels(['0.01', '0.18'], font=font1)  # 设置刻度标签
+cbar.ax.yaxis.set_ticks_position('right')  # 设置刻度的位置
+cbar.ax.yaxis.set_label_position('right')  # 设置标签的位置
+# 在散点上添加注释文本
+labels = [str(years[i]) for i in range(len(years))]
+for label, x_val, y_val in zip(labels, x, y):
+    plt.annotate(
+        label,
+        xy=(x_val, y_val),
+        xytext=(-10, -10),
+        textcoords='offset points',
+        ha='left', va='top', font=font2)
+
+# TODO:添加折线图. x
+'''draw line'''
+# trend curve
+model = make_interp_spline(x, colors_ * 30 + 5)
+xs = np.linspace(1992, 2019, 200)
+ys = model(xs)
+# plt.plot(xs, ys, color=colors_, linestyle='--', lw=1.5, label=label_)
+L1 = plt.plot(xs, ys, color="r", linestyle="solid",
+              linewidth=2, label="AERD importance")
+
+'''x,y labels'''
+ax.set_xlabel('Average AR', fontdict=font1)
+ax.set_ylabel('Average AERD', fontdict=font1)
+
+# 设置图例
+legend = plt.legend(loc="upper right", prop=font1, ncol=3, fontsize=24, ncols=1)
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\AR-AERD-LIF.pdf")
+plt.show()
