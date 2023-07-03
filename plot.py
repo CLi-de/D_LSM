@@ -417,34 +417,44 @@ def plot_rainfall(f_name):
     data = pd.read_excel(f_name, header=None)
     AVD_AR = data.iloc[0:1, 1:-1].values.reshape(-1)
     AVG_AERD = data.iloc[1:2, 1:-1].values.reshape(-1)
+    Landslide_num = data.iloc[-1, 1:-1].values.reshape(-1)
+    # squeeze to ax2 (2-8)
+    Landslide_num = ((8 - 2) * (Landslide_num - Landslide_num.min()) + 2 * (
+            Landslide_num.max() - Landslide_num.min())) / Landslide_num.max() - Landslide_num.min()
     # years = [str(1992 + i) for i in range(28)]
     x_ = np.arange(1, 29, 1)  # para: start, stop, step
 
     '''plotting'''
     font = {'family': 'Times New Roman',
             'weight': 'normal',
-            'size': 14,
+            'size': 18,
             }
     fig = plt.figure(figsize=(10, 6))
     ax = fig.add_subplot(1, 1, 1)
 
     lns1 = ax.bar(x_, AVD_AR, label='AR', color='blue')
     ax2 = ax.twinx()
-    lns2 = ax2.plot(x_, AVG_AERD, '-', label='AERD', color='red')
+    lns2 = ax2.scatter(x_, AVG_AERD, c="white", marker='*', s=100,
+                       edgecolors='red', linewidths=1, label='AERD')
+    lns3 = ax2.scatter(x_, Landslide_num, c="white", marker='o', s=75,
+                       edgecolors='gold', linewidths=1, label='Number of landslides')
 
-    lns2.append(lns1)
-    labs = [l.get_label() for l in lns2]
-    ax.legend(lns2, labs, loc="upper right")
+    lns_ = [lns1, lns2, lns3]
+    labs = [l.get_label() for l in lns_]
+    ax.legend(lns_, labs, loc="upper right")
 
     ax.set_xlabel('Years', fontdict=font)
     ax.set_ylabel('Annual Rainfall(AR)', fontdict=font)
     ax2.set_ylabel('Annual Extreme Rainfall Days(AERD)', fontdict=font)
     ax.set_ylim(AVD_AR.min() - 100, AVD_AR.max() + 200)
-    ax2.set_ylim(AVG_AERD.min(), AVG_AERD.max() + 1)
+    ax2.set_ylim(AVG_AERD.min() - 1, AVG_AERD.max() + 1)
 
     my_x_ticks = [i for i in range(1, 30, 3)]
     my_x_ticklabel = [str(1991 + i) for i in range(1, 30, 3)]
-    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
+    plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel, size=16)
+
+    plt.yticks(fontproperties='Times New Roman', size=16)
+    plt.xticks(fontproperties='Times New Roman', size=16)
 
     # ax = plt.gca()  # gca:get current axis得到当前轴
     ax.spines['top'].set_visible(False)
@@ -472,7 +482,7 @@ def plot_AR_DV_2008(f_name):
     '''plotting'''
     font = {'family': 'Times New Roman',
             'weight': 'normal',
-            'size': 14,
+            'size': 18,
             }
     # fig, ax = plt.subplots()
     fig = plt.figure(figsize=(10, 6))
@@ -488,37 +498,13 @@ def plot_AR_DV_2008(f_name):
                   linewidth=2, label="P2", markerfacecolor='white', ms=7)
     L3 = ax2.plot(x_TS, P3_2008, color="gold", linestyle="--", marker='^',
                   linewidth=2, label="P3", markerfacecolor='white', ms=7)
-    '''plot by seaborn'''
-    # arr1 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P1_2008.reshape(-1, 1))), columns=['x', 'y'])
-    # arr2 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P2_2008.reshape(-1, 1))), columns=['x', 'y'])
-    # arr3 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P3_2008.reshape(-1, 1))), columns=['x', 'y'])
-    #
-    # sns.set(style="whitegrid", font_scale=1.2)
-    # P1 = sns.regplot(x='x', y='y', data=arr1,
-    #                  marker='*', label="P1",
-    #                  order=1,  # 默认为1，越大越弯曲
-    #                  scatter_kws={'s': 60, 'color': 'red'},  # 设置散点属性，参考plt.scatter
-    #                  line_kws={'linestyle': '--', 'color': 'red'}  # 设置线属性，参考 plt.plot
-    #                  )
-    # P2 = sns.regplot(x='x', y='y', data=arr2,
-    #                  marker='*', label="P2",
-    #                  order=1,  # 默认为1，越大越弯曲
-    #                  scatter_kws={'s': 60, 'color': 'green', },  # 设置散点属性，参考plt.scatter
-    #                  line_kws={'linestyle': '--', 'color': 'green'}  # 设置线属性，参考 plt.plot
-    #                  )
-    # P3 = sns.regplot(x='x', y='y', data=arr3,
-    #                  marker='*', label="P3",
-    #                  order=1,  # 默认为1，越大越弯曲
-    #                  scatter_kws={'s': 60, 'color': 'blue', },  # 设置散点属性，参考plt.scatter
-    #                  line_kws={'linestyle': '--', 'color': 'blue'}  # 设置线属性，参考 plt.plot
-    #                  )
 
-    # lns = [P1, P2, P3, lns1]
     lns = L1 + L2 + L3
-    lns.append(lns1)
+
     labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, loc="upper left")
-    # P1.legend(title='Displacement', loc='upper right')
+
+    ax.legend(lns, labs, loc="upper right", fontsize=16)
+
     '''x,y labels'''
     ax.set_xlabel('2008', fontdict=font)
     ax.set_ylabel('Monthly Rainfall(MR)', fontdict=font)
@@ -532,9 +518,10 @@ def plot_AR_DV_2008(f_name):
                       'Sep', 'Oct', 'Nov', 'Dec']
     plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
     '''x,y ticks font'''
-    ax.tick_params(labelsize=14)
+    ax.tick_params(labelsize=16)
+    ax2.tick_params(labelsize=16)
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # 旋转
-    labels = ax.get_xticklabels() + ax.get_yticklabels()
+    labels = ax.get_xticklabels() + ax.get_yticklabels() + ax2.get_yticklabels()
     [label.set_fontname('Times New Roman') for label in labels]
 
     ax.spines['top'].set_visible(False)
@@ -561,7 +548,7 @@ def plot_AR_DV_2017(f_name):
     '''plotting'''
     font = {'family': 'Times New Roman',
             'weight': 'normal',
-            'size': 14,
+            'size': 18,
             }
     fig = plt.figure(figsize=(10, 6))
     ax = fig.add_subplot(1, 1, 1)
@@ -589,11 +576,7 @@ def plot_AR_DV_2017(f_name):
                      scatter_kws={'s': 60, 'color': 'green', },  # 设置散点属性，参考plt.scatter
                      line_kws={'linestyle': '--', 'color': 'green'}  # 设置线属性，参考 plt.plot
                      )
-
-    lns = [P1, lns1]
-    labs = [l.get_label() for l in lns]
-    ax.legend(lns, labs, loc="upper left")
-    P1.legend(title='Displacement', loc='upper right')
+    P1.legend(loc='upper right', fontsize=16)
     '''x,y labels'''
     ax.set_xlabel('2017', fontdict=font)
     ax.set_ylabel('Monthly Rainfall(MR)', fontdict=font)
@@ -607,9 +590,10 @@ def plot_AR_DV_2017(f_name):
                       'Sep', 'Oct', 'Nov', 'Dec']
     plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
     '''x,y ticks font'''
-    ax.tick_params(labelsize=14)
+    ax.tick_params(labelsize=16)
+    ax2.tick_params(labelsize=16)
     ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # 旋转
-    labels = ax.get_xticklabels() + ax.get_yticklabels()
+    labels = ax.get_xticklabels() + ax.get_yticklabels() + ax2.get_yticklabels()
     [label.set_fontname('Times New Roman') for label in labels]
 
     ax.spines['top'].set_visible(False)
@@ -670,10 +654,10 @@ def plot_AR_DV_2017(f_name):
 # plt.show()
 
 """draw rainfall and deformation time series (1992, 2008, 2017)"""
-# f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
-# plot_rainfall(f_name)
-# plot_AR_DV_2008(f_name)
-# plot_AR_DV_2017(f_name)
+f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
+plot_rainfall(f_name)
+plot_AR_DV_2008(f_name)
+plot_AR_DV_2017(f_name)
 
 """plot density scatter(LS-LIF)"""
 # f_LS = './tmp/16th_LSM.xlsx'
@@ -697,75 +681,74 @@ def plot_AR_DV_2017(f_name):
 
 
 """plot scatter(AR-AERD-landslides)"""
-p_data = pd.read_csv('./data_src/p_samples.csv')
-years = np.unique(np.array(p_data.iloc[1:, -5]))
-# groups_p = p_data.groupby('year')
-# count_list = []
-# for year in years:
-#     p_samples_ = groups_p.get_group(year).reset_index().values
-#     count_list.append(len(p_samples_))
-# count_arr = np.array(count_list)
-# count_arr = (count_arr - np.mean(count_arr)) / np.std(count_arr)
-# count_arr[16] = count_arr[16] - 4
-# count_arr[1] = count_arr[1] - 1.5
-# AERDrank_arr = [2, 3, 3, 4, 7, 1, 2, 2, 2, 5, 3, 2, 2, 2, 2, 7, 2, 2, 4, 2, 7, 4, 2, 5, 1, 3, 7, 4]
-AERDrank_ratio = [0.12, 0.08, 0.08, 0.08, 0.01, 0.17, 0.11, 0.1, 0.16, 0.07,
-                  0.09, 0.15, 0.1, 0.12, 0.1, 0.05, 0.18, 0.12, 0.10, 0.11,
-                  0.01, 0.08, 0.09, 0.01, 0.1, 0.09, 0.05, 0.1]  # calculated from bar.pdf
-AR_AVG = np.array([1751, 1905, 2073, 1697, 1614, 2267, 1919, 1674, 2024, 2545, 1945, 1854, 1370, 2203, 2145,
-                   1535, 2838, 1698, 1981, 1337, 1644, 2311, 1973, 1820, 2473, 1919, 1784, 2075])
-AERD_AVG = np.array([4.5, 5.3, 4.6, 2.33, 1, 3.25, 3.75, 5.5, 4.75, 6, 3.25, 3.75, 2.8, 6, 4.4, 2,
-                     10.6, 2.6, 3.2, 1.4, 1, 4.2, 3, 3.2, 2.6, 3.2, 2.4, 1.8])
-'''plot'''
-font1 = {'family': 'Times New Roman',
-         'weight': 'normal',
-         'size': 18,
-         }
-font2 = {'family': 'Times New Roman',
-         'weight': 'normal',
-         'size': 12,
-         }
-colors = AERDrank_ratio
-colors_ = np.array(AERDrank_ratio)
-# x = AR_AVG
-x = years
-y = AERD_AVG
-fig = plt.figure(figsize=(16, 8))
-ax = fig.add_subplot(1, 1, 1)
-sc = ax.scatter(x, y, c=colors, marker='s', s=200, cmap='viridis', vmin=0.01, vmax=0.18,
-                edgecolors='black', linewidths=1)
-cbar = fig.colorbar(sc)
-cbar.set_label("Importance ratio of AERD", fontsize=18, font=font1)
-'''colorbar ticks'''
-cbar.set_ticks([0.01, 0.18])  # 设置刻度值
-cbar.set_ticklabels(['0.01', '0.18'], font=font1)  # 设置刻度标签
-cbar.ax.yaxis.set_ticks_position('right')  # 设置刻度的位置
-cbar.ax.yaxis.set_label_position('right')  # 设置标签的位置
-# 在散点上添加注释文本
-labels = [str(years[i]) for i in range(len(years))]
-for label, x_val, y_val in zip(labels, x, y):
-    plt.annotate(
-        label,
-        xy=(x_val, y_val),
-        xytext=(-10, -10),
-        textcoords='offset points',
-        ha='left', va='top', font=font2)
-
-# TODO:添加折线图. x
-'''draw line'''
-# trend curve
-model = make_interp_spline(x, colors_ * 30 + 5)
-xs = np.linspace(1992, 2019, 200)
-ys = model(xs)
-# plt.plot(xs, ys, color=colors_, linestyle='--', lw=1.5, label=label_)
-L1 = plt.plot(xs, ys, color="r", linestyle="solid",
-              linewidth=2, label="AERD importance")
-
-'''x,y labels'''
-ax.set_xlabel('Average AR', fontdict=font1)
-ax.set_ylabel('Average AERD', fontdict=font1)
-
-# 设置图例
-legend = plt.legend(loc="upper right", prop=font1, ncol=3, fontsize=24, ncols=1)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\AR-AERD-LIF.pdf")
-plt.show()
+# p_data = pd.read_csv('./data_src/p_samples.csv')
+# years = np.unique(np.array(p_data.iloc[1:, -5]))
+# # groups_p = p_data.groupby('year')
+# # count_list = []
+# # for year in years:
+# #     p_samples_ = groups_p.get_group(year).reset_index().values
+# #     count_list.append(len(p_samples_))
+# # count_arr = np.array(count_list)
+# # count_arr = (count_arr - np.mean(count_arr)) / np.std(count_arr)
+# # count_arr[16] = count_arr[16] - 4
+# # count_arr[1] = count_arr[1] - 1.5
+# # AERDrank_arr = [2, 3, 3, 4, 7, 1, 2, 2, 2, 5, 3, 2, 2, 2, 2, 7, 2, 2, 4, 2, 7, 4, 2, 5, 1, 3, 7, 4]
+# AERDrank_ratio = [0.12, 0.08, 0.08, 0.08, 0.01, 0.17, 0.11, 0.1, 0.16, 0.07,
+#                   0.09, 0.15, 0.1, 0.12, 0.1, 0.05, 0.18, 0.12, 0.10, 0.11,
+#                   0.01, 0.08, 0.09, 0.01, 0.1, 0.09, 0.05, 0.1]  # calculated from bar.pdf
+# AR_AVG = np.array([1751, 1905, 2073, 1697, 1614, 2267, 1919, 1674, 2024, 2545, 1945, 1854, 1370, 2203, 2145,
+#                    1535, 2838, 1698, 1981, 1337, 1644, 2311, 1973, 1820, 2473, 1919, 1784, 2075])
+# AERD_AVG = np.array([4.5, 5.3, 4.6, 2.33, 1, 3.25, 3.75, 5.5, 4.75, 6, 3.25, 3.75, 2.8, 6, 4.4, 2,
+#                      10.6, 2.6, 3.2, 1.4, 1, 4.2, 3, 3.2, 2.6, 3.2, 2.4, 1.8])
+# '''plot'''
+# font1 = {'family': 'Times New Roman',
+#          'weight': 'normal',
+#          'size': 18,
+#          }
+# font2 = {'family': 'Times New Roman',
+#          'weight': 'normal',
+#          'size': 12,
+#          }
+# colors = AERDrank_ratio
+# colors_ = np.array(AERDrank_ratio)
+# # x = AR_AVG
+# x = years
+# y = AERD_AVG
+# fig = plt.figure(figsize=(16, 8))
+# ax = fig.add_subplot(1, 1, 1)
+# sc = ax.scatter(x, y, c=colors, marker='s', s=200, cmap='viridis', vmin=0.01, vmax=0.18,
+#                 edgecolors='black', linewidths=1)
+# cbar = fig.colorbar(sc)
+# cbar.set_label("Importance ratio of AERD", fontsize=18, font=font1)
+# '''colorbar ticks'''
+# cbar.set_ticks([0.01, 0.18])  # 设置刻度值
+# cbar.set_ticklabels(['0.01', '0.18'], font=font1)  # 设置刻度标签
+# cbar.ax.yaxis.set_ticks_position('right')  # 设置刻度的位置
+# cbar.ax.yaxis.set_label_position('right')  # 设置标签的位置
+# # 在散点上添加注释文本
+# labels = [str(years[i]) for i in range(len(years))]
+# for label, x_val, y_val in zip(labels, x, y):
+#     plt.annotate(
+#         label,
+#         xy=(x_val, y_val),
+#         xytext=(-10, -10),
+#         textcoords='offset points',
+#         ha='left', va='top', font=font2)
+#
+# '''draw line'''
+# # trend curve
+# model = make_interp_spline(x, colors_ * 30 + 5)
+# xs = np.linspace(1992, 2019, 200)
+# ys = model(xs)
+# # plt.plot(xs, ys, color=colors_, linestyle='--', lw=1.5, label=label_)
+# L1 = plt.plot(xs, ys, color="r", linestyle="solid",
+#               linewidth=2, label="AERD importance")
+#
+# '''x,y labels'''
+# ax.set_xlabel('Years', fontdict=font1)
+# ax.set_ylabel('Average AERD', fontdict=font1)
+#
+# # 设置图例
+# legend = plt.legend(loc="upper right", prop=font1, ncol=3, fontsize=24, ncols=1)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\AR-AERD-LIF.pdf")
+# plt.show()
