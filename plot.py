@@ -427,7 +427,7 @@ def plot_rainfall(f_name):
     '''plotting'''
     font = {'family': 'Times New Roman',
             'weight': 'normal',
-            'size': 18,
+            'size': 16,
             }
     fig = plt.figure(figsize=(10, 6))
     ax = fig.add_subplot(1, 1, 1)
@@ -437,11 +437,11 @@ def plot_rainfall(f_name):
     lns2 = ax2.scatter(x_, AVG_AERD, c="white", marker='*', s=100,
                        edgecolors='red', linewidths=1, label='AERD')
     lns3 = ax2.scatter(x_, Landslide_num, c="white", marker='o', s=75,
-                       edgecolors='gold', linewidths=1, label='Number of landslides')
+                       edgecolors='red', linewidths=1, label='Number of landslides')
 
     lns_ = [lns1, lns2, lns3]
     labs = [l.get_label() for l in lns_]
-    ax.legend(lns_, labs, loc="upper right")
+    ax.legend(lns_, labs, loc="upper right", prop=font)
 
     ax.set_xlabel('Years', fontdict=font)
     ax.set_ylabel('Annual Rainfall(AR)', fontdict=font)
@@ -499,11 +499,14 @@ def plot_AR_DV_2008(f_name):
     L3 = ax2.plot(x_TS, P3_2008, color="gold", linestyle="--", marker='^',
                   linewidth=2, label="P3", markerfacecolor='white', ms=7)
 
+    '''填充阴影'''
+    ax.fill_between([0, 3.5], 0, 2500, facecolor='g', alpha=0.1)
+    ax.fill_between([3.5, 8.5], 0, 2500, facecolor='r', alpha=0.1)
+    ax.fill_between([8.5, 13], 0, 2500, facecolor='g', alpha=0.1)
+
     lns = L1 + L2 + L3
-
     labs = [l.get_label() for l in lns]
-
-    ax.legend(lns, labs, loc="upper right", fontsize=16)
+    ax.legend(lns, labs, loc="upper right", prop=font)
 
     '''x,y labels'''
     ax.set_xlabel('2008', fontdict=font)
@@ -576,7 +579,13 @@ def plot_AR_DV_2017(f_name):
                      scatter_kws={'s': 60, 'color': 'green', },  # 设置散点属性，参考plt.scatter
                      line_kws={'linestyle': '--', 'color': 'green'}  # 设置线属性，参考 plt.plot
                      )
-    P1.legend(loc='upper right', fontsize=16)
+
+    '''填充阴影'''
+    ax.fill_between([0, 4.5], 0, 1000, facecolor='g', alpha=0.1)
+    ax.fill_between([4.5, 9.5], 0, 1000, facecolor='r', alpha=0.1)
+    ax.fill_between([9.5, 13], 0, 1000, facecolor='g', alpha=0.1)
+
+    P1.legend(loc='upper right', prop=font)
     '''x,y labels'''
     ax.set_xlabel('2017', fontdict=font)
     ax.set_ylabel('Monthly Rainfall(MR)', fontdict=font)
