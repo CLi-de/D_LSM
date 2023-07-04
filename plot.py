@@ -24,6 +24,9 @@ from sklearn.ensemble import RandomForestClassifier
 # from unsupervised_pretraining.dbn_.models import SupervisedDBNClassification
 from scipy.interpolate import make_interp_spline
 
+from scipy.stats import gaussian_kde
+from mpl_toolkits.axes_grid1 import make_axes_locatable
+
 from sklearn.metrics._classification import accuracy_score
 
 """
@@ -690,81 +693,154 @@ def plot_AR_DV_2017(f_name):
 
 
 """plot scatter(AR-AERD-landslides)"""
-p_data = pd.read_csv('./data_src/p_samples.csv')
-years = np.unique(np.array(p_data.iloc[1:, -5]))
-# groups_p = p_data.groupby('year')
-# count_list = []
-# for year in years:
-#     p_samples_ = groups_p.get_group(year).reset_index().values
-#     count_list.append(len(p_samples_))
-# count_arr = np.array(count_list)
-# count_arr = (count_arr - np.mean(count_arr)) / np.std(count_arr)
-# count_arr[16] = count_arr[16] - 4
-# count_arr[1] = count_arr[1] - 1.5
-# AERDrank_arr = [2, 3, 3, 4, 7, 1, 2, 2, 2, 5, 3, 2, 2, 2, 2, 7, 2, 2, 4, 2, 7, 4, 2, 5, 1, 3, 7, 4]
-AERDrank_ratio = [0.1, 0.08, 0.08, 0.08, 0.01, 0.15, 0.11, 0.1, 0.15, 0.07,
-                  0.09, 0.15, 0.1, 0.12, 0.1, 0.05, 0.18, 0.12, 0.10, 0.10,
-                  0.01, 0.08, 0.09, 0.01, 0.09, 0.09, 0.05, 0.1]  # calculated from bar.pdf
-AR_AVG = np.array([1751, 1905, 2073, 1697, 1614, 2267, 1919, 1674, 2024, 2545, 1945, 1854, 1370, 2203, 2145,
-                   1535, 2838, 1698, 1981, 1337, 1644, 2311, 1973, 1820, 2473, 1919, 1784, 2075])
-# AERD_AVG = np.array([4.5, 5.3, 4.6, 2.33, 1, 3.25, 3.75, 5.5, 4.75, 6, 3.25, 3.75, 2.8, 6, 4.4, 2,
+# p_data = pd.read_csv('./data_src/p_samples.csv')
+# years = np.unique(np.array(p_data.iloc[1:, -5]))
+# # groups_p = p_data.groupby('year')
+# # count_list = []
+# # for year in years:
+# #     p_samples_ = groups_p.get_group(year).reset_index().values
+# #     count_list.append(len(p_samples_))
+# # count_arr = np.array(count_list)
+# # count_arr = (count_arr - np.mean(count_arr)) / np.std(count_arr)
+# # count_arr[16] = count_arr[16] - 4
+# # count_arr[1] = count_arr[1] - 1.5
+# # AERDrank_arr = [2, 3, 3, 4, 7, 1, 2, 2, 2, 5, 3, 2, 2, 2, 2, 7, 2, 2, 4, 2, 7, 4, 2, 5, 1, 3, 7, 4]
+# AERDrank_ratio = [0.1, 0.08, 0.08, 0.08, 0.01, 0.15, 0.11, 0.1, 0.15, 0.07,
+#                   0.09, 0.15, 0.1, 0.12, 0.1, 0.05, 0.18, 0.12, 0.10, 0.10,
+#                   0.01, 0.08, 0.09, 0.01, 0.09, 0.09, 0.05, 0.1]  # calculated from bar.pdf
+# AR_AVG = np.array([1751, 1905, 2073, 1697, 1614, 2267, 1919, 1674, 2024, 2545, 1945, 1854, 1370, 2203, 2145,
+#                    1535, 2838, 1698, 1981, 1337, 1644, 2311, 1973, 1820, 2473, 1919, 1784, 2075])
+# # AERD_AVG = np.array([4.5, 5.3, 4.6, 2.33, 1, 3.25, 3.75, 5.5, 4.75, 6, 3.25, 3.75, 2.8, 6, 4.4, 2,
+# #                      10.6, 2.6, 3.2, 1.4, 1, 4.2, 3, 3.2, 2.6, 3.2, 2.4, 1.8])
+# AERD_AVG = np.array([4., 4.8, 4.1, 1.83, 0.5, 2.75, 3.25, 5., 4.25, 6, 3.25, 3.75, 2.8, 6, 4.4, 2,
 #                      10.6, 2.6, 3.2, 1.4, 1, 4.2, 3, 3.2, 2.6, 3.2, 2.4, 1.8])
-AERD_AVG = np.array([4., 4.8, 4.1, 1.83, 0.5, 2.75, 3.25, 5., 4.25, 6, 3.25, 3.75, 2.8, 6, 4.4, 2,
-                     10.6, 2.6, 3.2, 1.4, 1, 4.2, 3, 3.2, 2.6, 3.2, 2.4, 1.8])
-'''plot'''
-font1 = {'family': 'Times New Roman',
-         'weight': 'normal',
-         'size': 18,
-         }
-font2 = {'family': 'Times New Roman',
-         'weight': 'normal',
-         'size': 12,
-         }
-colors = AERDrank_ratio
-colors_ = np.array(AERDrank_ratio)
-# x = AR_AVG
-x = years
-y = AERD_AVG
-fig = plt.figure(figsize=(16, 8))
-ax = fig.add_subplot(1, 1, 1)
-sc = ax.scatter(x, y, c=colors, marker='s', s=250, cmap='jet', vmin=0.01, vmax=0.18,
-                edgecolors='black', linewidths=2, label='AERD')
-cbar = fig.colorbar(sc)
-cbar.set_label("Importance ratio of AERD (%)", fontsize=18, font=font1)
-'''colorbar ticks'''
-cbar.set_ticks([0.01, 0.18])  # 设置刻度值
-cbar.set_ticklabels(['1', '18'], font=font1)  # 设置刻度标签
-cbar.ax.yaxis.set_ticks_position('right')  # 设置刻度的位置
-cbar.ax.yaxis.set_label_position('right')  # 设置标签的位置
-# 在散点上添加注释文本
-labels = [str(years[i]) for i in range(len(years))]
-for label, x_val, y_val in zip(labels, x, y):
-    plt.annotate(
-        label,
-        xy=(x_val, y_val),
-        xytext=(-10, -10),
-        textcoords='offset points',
-        ha='left', va='top', font=font2)
+# '''plot'''
+# font1 = {'family': 'Times New Roman',
+#          'weight': 'normal',
+#          'size': 18,
+#          }
+# font2 = {'family': 'Times New Roman',
+#          'weight': 'normal',
+#          'size': 12,
+#          }
+# colors = AERDrank_ratio
+# colors_ = np.array(AERDrank_ratio)
+# # x = AR_AVG
+# x = years
+# y = AERD_AVG
+# fig = plt.figure(figsize=(16, 8))
+# ax = fig.add_subplot(1, 1, 1)
+# sc = ax.scatter(x, y, c=colors, marker='s', s=250, cmap='jet', vmin=0.01, vmax=0.18,
+#                 edgecolors='black', linewidths=2, label='AERD')
+# '''location of cbar'''
+# cbar = fig.colorbar(sc)
+# cbar.set_label("Importance ratio of AERD (%)", fontsize=18, font=font1)
+# '''colorbar ticks'''
+# cbar.set_ticks([0.01, 0.18])  # 设置刻度值
+# cbar.set_ticklabels(['1', '18'], font=font1)  # 设置刻度标签
+# cbar.ax.yaxis.set_ticks_position('right')  # 设置刻度的位置
+# cbar.ax.yaxis.set_label_position('right')  # 设置标签的位置
+# # 在散点上添加注释文本
+# labels = [str(years[i]) for i in range(len(years))]
+# for label, x_val, y_val in zip(labels, x, y):
+#     plt.annotate(
+#         label,
+#         xy=(x_val, y_val),
+#         xytext=(-10, -10),
+#         textcoords='offset points',
+#         ha='left', va='top', font=font2)
+#
+# '''draw line'''
+# # trend curve
+# model = make_interp_spline(x, colors_ * 30 + 5)  # 调位置
+# xs = np.linspace(1992, 2019, 200)
+# ys = model(xs)
+# # plt.plot(xs, ys, color=colors_, linestyle='--', lw=1.5, label=label_)
+# L1 = plt.plot(xs, ys, color="r", linestyle="solid",
+#               linewidth=2.5, label="AERD importance")
+#
+# '''x,y labels'''
+# ax.set_xlabel('Years', fontdict=font1)
+# ax.set_ylabel('AERD', fontdict=font1)
+# '''x,y ticks font'''
+# ax.tick_params(labelsize=16)
+# # ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # 旋转
+# labels = ax.get_xticklabels() + ax.get_yticklabels()
+# [label.set_fontname('Times New Roman') for label in labels]
+#
+# # 设置图例
+# legend = plt.legend(loc="upper right", prop=font1, ncol=1, fontsize=24, ncols=1)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\AR-AERD-LIF.pdf")
+# plt.show()
 
-'''draw line'''
-# trend curve
-model = make_interp_spline(x, colors_ * 30 + 5)  # 调位置
-xs = np.linspace(1992, 2019, 200)
-ys = model(xs)
-# plt.plot(xs, ys, color=colors_, linestyle='--', lw=1.5, label=label_)
-L1 = plt.plot(xs, ys, color="r", linestyle="solid",
-              linewidth=2.5, label="AERD importance")
-
-'''x,y labels'''
-ax.set_xlabel('Years', fontdict=font1)
-ax.set_ylabel('AERD', fontdict=font1)
-'''x,y ticks font'''
-ax.tick_params(labelsize=16)
-# ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # 旋转
-labels = ax.get_xticklabels() + ax.get_yticklabels()
-[label.set_fontname('Times New Roman') for label in labels]
-
-# 设置图例
-legend = plt.legend(loc="upper right", prop=font1, ncol=1, fontsize=24, ncols=1)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\AR-AERD-LIF.pdf")
-plt.show()
+"""plot feature ranking"""
+# arr = np.array(pd.read_excel('./data_sup/LIF_ranking.xlsx'))[:, 1:]
+# few_sample_pos = arr[-1, :]
+# '''设置框图'''
+# # plt.figure("", facecolor="lightgray")  # 设置框图大小
+# font1 = {'family': 'Times New Roman',
+#          'weight': 'normal',
+#          'size': 14,
+#          }
+# font2 = {'family': 'Times New Roman',
+#          'weight': 'normal',
+#          'size': 12,
+#          }
+# '''设置长宽比'''
+# plt.figure(figsize=(10, 4.5))
+#
+# # plt.xlabel("Subtasks", fontdict=font1)
+# plt.ylabel("Landslide feature ranking", fontdict=font1)
+#
+# '''设置刻度'''
+# plt.ylim((20, 0))
+# # my_y_ticks = np.arange(60, 100, 5)
+# my_y_ticks = [15, 10, 5, 1]
+# plt.yticks(my_y_ticks)
+# my_x_ticks = [i for i in range(1, 30, 3)]
+# my_x_ticklabel = [str(1991 + i) for i in range(1, 30, 3)]
+# plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
+# plt.yticks(fontproperties='Times New Roman', size=14)
+# plt.xticks(fontproperties='Times New Roman', size=14)
+# '''格网设置'''
+# # plt.grid(linestyle="--")
+#
+# # x_ = [i + 1 for i in range(arr.shape[0])]
+# x_ = np.arange(1, 29, 1)  # para: start, stop, step
+#
+# '''draw lines'''
+# L1 = plt.plot(x_, arr[0, :], color="gold", linestyle="--", marker='o',
+#               linewidth=1.5, label="Slope", ms=7)
+# L2 = plt.plot(x_, arr[1, :], color="cyan", linestyle="--", marker='^',
+#               linewidth=1.5, label="AERD", ms=8)
+# L3 = plt.plot(x_, arr[2, :], color="blue", linestyle="--", marker='s',
+#               linewidth=1.5, label="Geology", ms=7)
+# L4 = plt.plot(x_, arr[3, :], color="green", linestyle="--", marker='p',
+#               linewidth=1.5, label="Landuse", ms=9)
+# L5 = plt.plot(x_, arr[4, :], color="red", linestyle="--", marker='*',
+#               linewidth=1.5, label="Dis2C", ms=10)
+# L8 = plt.plot(x_, arr[7, :], color="purple", linestyle=":", marker='d',
+#               linewidth=1.5, label="DEM", ms=10)
+#
+# '''填充阴影'''
+# plt.fill_between([0.5, 3.5], 0, 20, facecolor='g', alpha=0.05)
+# plt.fill_between([3.5, 5.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([5.5, 6.5], 0, 20, facecolor='r', alpha=0.05)
+# plt.fill_between([6.5, 7.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([7.5, 8.5], 0, 20, facecolor='g', alpha=0.05)
+# plt.fill_between([8.5, 12.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([12.5, 13.5], 0, 20, facecolor='r', alpha=0.05)
+# plt.fill_between([13.5, 14.5], 0, 20, facecolor='g', alpha=0.05)
+# plt.fill_between([14.5, 15.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([15.5, 17.5], 0, 20, facecolor='g', alpha=0.05)
+# plt.fill_between([17.5, 19.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([20.5, 21.5], 0, 20, facecolor='r', alpha=0.05)
+# plt.fill_between([21.5, 23.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([23.5, 25.5], 0, 20, facecolor='r', alpha=0.05)
+# plt.fill_between([25.5, 27.5], 0, 20, facecolor='g', alpha=0.05)
+# plt.fill_between([27.5, 28.5], 0, 20, facecolor='b', alpha=0.05)
+#
+# '''设置图例'''
+# legend = plt.legend(loc="lower left", prop=font2, ncol=3)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\feature_ranking.pdf")
+# plt.show()
