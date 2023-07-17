@@ -41,7 +41,7 @@ flags.DEFINE_integer('test_update_batch_size', 8,
 flags.DEFINE_integer('metatrain_iterations', 5001, 'number of meta-training iterations.')
 flags.DEFINE_integer('num_updates', 5, 'number of inner gradient updates during training.')
 flags.DEFINE_integer('pretrain_iterations', 0, 'number of pre-training iterations.')
-flags.DEFINE_float('update_lr', 1e-2, 'learning rate of single task objective (inner)')  # le-2 is the best
+flags.DEFINE_float('update_lr', 1e-3, 'learning rate of single task objective (inner)')  # le-2 is the best
 flags.DEFINE_float('meta_lr', 1e-3, 'the base learning rate of meta objective (outer)')  # le-3 is the best
 flags.DEFINE_bool('stop_grad', False, 'if True, do not use second derivatives in meta-optimization (for speed)')
 flags.DEFINE_bool('resume', True, 'resume training if there is a model available')
@@ -94,7 +94,6 @@ def train(model, saver, sess, exp_string, tasks, resume_itr):
                 print_str += ': ' + 'mean inner loss:' + str(np.mean(prelosses)) + \
                              '; ' 'outer loss:' + str(np.mean(postlosses))
                 print(print_str)
-                print('inner lr:', sess.run(model.update_lr))
                 prelosses, postlosses = [], []
             #  save model
             if (itr != 0) and itr % SAVE_INTERVAL == 0:

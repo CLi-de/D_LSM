@@ -13,6 +13,7 @@ class Meta_learner:
         """ must call construct_model() after initializing MAML! """
         self.dim_input = dim_input
         self.dim_output = dim_output
+        self.update_lr = FLAGS.update_lr
         self.meta_lr = tf.compat.v1.placeholder_with_default(FLAGS.meta_lr, ())
         self.test_num_updates = test_num_updates
         self.dim_hidden = [32, 32, 16]
@@ -39,8 +40,7 @@ class Meta_learner:
             # Attention module
             self.A = tf.Variable(tf.zeros([self.dim_input, self.dim_input]))
             # initialize the inner learning rate as tf.Variable within 'model' scope
-            self.update_lr = tf.Variable(FLAGS.update_lr)
-            # self.update_lr = FLAGS.update_lr
+            # self.update_lr = tf.Variable(FLAGS.update_lr)  # setting trainable
             if 'weights' in dir(self):
                 training_scope.reuse_variables()
                 weights = self.weights

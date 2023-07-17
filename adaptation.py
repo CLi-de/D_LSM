@@ -94,8 +94,8 @@ for i in range(len(meta_tasks)):
             '''load grid data'''
             samples = np.loadtxt('./data_sup/grid_samples_' + str(1992 + i) + '.csv', dtype=str, delimiter=",",
                                  encoding='UTF-8-sig')
-            f = samples[1:, :-3].astype(np.float32)
-            xy = samples[1:, -3:-1].astype(np.float32)
+            f = samples[1:, :-2].astype(np.float32)
+            xy = samples[1:, -2:].astype(np.float32)
 
             f = (f - mean) / std  # normalization
 
