@@ -141,16 +141,16 @@ def plot_scatter(arr):
     # S4 = plt.scatter(x_, arr[:, 3], label="L=4", c="none", s=20, edgecolors='g')
     # S5 = plt.scatter(x_, arr[:, 4], label="L=5", c="none", s=20, edgecolors='r')
     '''draw lines'''
-    L1 = plt.plot(x_, arr[:, 0], color="gold", linestyle=":", marker='o',
-                  linewidth=1.5, label="L=1", markerfacecolor='white', ms=7)
-    L2 = plt.plot(x_, arr[:, 1], color="cyan", linestyle=":", marker='^',
-                  linewidth=1.5, label="L=2", markerfacecolor='white', ms=8)
-    L3 = plt.plot(x_, arr[:, 2], color="blue", linestyle=":", marker='s',
-                  linewidth=1.5, label="L=3", markerfacecolor='white', ms=7)
-    L4 = plt.plot(x_, arr[:, 3], color="green", linestyle=":", marker='p',
-                  linewidth=1.5, label="L=4", markerfacecolor='white', ms=9)
+    L1 = plt.plot(x_, arr[:, 0], color="blue", linestyle=":", marker='o',
+                  linewidth=1.5, label="L=1", markerfacecolor='blue', ms=7)
+    L2 = plt.plot(x_, arr[:, 1], color="green", linestyle=":", marker='^',
+                  linewidth=1.5, label="L=2", markerfacecolor='green', ms=8)
+    L3 = plt.plot(x_, arr[:, 2], color="gold", linestyle=":", marker='s',
+                  linewidth=1.5, label="L=3", markerfacecolor='gold', ms=7)
+    L4 = plt.plot(x_, arr[:, 3], color="orange", linestyle=":", marker='p',
+                  linewidth=1.5, label="L=4", markerfacecolor='orange', ms=9)
     L5 = plt.plot(x_, arr[:, 4], color="red", linestyle=":", marker='*',
-                  linewidth=1.5, label="L=5", markerfacecolor='white', ms=10)
+                  linewidth=1.5, label="L=5", markerfacecolor='red', ms=10)
 
     # plt.fill_between(x_, L1, L5,  # 上限，下限
     #                  # facecolor='green',  # 填充颜色
@@ -642,11 +642,11 @@ def plot_AR_DV_2017(f_name):
 # print('finish drawing ROC')
 
 """draw scatters for fast adaption performance"""
-# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
-# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-# plot_scatter(arr)
-# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-# plt.show()
+filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
+arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+plot_scatter(arr)
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+plt.show()
 
 """draw lines for fast adaption performance"""
 # filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
@@ -656,14 +656,14 @@ def plot_AR_DV_2017(f_name):
 # plt.show()
 
 """draw candles for fast adaption performance"""
-# K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\candles.xlsx")
-# colors = ['b', 'g', 'r']
-# labels = ['1999', '2008', '2017']
-# pos = [-1, 0, 1]
-# for i in range(3):
-#     plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
-# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
-# plt.show()
+K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\candles.xlsx")
+colors = ['b', 'g', 'r']
+labels = ['1999', '2008', '2017']
+pos = [-1, 0, 1]
+for i in range(3):
+    plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
+plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
+plt.show()
 
 """draw rainfall and deformation time series (1992, 2008, 2017)"""
 # f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
@@ -774,73 +774,74 @@ def plot_AR_DV_2017(f_name):
 # plt.show()
 
 """plot feature ranking"""
-arr = np.array(pd.read_excel('./data_sup/LIF_ranking.xlsx'))[:, 1:]
-few_sample_pos = arr[-1, :]
-'''设置框图'''
-# plt.figure("", facecolor="lightgray")  # 设置框图大小
-font1 = {'family': 'Times New Roman',
-         'weight': 'normal',
-         'size': 14,
-         }
-font2 = {'family': 'Times New Roman',
-         'weight': 'normal',
-         'size': 12,
-         }
-'''设置长宽比'''
-plt.figure(figsize=(10, 4.5))
+# arr = np.array(pd.read_excel('./data_sup/LIF_ranking.xlsx'))[:, 1:]
+# few_sample_pos = arr[-1, :]
+# '''设置框图'''
+# # plt.figure("", facecolor="lightgray")  # 设置框图大小
+# font1 = {'family': 'Times New Roman',
+#          'weight': 'normal',
+#          'size': 14,
+#          }
+# font2 = {'family': 'Times New Roman',
+#          'weight': 'normal',
+#          'size': 12,
+#          }
+# '''设置长宽比'''
+# plt.figure(figsize=(10, 4.5))
+#
+# # plt.xlabel("Subtasks", fontdict=font1)
+# plt.ylabel("Landslide feature ranking", fontdict=font1)
+#
+# '''设置刻度'''
+# plt.ylim((20, 0))
+# # my_y_ticks = np.arange(60, 100, 5)
+# my_y_ticks = [15, 10, 5, 1]
+# plt.yticks(my_y_ticks)
+# my_x_ticks = [i for i in range(1, 30, 3)]
+# my_x_ticklabel = [str(1991 + i) for i in range(1, 30, 3)]
+# plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
+# plt.yticks(fontproperties='Times New Roman', size=14)
+# plt.xticks(fontproperties='Times New Roman', size=14)
+# '''格网设置'''
+# # plt.grid(linestyle="--")
+#
+# # x_ = [i + 1 for i in range(arr.shape[0])]
+# x_ = np.arange(1, 29, 1)  # para: start, stop, step
+#
+# '''draw lines'''
+# L1 = plt.plot(x_, arr[0, :], color="gold", linestyle="--", marker='o',
+#               linewidth=1.5, label="Slope", ms=7)
+# L2 = plt.plot(x_, arr[1, :], color="cyan", linestyle="--", marker='^',
+#               linewidth=1.5, label="AERD", ms=8)
+# L3 = plt.plot(x_, arr[2, :], color="blue", linestyle="--", marker='s',
+#               linewidth=1.5, label="Geology", ms=7)
+# L4 = plt.plot(x_, arr[3, :], color="green", linestyle="--", marker='p',
+#               linewidth=1.5, label="Landuse", ms=9)
+# L5 = plt.plot(x_, arr[4, :], color="red", linestyle="--", marker='*',
+#               linewidth=1.5, label="Dis2C", ms=10)
+# L8 = plt.plot(x_, arr[7, :], color="purple", linestyle=":", marker='d',
+#               linewidth=1.5, label="DEM", ms=10)
+#
+# '''填充阴影'''
+# plt.fill_between([0.5, 3.5], 0, 20, facecolor='g', alpha=0.05)
+# plt.fill_between([3.5, 5.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([5.5, 6.5], 0, 20, facecolor='r', alpha=0.05)
+# plt.fill_between([6.5, 7.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([7.5, 8.5], 0, 20, facecolor='g', alpha=0.05)
+# plt.fill_between([8.5, 12.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([12.5, 13.5], 0, 20, facecolor='r', alpha=0.05)
+# plt.fill_between([13.5, 14.5], 0, 20, facecolor='g', alpha=0.05)
+# plt.fill_between([14.5, 15.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([15.5, 17.5], 0, 20, facecolor='g', alpha=0.05)
+# plt.fill_between([17.5, 19.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([20.5, 21.5], 0, 20, facecolor='r', alpha=0.05)
+# plt.fill_between([21.5, 23.5], 0, 20, facecolor='b', alpha=0.05)
+# plt.fill_between([23.5, 25.5], 0, 20, facecolor='r', alpha=0.05)
+# plt.fill_between([25.5, 27.5], 0, 20, facecolor='g', alpha=0.05)
+# plt.fill_between([27.5, 28.5], 0, 20, facecolor='b', alpha=0.05)
+#
+# '''设置图例'''
+# legend = plt.legend(loc="lower left", prop=font2, ncol=3)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\feature_ranking.pdf")
+# plt.show()
 
-# plt.xlabel("Subtasks", fontdict=font1)
-plt.ylabel("Landslide feature ranking", fontdict=font1)
-
-'''设置刻度'''
-plt.ylim((20, 0))
-# my_y_ticks = np.arange(60, 100, 5)
-my_y_ticks = [15, 10, 5, 1]
-plt.yticks(my_y_ticks)
-my_x_ticks = [i for i in range(1, 30, 3)]
-my_x_ticklabel = [str(1991 + i) for i in range(1, 30, 3)]
-plt.xticks(ticks=my_x_ticks, labels=my_x_ticklabel)
-plt.yticks(fontproperties='Times New Roman', size=14)
-plt.xticks(fontproperties='Times New Roman', size=14)
-'''格网设置'''
-# plt.grid(linestyle="--")
-
-# x_ = [i + 1 for i in range(arr.shape[0])]
-x_ = np.arange(1, 29, 1)  # para: start, stop, step
-
-'''draw lines'''
-L1 = plt.plot(x_, arr[0, :], color="gold", linestyle="--", marker='o',
-              linewidth=1.5, label="Slope", ms=7)
-L2 = plt.plot(x_, arr[1, :], color="cyan", linestyle="--", marker='^',
-              linewidth=1.5, label="AERD", ms=8)
-L3 = plt.plot(x_, arr[2, :], color="blue", linestyle="--", marker='s',
-              linewidth=1.5, label="Geology", ms=7)
-L4 = plt.plot(x_, arr[3, :], color="green", linestyle="--", marker='p',
-              linewidth=1.5, label="Landuse", ms=9)
-L5 = plt.plot(x_, arr[4, :], color="red", linestyle="--", marker='*',
-              linewidth=1.5, label="Dis2C", ms=10)
-L8 = plt.plot(x_, arr[7, :], color="purple", linestyle=":", marker='d',
-              linewidth=1.5, label="DEM", ms=10)
-
-'''填充阴影'''
-plt.fill_between([0.5, 3.5], 0, 20, facecolor='g', alpha=0.05)
-plt.fill_between([3.5, 5.5], 0, 20, facecolor='b', alpha=0.05)
-plt.fill_between([5.5, 6.5], 0, 20, facecolor='r', alpha=0.05)
-plt.fill_between([6.5, 7.5], 0, 20, facecolor='b', alpha=0.05)
-plt.fill_between([7.5, 8.5], 0, 20, facecolor='g', alpha=0.05)
-plt.fill_between([8.5, 12.5], 0, 20, facecolor='b', alpha=0.05)
-plt.fill_between([12.5, 13.5], 0, 20, facecolor='r', alpha=0.05)
-plt.fill_between([13.5, 14.5], 0, 20, facecolor='g', alpha=0.05)
-plt.fill_between([14.5, 15.5], 0, 20, facecolor='b', alpha=0.05)
-plt.fill_between([15.5, 17.5], 0, 20, facecolor='g', alpha=0.05)
-plt.fill_between([17.5, 19.5], 0, 20, facecolor='b', alpha=0.05)
-plt.fill_between([20.5, 21.5], 0, 20, facecolor='r', alpha=0.05)
-plt.fill_between([21.5, 23.5], 0, 20, facecolor='b', alpha=0.05)
-plt.fill_between([23.5, 25.5], 0, 20, facecolor='r', alpha=0.05)
-plt.fill_between([25.5, 27.5], 0, 20, facecolor='g', alpha=0.05)
-plt.fill_between([27.5, 28.5], 0, 20, facecolor='b', alpha=0.05)
-
-'''设置图例'''
-legend = plt.legend(loc="lower left", prop=font2, ncol=3)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\feature_ranking.pdf")
-plt.show()

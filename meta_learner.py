@@ -229,7 +229,7 @@ def main():
         save_tasks(meta_tasks, 'task_sampling/meta_task.xlsx')  # for adaptation in adaptation.py
     else:
         print('read meta_tasks from excel...')
-        meta_tasks_ = read_tasks('task_sampling/meta_task_.xlsx')
+        meta_tasks_ = read_tasks(FLAGS.dim_input, 'task_sampling/meta_task_.xlsx')
 
     tasks_train = meta_tasks_[:int(3 / 4 * len(meta_tasks_))]
     tasks_test = meta_tasks_[int(3 / 4 * len(meta_tasks_)):]

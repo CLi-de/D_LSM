@@ -23,6 +23,23 @@ import warnings
 warnings.filterwarnings("ignore")
 
 
+def read_metatasks(file):
+    """获取tasks"""
+    f = pd.ExcelFile(file)
+    tasks = []
+    for sheetname in f.sheet_names:
+        # attr = pd.read_excel(file, usecols=[i for i in range(dim_input)], sheet_name=sheetname,
+        #                      header=None).values.astype(np.float32)
+        # label = pd.read_excel(file, usecols=[dim_input + 2], sheet_name=sheetname, header=None).values.reshape(
+        #     (-1, 1)).astype(np.float32)
+        # arr_static = np.hstack((attr, label))
+
+        arr = pd.read_excel(file, sheet_name=sheetname,
+                             header=None).values.astype(np.float32)
+        tasks.append(arr)
+    return tasks
+
+
 def SVM_(x_train, y_train, x_test, y_test):
     """predict and test"""
     print('start SVM evaluation...')
@@ -98,31 +115,51 @@ def pred_LSM(trained_model, xy, samples, name):
 
 
 if __name__ == "__main__":
-    # x, y = read_f_l_csv('data_sup/samples_2008.csv')
-    data = np.array(pd.read_csv('data_sup/samples_2017.csv'))
-    x = data[:, :-1]
-    x, mean, std = feature_normalization(x)
-    y = data[:, -1]
-    x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.25, shuffle=True)
-    # grid samples
-    grid_f = np.loadtxt('./data_sup/grid_samples_1999_.csv', dtype=str, delimiter=",", encoding='UTF-8')
-    samples_f = grid_f[1:, :-2].astype(np.float32)
-    xy = grid_f[1:, -2:].astype(np.float32)
-    # samples_f = samples_f / samples_f.max(axis=0)
-    samples_f, mean, std = feature_normalization(samples_f)
+    # # x, y = read_f_l_csv('data_sup/samples_2008.csv')
+    # data = np.array(pd.read_csv('data_sup/samples_2017.csv'))
+    # x = data[:, :-1]
+    # x, mean, std = feature_normalization(x)
+    # y = data[:, -1]
+    # x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.25, shuffle=True)
+    # # grid samples
+    # grid_f = np.loadtxt('./data_sup/grid_samples_1999_.csv', dtype=str, delimiter=",", encoding='UTF-8')
+    # samples_f = grid_f[1:, :-2].astype(np.float32)
+    # xy = grid_f[1:, -2:].astype(np.float32)
+    # # samples_f = samples_f / samples_f.max(axis=0)
+    # samples_f, mean, std = feature_normalization(samples_f)
+    #
+    # """evaluate and save LSM result"""
+    # # SVM-based
+    # model_svm = SVM_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_svm, xy, samples_f, 'SVM')
+    # print('done SVM-based LSM prediction! \n')
+    #
+    # # MLP_based
+    # model_mlp = ANN_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_mlp, xy, samples_f, 'MLP')
+    # print('done MLP-based LSM prediction! \n')
+    #
+    # # RF-based
+    # model_rf = RF_(x_train, y_train, x_test, y_test)
+    # pred_LSM(model_rf, xy, samples_f, 'RF')
+    # print('done RF-based LSM prediction! \n')
 
-    """evaluate and save LSM result"""
-    # SVM-based
-    model_svm = SVM_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_svm, xy, samples_f, 'SVM')
-    print('done SVM-based LSM prediction! \n')
+    """predict for each year"""
+    data = read_metatasks('task_sampling/meta_task.xlsx')
+    for i in range(len(data)):
+        if data[i].shape[0] < 20: continue
+        x = data[i][:, :-3]  # static
+        x, mean, std = feature_normalization(x)
+        y = data[i][:, -1]
+        x_train, x_test, y_train, y_test = train_test_split(x, y, train_size=.75, test_size=.25, shuffle=True)
+        # grid samples
+        grid_f = np.loadtxt('./data_sup/grid_samples_static.csv', dtype=str, delimiter=",", encoding='UTF-8')
+        samples_f = grid_f[1:, :-2].astype(np.float32)
+        xy = grid_f[1:, -2:].astype(np.float32)
+        # samples_f = samples_f / samples_f.max(axis=0)
+        samples_f, mean, std = feature_normalization(samples_f)
 
-    # MLP_based
-    model_mlp = ANN_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_mlp, xy, samples_f, 'MLP')
-    print('done MLP-based LSM prediction! \n')
-
-    # RF-based
-    model_rf = RF_(x_train, y_train, x_test, y_test)
-    pred_LSM(model_rf, xy, samples_f, 'RF')
-    print('done RF-based LSM prediction! \n')
+        # RF-based
+        model_rf = RF_(x_train, y_train, x_test, y_test)
+        pred_LSM(model_rf, xy, samples_f, str(i) + 'th_task_RF')
+        print(str(i)+'th_prediction! \n')

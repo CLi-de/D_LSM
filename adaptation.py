@@ -53,7 +53,7 @@ if not os.path.exists('./task_sampling/meta_task.xlsx'):
     pass
 else:
     print('\nmodel adaptation and LSM prediction...')
-    meta_tasks = read_tasks('task_sampling/meta_task.xlsx')  # TODO: too slow reading
+    meta_tasks = read_tasks(FLAGS.dim_input, 'task_sampling/meta_task.xlsx')  # TODO: too slow reading
 
 '''for meta-tasks with too few samples'''
 for i in range(len(meta_tasks)):
@@ -90,7 +90,7 @@ for i in range(len(meta_tasks)):
                  adapted_weights['w4'], adapted_weights['b4'])
 
         """predict and save LSM result for 1999, 2008, 2017"""
-        if i == 7 or i == 16 or i == 25:
+        if i == 3 or i == 16 or i == 25:
             '''load grid data'''
             samples = np.loadtxt('./data_sup/grid_samples_' + str(1992 + i) + '.csv', dtype=str, delimiter=",",
                                  encoding='UTF-8-sig')
