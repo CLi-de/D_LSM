@@ -494,13 +494,13 @@ def plot_AR_DV_2008(f_name):
     ax2 = ax.twinx()
 
     L1 = ax2.plot(x_TS, P1_2008, color="red", linestyle="--", marker='o',
-                  linewidth=2, label="P1", markerfacecolor='white', ms=7)
+                  linewidth=2, label="P7", markerfacecolor='white', ms=7)
     # L2 = ax2.plot(x_TS, P2_2008, color="red", linestyle="--", marker='*',
     #               linewidth=2, label="P2", markerfacecolor='white', ms=7)
     L2 = ax2.plot(x_TS, P2_2008, color="green", linestyle="--", marker='s',
-                  linewidth=2, label="P2", markerfacecolor='white', ms=7)
+                  linewidth=2, label="P8", markerfacecolor='white', ms=7)
     L3 = ax2.plot(x_TS, P3_2008, color="gold", linestyle="--", marker='^',
-                  linewidth=2, label="P3", markerfacecolor='white', ms=7)
+                  linewidth=2, label="P9", markerfacecolor='white', ms=7)
 
     '''填充阴影'''
     ax.fill_between([0, 3.5], 0, 2500, facecolor='g', alpha=0.1)
@@ -562,9 +562,9 @@ def plot_AR_DV_2017(f_name):
     ax2 = ax.twinx()
 
     # L1 = ax2.plot(x_TS, P1_2017, color="red", linestyle="--", marker='o',
-    #               linewidth=2, label="P4", markerfacecolor='white', ms=7)
+    #               linewidth=2, label="P10", markerfacecolor='white', ms=7)
     # L2 = ax2.plot(x_TS, P2_2017, color="green", linestyle="--", marker='s',
-    #               linewidth=2, label="P5", markerfacecolor='white', ms=7)
+    #               linewidth=2, label="P11", markerfacecolor='white', ms=7)
 
     arr1 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P1_2017.reshape(-1, 1))), columns=['x', 'y'])
     arr2 = pd.DataFrame(np.hstack((x_TS.reshape(-1, 1), P2_2017.reshape(-1, 1))), columns=['x', 'y'])
@@ -642,11 +642,11 @@ def plot_AR_DV_2017(f_name):
 # print('finish drawing ROC')
 
 """draw scatters for fast adaption performance"""
-filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
-arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
-plot_scatter(arr)
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
-plt.show()
+# filename = "C:\\Users\\lichen\\OneDrive\\桌面\\scatters.csv"
+# arr = np.loadtxt(filename, dtype=float, delimiter=",", encoding='utf-8-sig')
+# plot_scatter(arr)
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\scatters.pdf")
+# plt.show()
 
 """draw lines for fast adaption performance"""
 # filename = "C:\\Users\\lichen\\OneDrive\\桌面\\fast_adaption1.csv"
@@ -656,20 +656,20 @@ plt.show()
 # plt.show()
 
 """draw candles for fast adaption performance"""
-K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\candles.xlsx")
-colors = ['b', 'g', 'r']
-labels = ['1999', '2008', '2017']
-pos = [-1, 0, 1]
-for i in range(3):
-    plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
-plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
-plt.show()
+# K, meanOA, maxOA, minOA, std = read_statistic("C:\\Users\\lichen\\OneDrive\\桌面\\candles.xlsx")
+# colors = ['b', 'g', 'r']
+# labels = ['1999', '2008', '2017']
+# pos = [-1, 0, 1]
+# for i in range(3):
+#     plot_candle1(K[i], meanOA[i], maxOA[i], minOA[i], std[i], colors[i], labels[i], pos[i])
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\candle.pdf")
+# plt.show()
 
 """draw rainfall and deformation time series (1992, 2008, 2017)"""
-# f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
-# plot_rainfall(f_name)
-# plot_AR_DV_2008(f_name)
-# plot_AR_DV_2017(f_name)
+f_name = "C:/Users/lichen/OneDrive/桌面/prec_DV.xlsx"
+plot_rainfall(f_name)
+plot_AR_DV_2008(f_name)
+plot_AR_DV_2017(f_name)
 
 """plot density scatter(LS-LIF)"""
 # f_LS = './tmp/16th_LSM.xlsx'
@@ -845,3 +845,82 @@ plt.show()
 # plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\feature_ranking.pdf")
 # plt.show()
 
+"""draw TS deformation and rainfall from 2003 to 2019"""
+# monthly_rainfall = np.array(pd.read_excel("./data_src/monthly_rainfall_HKIA.xlsx"))[:, 1:]
+# TS_ = np.array(pd.read_excel('./data_src/selected_TS_points.xlsx', header=None))
+# Ts_date = TS_[0, 1:].astype(np.str)
+# P1 = TS_[1, 1:11]
+# P2 = TS_[2, 1:11]
+# P3 = TS_[1, 11:31]
+# P4 = TS_[2, 11:31]
+# P5 = TS_[1, 31:]
+# P6 = TS_[2, 31:]
+#
+# font = {'family': 'Times New Roman',
+#         'weight': 'normal',
+#         'size': 14,
+#         }
+# x = np.arange(1, 17 * 12 + 1, 1)
+# a = int(Ts_date[1][0:4])
+# y_raifall = monthly_rainfall.reshape(-1, )
+# x_TS = [(int(Ts_date[i][0:4]) - 2003) * 12 + int(Ts_date[i][4:6]) + int(Ts_date[i][6:8]) / 30
+#         for i in range(len(Ts_date))]
+# # y_displacement =
+# # fig, ax = plt.subplots()
+# fig = plt.figure(figsize=(10, 4))
+# ax = fig.add_subplot(1, 1, 1)
+# lns1 = ax.bar(x, y_raifall, label='MR', color='blue')
+# ax2 = ax.twinx()
+# # ASAR
+# L1 = ax2.plot(x_TS[0:10], P1, color="red", linestyle="--", marker='o',
+#               linewidth=1, label="P1", markerfacecolor='white', ms=3)
+# L2 = ax2.plot(x_TS[0:10], P2, color="blue", linestyle="--", marker='s',
+#               linewidth=1, label="P2", markerfacecolor='white', ms=3)
+# # ALOS
+# L3 = ax2.plot(x_TS[10:30], P3, color="lime", linestyle="--", marker='*',
+#               linewidth=1, label="P3", markerfacecolor='white', ms=3)
+# L4 = ax2.plot(x_TS[10:30], P4, color="gold", linestyle="--", marker='^',
+#               linewidth=1, label="P4", markerfacecolor='white', ms=3)
+# # S1A
+# arr1 = pd.DataFrame(np.hstack((np.array(x_TS[30:]).reshape(-1, 1), np.array(P5).reshape(-1, 1))).astype(np.float32), columns=['x', 'y'])
+# arr2 = pd.DataFrame(np.hstack((np.array(x_TS[30:]).reshape(-1, 1), np.array(P6).reshape(-1, 1))).astype(np.float32), columns=['x', 'y'])
+# sns.set(style="whitegrid", font_scale=1.2)
+# P1 = sns.regplot(x='x', y='y', data=arr1,
+#                  marker='p', label="P5",
+#                  order=3,  # 默认为1，越大越弯曲
+#                  scatter_kws={'s': 6, 'color': 'magenta'},  # 设置散点属性，参考plt.scatter
+#                  line_kws={'linestyle': '--', 'color': 'purple', 'linewidth': 1}  # 设置线属性，参考 plt.plot
+#                  )
+# P2 = sns.regplot(x='x', y='y', data=arr2,
+#                  marker='*', label="P6",
+#                  order=3,  # 默认为1，越大越弯曲
+#                  scatter_kws={'s': 6, 'color': 'purple', },  # 设置散点属性，参考plt.scatter
+#                  line_kws={'linestyle': '--', 'color': 'magenta', 'linewidth': 1}  # 设置线属性，参考 plt.plot
+#                  )
+# '''x,y labels'''
+# ax.set_xlabel('Years', fontdict=font)
+# ax.set_ylabel('Monthly Rainfall(MR)', fontdict=font)
+# ax2.set_ylabel('Displacement', fontdict=font)
+# '''y ticks'''
+# ax.set_ylim(y_raifall.min(), y_raifall.max() + 1000)
+# ax2.set_ylim(-150, 50)
+# '''x_ticks'''
+# x_ticks = [i * 12 + 6 + 1 for i in range(2019 - 2003 + 1)]
+# xtick_labels = [str(i + 2003) for i in range(2019 - 2003 + 1)]
+# plt.xticks(ticks=x_ticks, labels=xtick_labels)
+# '''x,y ticks font'''
+# ax.tick_params(labelsize=12)
+# ax2.tick_params(labelsize=12)
+# ax.set_xticklabels(ax.get_xticklabels(), rotation=45)  # 旋转
+# labels = ax.get_xticklabels() + ax.get_yticklabels() + ax2.get_yticklabels()
+# [label.set_fontname('Times New Roman') for label in labels]
+# '''legend'''
+# plt.legend(loc='upper left', fontsize=10, ncol=3)
+#
+# # ax.spines['top'].set_visible(False)
+# # ax2.spines['top'].set_visible(False)
+# # ax.grid(visible=False)
+# # ax2.grid(visible=False)
+# plt.tight_layout()
+# plt.savefig("C:\\Users\\lichen\\OneDrive\\桌面\\monthly_rainfall.pdf")
+# plt.show()
