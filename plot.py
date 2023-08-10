@@ -571,13 +571,13 @@ def plot_AR_DV_2017(f_name):
 
     sns.set(style="whitegrid", font_scale=1.2)
     P1 = sns.regplot(x='x', y='y', data=arr1,
-                     marker='p', label="P4",
+                     marker='p', label="P10",
                      order=3,  # 默认为1，越大越弯曲
                      scatter_kws={'s': 60, 'color': 'red'},  # 设置散点属性，参考plt.scatter
                      line_kws={'linestyle': '--', 'color': 'red'}  # 设置线属性，参考 plt.plot
                      )
     P2 = sns.regplot(x='x', y='y', data=arr2,
-                     marker='*', label="P5",
+                     marker='*', label="P11",
                      order=3,  # 默认为1，越大越弯曲
                      scatter_kws={'s': 60, 'color': 'green', },  # 设置散点属性，参考plt.scatter
                      line_kws={'linestyle': '--', 'color': 'green'}  # 设置线属性，参考 plt.plot
