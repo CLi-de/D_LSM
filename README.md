@@ -12,6 +12,7 @@
 - [Data](#data)
 - [Dependencies](#dependencies)
 - [Contact](#contact)
+- [Citation](#citation)
 
 
 ## Background
