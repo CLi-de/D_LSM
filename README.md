@@ -47,3 +47,20 @@ python -m pip install -r requirements.txt
 ## Contact
 
 To ask questions or report issues, please open an issue on the [issue tracker](https://github.com/CLi-de/D_LSM/issues).
+
+## Citation
+
+If this repository helps your research, please cite the paper. Here is the BibTeX entry:
+
+```
+@misc{ma2023dynamic,
+      title={Dynamic landslide susceptibility mapping over recent three decades to uncover variations in landslide causes in subtropical urban mountainous areas}, 
+      author={Peifeng Ma and Li Chen and Chang Yu and Qing Zhu and Yulin Ding},
+      year={2023},
+      eprint={2308.11929},
+      archivePrefix={arXiv},
+      primaryClass={cs.LG}
+}
+```
+
+The preprint can be found: [here](https://arxiv.org/abs/2308.11929)
