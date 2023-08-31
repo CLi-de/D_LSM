@@ -65,3 +65,4 @@ If this repository helps your research, please cite the paper. Here is the BibTe
 ```
 
 The preprint can be found: [here](https://arxiv.org/abs/2308.11929)
+The 'supplementary materials' of the preprint can be found in this repo.
