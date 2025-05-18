@@ -54,13 +54,15 @@ To ask questions or report issues, please open an issue on the [issue tracker](h
 If this repository helps your research, please cite the paper. Here is the BibTeX entry:
 
 ```
-@misc{ma2023dynamic,
-      title={Dynamic landslide susceptibility mapping over recent three decades to uncover variations in landslide causes in subtropical urban mountainous areas}, 
-      author={Peifeng Ma and Li Chen and Chang Yu and Qing Zhu and Yulin Ding},
-      year={2023},
-      eprint={2308.11929},
-      archivePrefix={arXiv},
-      primaryClass={cs.LG}
+@article{MA2025114800,
+title = {Dynamic landslide susceptibility mapping over last three decades to uncover variations in landslide causation in subtropical urban mountainous areas},
+journal = {Remote Sensing of Environment},
+volume = {326},
+pages = {114800},
+year = {2025},
+issn = {0034-4257},
+doi = {https://doi.org/10.1016/j.rse.2025.114800},
+author = {Peifeng Ma and Li Chen and Chang Yu and Qing Zhu and Yulin Ding and Zherong Wu and Hongsheng Li and Changyao Tian and Xuanmei Fan},
 }
 ```
 
